@@ -1,13 +1,11 @@
+import { Get } from '@nestjs/common';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 
 export type UserDocument = User & Document;
 
-@Schema()
+@Schema({ timestamps: true })
 export class User {
-  @Prop({ required: true, default: Date.now })
-  createdAt: Date;
-
   @Prop()
   updatedAt: Date;
 
@@ -16,6 +14,9 @@ export class User {
 
   @Prop()
   hash: string;
+
+  @Prop({ default: ['user'] })
+  roles: string[];
 
   @Prop()
   hashedRt?: string;
