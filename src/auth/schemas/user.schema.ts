@@ -1,3 +1,7 @@
+import {
+  JWTRefreshTokenDocument,
+  JWTRefreshTokenSchema,
+} from './jwt-refresh-token.schema';
 import { Get } from '@nestjs/common';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
@@ -18,8 +22,12 @@ export class User {
   @Prop({ default: ['user'] })
   roles: string[];
 
+  /*
   @Prop()
-  hashedRt?: string;
+  hashedRt?: string;*/
+
+  @Prop({ type: [JWTRefreshTokenSchema], default: [] })
+  rt: JWTRefreshTokenDocument[];
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

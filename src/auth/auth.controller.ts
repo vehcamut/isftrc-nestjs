@@ -29,20 +29,25 @@ export class AuthController {
   @Public()
   @Post('local/signup')
   @HttpCode(HttpStatus.CREATED)
-  signupLocal(@Body() dto: AuthDto): Promise<Tokens> {
-    return this.authService.signupLocal(dto);
+  async signupLocal(
+    @Body() dto: AuthDto,
+    @Res({ passthrough: true }) response: Response,
+  ): Promise<Tokens> {
+    const tokens = await this.authService.signupLocal(dto);
+    this.authService.setCookie(response, tokens);
+    return tokens;
   }
 
   @Public()
   @Post('local/signin')
   @HttpCode(HttpStatus.OK)
-  async signipLocal(
+  async signinLocal(
     @Res({ passthrough: true }) response: Response,
     @Req() request: Request,
     @Body() dto: AuthDto,
   ): Promise<Tokens> {
-    console.log(request.cookies);
-    const tokens = await this.authService.signipLocal(dto);
+    console.log(request.headers['user-agent']);
+    const tokens = await this.authService.signinLocal(dto);
     this.authService.setCookie(response, tokens);
     return tokens;
   }
