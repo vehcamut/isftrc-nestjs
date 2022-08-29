@@ -6,13 +6,14 @@ import {
   HttpStatus,
   Post,
   Req,
+  Res,
   UseGuards,
 } from '@nestjs/common';
 import { AuthDto } from './dto';
 import { Tokens } from './types';
 import { AuthGuard } from '@nestjs/passport';
 import { Recoverable } from 'repl';
-import { Request } from 'express';
+import { Request, Response } from 'express';
 import { AtGuard, RtGuard } from '../common/guards';
 import {
   GetCurrenUser,
@@ -35,14 +36,25 @@ export class AuthController {
   @Public()
   @Post('local/signin')
   @HttpCode(HttpStatus.OK)
-  signipLocal(@Body() dto: AuthDto): Promise<Tokens> {
-    return this.authService.signipLocal(dto);
+  async signipLocal(
+    @Res({ passthrough: true }) response: Response,
+    @Req() request: Request,
+    @Body() dto: AuthDto,
+  ): Promise<Tokens> {
+    console.log(request.cookies);
+    const tokens = await this.authService.signipLocal(dto);
+    this.authService.setCookie(response, tokens);
+    return tokens;
   }
 
   @Post('logout')
   @Roles('admin')
   @HttpCode(HttpStatus.OK)
-  logout(@GetCurrenUserId() userId: number) {
+  logout(
+    @GetCurrenUserId() userId: number,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    this.authService.clearCookie(response);
     return this.authService.logout(userId);
   }
 
@@ -50,11 +62,15 @@ export class AuthController {
   @UseGuards(RtGuard)
   @Post('refresh')
   @HttpCode(HttpStatus.OK)
-  refreshTokens(
+  async refreshTokens(
     @GetCurrenUser('refreshToken') refreshTokens: string,
     @GetCurrenUserId() userId: number,
+    @Res({ passthrough: true }) response: Response,
   ): Promise<Tokens> {
-    return this.authService.refreshTokens(userId, refreshTokens);
+    console.log(refreshTokens);
+    const tokens = await this.authService.refreshTokens(userId, refreshTokens);
+    this.authService.setCookie(response, tokens);
+    return tokens;
     //return this.authService.refreshTokens();
   }
 }

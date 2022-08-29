@@ -7,6 +7,7 @@ import * as bcrypt from 'bcrypt';
 import { Tokens } from './types';
 import { JwtService } from '@nestjs/jwt';
 import { createHmac } from 'crypto';
+import { Response } from 'express';
 @Injectable()
 export class AuthService {
   constructor(
@@ -102,7 +103,7 @@ export class AuthService {
         },
         {
           secret: process.env.jwtAccessSecret,
-          expiresIn: 30,
+          expiresIn: '5m',
           //???expiresIn: '15m',
         },
       ),
@@ -122,5 +123,23 @@ export class AuthService {
       access_token: at,
       refresh_token: rt,
     };
+  }
+
+  setCookie(res: Response, tokens: Tokens) {
+    res.cookie('refreshToken', tokens.refresh_token, {
+      httpOnly: true,
+      sameSite: true,
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+    });
+    res.cookie('accessToken', tokens.access_token, {
+      httpOnly: true,
+      sameSite: true,
+      maxAge: 30 * 24 * 60 * 60 * 1000,
+    });
+  }
+
+  clearCookie(res: Response) {
+    res.clearCookie('refreshToken');
+    res.clearCookie('accessToken');
   }
 }

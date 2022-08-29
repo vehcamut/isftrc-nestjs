@@ -7,15 +7,28 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 export class RtStrategy extends PassportStrategy(Strategy, 'jwt-refresh') {
   constructor() {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: ExtractJwt.fromExtractors([RtStrategy.extractJWT]),
       ignoreExpiration: false,
       secretOrKey: process.env.jwtRefreshSecret,
       passReqToCallback: true,
     });
   }
 
+  private static extractJWT(req: Request): string | null {
+    console.log(req.cookies);
+    if (
+      req.cookies &&
+      'refreshToken' in req.cookies &&
+      req.cookies.refreshToken.length > 0
+    ) {
+      return req.cookies.refreshToken;
+    }
+    return null;
+  }
+
   validate(req: Request, payload: any) {
-    const refreshToken = req.get('authorization').replace('Bearer', '').trim();
+    const refreshToken = RtStrategy.extractJWT(req);
+    //req.get('authorization').replace('Bearer', '').trim();
     return {
       ...payload,
       refreshToken,
