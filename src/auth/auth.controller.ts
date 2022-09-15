@@ -39,6 +39,19 @@ export class AuthController {
   }
 
   @Public()
+  @Post('test')
+  @HttpCode(HttpStatus.OK)
+  async signindLocal(
+    @Res({ passthrough: true }) response: Response,
+    @Req() request: Request,
+    @Body() dto: AuthDto,
+  ) {
+    console.log(request.headers['user-agent']);
+    const tokens = await this.authService.test(dto);
+    //this.authService.setCookie(response, tokens);
+  }
+
+  @Public()
   @Post('local/signin')
   @HttpCode(HttpStatus.OK)
   async signinLocal(

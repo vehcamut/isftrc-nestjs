@@ -18,7 +18,14 @@ export class AuthService {
   constructor(
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     private jwtService: JwtService,
-  ) {}
+  ) {
+    //this.userModel.watch().on('change', (data) => console.log(data));
+  }
+
+  async test(dto: AuthDto) {
+    console.log('aboba');
+    //throw new Error('Method not implemented.');
+  }
 
   async signupLocal(dto: AuthDto): Promise<Tokens> {
     const email: string = dto.email;
@@ -170,6 +177,7 @@ export class AuthService {
       sameSite: true,
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
+    console.log('SET');
   }
 
   clearCookie(res: Response) {
