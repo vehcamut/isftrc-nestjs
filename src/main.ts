@@ -27,7 +27,7 @@ async function bootstrap() {
       }
     },
   });
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(new ValidationPipe({ transform: true }));
   app.use(cookieParser());
   //app.useGlobalGuards(new AtGuard());
   const PORT = process.env.PORT;
