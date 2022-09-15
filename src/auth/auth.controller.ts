@@ -66,7 +66,7 @@ export class AuthController {
   }
 
   @Post('logout')
-  @Roles('admin')
+  //@Roles('admin')
   @HttpCode(HttpStatus.OK)
   logout(
     @GetCurrenUserId() userId: number,

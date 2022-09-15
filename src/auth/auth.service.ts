@@ -144,7 +144,7 @@ export class AuthService {
         },
         {
           secret: process.env.jwtAccessSecret,
-          expiresIn: '5m',
+          expiresIn: '5s',
           //???expiresIn: '15m',
         },
       ),
@@ -173,7 +173,7 @@ export class AuthService {
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
     res.cookie('accessToken', tokens.access_token, {
-      httpOnly: true,
+      //httpOnly: true,
       sameSite: true,
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
