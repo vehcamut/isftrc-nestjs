@@ -14,7 +14,9 @@ import {
   trim,
   toDate,
   toSpecificSortOrderType,
+  toSpecialistType,
 } from '../../common/helpers';
+import { SpecialistTypeDto } from '.';
 
 export class SpecialistTypesQueryDto {
   @Transform(({ value }) => toNumber(value, { default: 1, min: 1 }))
@@ -36,8 +38,8 @@ export class SpecialistTypesQueryDto {
   @IsOptional()
   public sort: string;
 
-  @Transform(({ value }) => trim(value))
-  @IsString()
+  @Transform(({ value }) => toSpecialistType(value))
+  // @IsString()
   @IsOptional()
-  public filter = '';
+  public filter = new SpecialistTypeDto();
 }

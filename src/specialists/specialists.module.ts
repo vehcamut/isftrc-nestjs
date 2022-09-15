@@ -1,6 +1,6 @@
 import {
-  SpecialistTypes,
-  SpecialistTypesSchema,
+  SpecialistType,
+  SpecialistTypeSchema,
 } from './shcemas/specialist-types.schema';
 import { SpecialistsController } from './specialists.controller';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -11,7 +11,7 @@ import { SpecialistsService } from './specialists.service';
   providers: [SpecialistsService],
   imports: [
     MongooseModule.forFeature([
-      { name: SpecialistTypes.name, schema: SpecialistTypesSchema },
+      { name: SpecialistType.name, schema: SpecialistTypeSchema },
     ]),
   ],
   controllers: [SpecialistsController],

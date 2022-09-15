@@ -1,4 +1,4 @@
-import { SpecialistTypesDto, SpecialistTypesQueryDto } from './dto';
+import { SpecialistTypeDto, SpecialistTypesQueryDto } from './dto';
 import { Controller, HttpCode, HttpStatus, Get, Post } from '@nestjs/common';
 import {
   Body,
@@ -13,11 +13,19 @@ export class SpecialistsController {
   constructor(private specialistsService: SpecialistsService) {}
 
   @Public()
-  @Get('types')
+  @Get('types/get')
   @HttpCode(HttpStatus.FOUND)
   async getSpecialistTypes(
     @Body() dto: SpecialistTypesQueryDto,
-  ): Promise<SpecialistTypesDto[]> {
+  ): Promise<SpecialistTypeDto[]> {
+    //console.log(dto);
     return this.specialistsService.getSpecialistTypes(dto);
+  }
+
+  @Public()
+  @Post('types/add')
+  @HttpCode(HttpStatus.CREATED)
+  async addSpecialistType(@Body() dto: SpecialistTypeDto): Promise<string> {
+    return this.specialistsService.addSpecialistType(dto);
   }
 }
