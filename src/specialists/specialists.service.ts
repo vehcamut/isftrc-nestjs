@@ -16,8 +16,8 @@ export class SpecialistsService {
   ): Promise<SpecialistTypeDto[]> {
     const query = this.SpecialistTypeModel.find({
       $and: [
-        { name: { $regex: `${dto.filter.name}`, $options: 'i' } },
-        { note: { $regex: `${dto.filter.note}`, $options: 'i' } },
+        { name: { $regex: `${dto.name}`, $options: 'i' } },
+        { note: { $regex: `${dto.note}`, $options: 'i' } },
       ],
     });
     if (dto.sort)
@@ -25,7 +25,10 @@ export class SpecialistsService {
         [dto.sort]: dto.order as SortOrder,
       });
 
-    query.skip((dto.page - 1) * dto.limit).select('name note _id');
+    query
+      .skip((dto.page - 1) * dto.limit)
+      .limit(dto.limit)
+      .select('name note _id');
     return query.exec() as Promise<SpecialistTypeDto[]>;
   }
   async addSpecialistType(dto: SpecialistTypeDto): Promise<string> {

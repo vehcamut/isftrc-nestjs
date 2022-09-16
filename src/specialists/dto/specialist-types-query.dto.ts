@@ -38,8 +38,16 @@ export class SpecialistTypesQueryDto {
   @IsOptional()
   public sort: string;
 
-  @Transform(({ value }) => toSpecialistType(value))
-  // @IsString()
+  // @Transform(({ value }) => toSpecialistType(value))
+  // // @IsString()
+  // @IsOptional()
+  // public filter = new SpecialistTypeDto();
+
+  @Transform(({ value }) => trim(value))
   @IsOptional()
-  public filter = new SpecialistTypeDto();
+  public name = '';
+
+  @Transform(({ value }) => trim(value))
+  @IsOptional()
+  public note = '';
 }

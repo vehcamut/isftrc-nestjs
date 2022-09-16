@@ -16,9 +16,10 @@ export class SpecialistsController {
   @Get('types/get')
   @HttpCode(HttpStatus.FOUND)
   async getSpecialistTypes(
-    @Body() dto: SpecialistTypesQueryDto,
+    @Query() dto: SpecialistTypesQueryDto,
+    //@Body() dto: SpecialistTypesQueryDto,
   ): Promise<SpecialistTypeDto[]> {
-    //console.log(dto);
+    console.log(dto);
     return this.specialistsService.getSpecialistTypes(dto);
   }
 
