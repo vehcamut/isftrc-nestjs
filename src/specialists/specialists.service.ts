@@ -4,6 +4,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, SortOrder } from 'mongoose';
 import { BadRequestException } from '@nestjs/common/exceptions';
+import { ISpecialistTypesRes } from './interfaces';
 
 @Injectable()
 export class SpecialistsService {
@@ -13,13 +14,21 @@ export class SpecialistsService {
   ) {}
   async getSpecialistTypes(
     dto: SpecialistTypesQueryDto,
-  ): Promise<SpecialistTypeDto[]> {
+  ): Promise<ISpecialistTypesRes> {
     const query = this.SpecialistTypeModel.find({
       $and: [
         { name: { $regex: `${dto.name}`, $options: 'i' } },
         { note: { $regex: `${dto.note}`, $options: 'i' } },
       ],
     });
+    const count = await this.SpecialistTypeModel.find({
+      $and: [
+        { name: { $regex: `${dto.name}`, $options: 'i' } },
+        { note: { $regex: `${dto.note}`, $options: 'i' } },
+      ],
+    })
+      .count()
+      .exec();
     if (dto.sort)
       query.sort({
         [dto.sort]: dto.order as SortOrder,
@@ -29,7 +38,8 @@ export class SpecialistsService {
       .skip((dto.page - 1) * dto.limit)
       .limit(dto.limit)
       .select('name note _id');
-    return query.exec() as Promise<SpecialistTypeDto[]>;
+    const data = await query.exec();
+    return { data, count };
   }
   async addSpecialistType(dto: SpecialistTypeDto): Promise<string> {
     const candidate = await this.SpecialistTypeModel.findOne(dto);

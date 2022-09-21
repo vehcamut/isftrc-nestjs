@@ -21,10 +21,12 @@ export class SpecialistsController {
     @Res({ passthrough: true }) res: Response,
     //@Body() dto: SpecialistTypesQueryDto,
   ): Promise<SpecialistTypeDto[]> {
-    res.setHeader('X-Total-Count', 100);
+    const response = await this.specialistsService.getSpecialistTypes(dto);
+    res.setHeader('X-Total-Count', response.count);
     //res.set('X-Total-Count', '100');
     console.log(dto);
-    return await this.specialistsService.getSpecialistTypes(dto);
+
+    return response.data;
   }
 
   @Public()
