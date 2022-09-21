@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common/decorators/http/route-params.decorator';
 import { Public } from 'src/common/decorators';
 import { SpecialistsService } from './specialists.service';
+import { Response } from 'express';
 
 @Controller('specialists')
 export class SpecialistsController {
@@ -14,13 +15,16 @@ export class SpecialistsController {
 
   @Public()
   @Get('types/get')
-  @HttpCode(HttpStatus.FOUND)
+  @HttpCode(HttpStatus.OK)
   async getSpecialistTypes(
     @Query() dto: SpecialistTypesQueryDto,
+    @Res({ passthrough: true }) res: Response,
     //@Body() dto: SpecialistTypesQueryDto,
   ): Promise<SpecialistTypeDto[]> {
+    res.setHeader('X-Total-Count', 100);
+    //res.set('X-Total-Count', '100');
     console.log(dto);
-    return this.specialistsService.getSpecialistTypes(dto);
+    return await this.specialistsService.getSpecialistTypes(dto);
   }
 
   @Public()
