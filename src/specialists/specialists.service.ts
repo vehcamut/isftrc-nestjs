@@ -60,4 +60,28 @@ export class SpecialistsService {
     // query.skip((dto.page - 1) * dto.limit).select('name _id');
     // return query.exec() as Promise<SpecialistTypesDto[]>;
   }
+  async editSpecialistType(dto: SpecialistTypeDto): Promise<string> {
+    const candidate = await this.SpecialistTypeModel.findById(dto._id).exec();
+    //  One({
+    //   _id: dto._id,
+    // });
+    console.log(dto.name, dto.note);
+    if (!candidate) throw new BadRequestException('_id: not found');
+    this.SpecialistTypeModel.findByIdAndUpdate(dto._id, {
+      name: dto.name,
+      note: dto.note,
+    }).exec();
+    return 'Success';
+
+    // .find({
+    //   name: { $regex: `${dto.filter}`, $options: 'i' },
+    // });
+    // if (dto.sort)
+    //   query.sort({
+    //     [dto.sort]: dto.order as SortOrder,
+    //   });
+
+    // query.skip((dto.page - 1) * dto.limit).select('name _id');
+    // return query.exec() as Promise<SpecialistTypesDto[]>;
+  }
 }

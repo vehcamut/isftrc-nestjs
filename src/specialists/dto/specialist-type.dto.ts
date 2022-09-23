@@ -13,4 +13,8 @@ export class SpecialistTypeDto {
   @IsString()
   @IsOptional()
   note: string;
+
+  @IsString()
+  @IsOptional()
+  _id: string;
 }

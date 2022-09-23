@@ -35,4 +35,11 @@ export class SpecialistsController {
   async addSpecialistType(@Body() dto: SpecialistTypeDto): Promise<string> {
     return this.specialistsService.addSpecialistType(dto);
   }
+
+  @Public()
+  @Post('types/update')
+  @HttpCode(HttpStatus.CREATED)
+  async editSpecialistType(@Body() dto: SpecialistTypeDto): Promise<string> {
+    return this.specialistsService.editSpecialistType(dto);
+  }
 }
