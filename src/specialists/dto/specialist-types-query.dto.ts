@@ -24,7 +24,7 @@ export class SpecialistTypesQueryDto {
   @IsOptional()
   public page = 1;
 
-  @Transform(({ value }) => toNumber(value, { default: 1, min: 1 }))
+  @Transform(({ value }) => toNumber(value, { default: 1, min: 0 }))
   @IsNumber()
   @IsOptional()
   public limit = 0;

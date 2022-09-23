@@ -42,7 +42,9 @@ export class SpecialistsService {
     return { data, count };
   }
   async addSpecialistType(dto: SpecialistTypeDto): Promise<string> {
-    const candidate = await this.SpecialistTypeModel.findOne(dto);
+    const candidate = await this.SpecialistTypeModel.findOne({
+      name: dto.name,
+    });
     if (candidate) throw new BadRequestException('name: must be unique');
     const query = this.SpecialistTypeModel.create(dto);
     return 'Success';
