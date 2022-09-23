@@ -18,3 +18,9 @@ export class SpecialistTypeDto {
   @IsOptional()
   _id: string;
 }
+
+export class SpecialistTypeRemoveDto {
+  @IsString()
+  @IsOptional()
+  _id: string;
+}

@@ -1,5 +1,13 @@
+import { SpecialistTypeRemoveDto } from './dto/specialist-type.dto';
 import { SpecialistTypeDto, SpecialistTypesQueryDto } from './dto';
-import { Controller, HttpCode, HttpStatus, Get, Post } from '@nestjs/common';
+import {
+  Controller,
+  HttpCode,
+  HttpStatus,
+  Get,
+  Post,
+  Delete,
+} from '@nestjs/common';
 import {
   Body,
   Query,
@@ -41,5 +49,14 @@ export class SpecialistsController {
   @HttpCode(HttpStatus.CREATED)
   async editSpecialistType(@Body() dto: SpecialistTypeDto): Promise<string> {
     return this.specialistsService.editSpecialistType(dto);
+  }
+
+  @Public()
+  @Delete('types/remove')
+  @HttpCode(HttpStatus.CREATED)
+  async removeSpecialistType(
+    @Body() dto: SpecialistTypeRemoveDto,
+  ): Promise<string> {
+    return this.specialistsService.removeSpecialistType(dto);
   }
 }
