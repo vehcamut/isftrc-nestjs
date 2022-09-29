@@ -17,13 +17,13 @@ export class SpecialistsService {
     dto: SpecialistTypesQueryDto,
   ): Promise<ISpecialistTypesRes> {
     const query = this.SpecialistTypeModel.find({
-      $and: [
+      $or: [
         { name: { $regex: `${dto.name}`, $options: 'i' } },
         { note: { $regex: `${dto.note}`, $options: 'i' } },
       ],
     });
     const count = await this.SpecialistTypeModel.find({
-      $and: [
+      $or: [
         { name: { $regex: `${dto.name}`, $options: 'i' } },
         { note: { $regex: `${dto.note}`, $options: 'i' } },
       ],
@@ -36,19 +36,19 @@ export class SpecialistsService {
       });
 
     query
-      .skip((dto.page - 1) * dto.limit)
+      .skip(dto.page * dto.limit)
       .limit(dto.limit)
       .select('name note _id');
     const data = await query.exec();
     return { data, count };
   }
-  async addSpecialistType(dto: SpecialistTypeDto): Promise<string> {
+  async addSpecialistType(dto: SpecialistTypeDto): Promise<object> {
     const candidate = await this.SpecialistTypeModel.findOne({
       name: dto.name,
     });
     if (candidate) throw new BadRequestException('name: must be unique');
     const query = this.SpecialistTypeModel.create(dto);
-    return 'Success';
+    return { message: 'success' };
 
     // .find({
     //   name: { $regex: `${dto.filter}`, $options: 'i' },
@@ -61,18 +61,23 @@ export class SpecialistsService {
     // query.skip((dto.page - 1) * dto.limit).select('name _id');
     // return query.exec() as Promise<SpecialistTypesDto[]>;
   }
-  async editSpecialistType(dto: SpecialistTypeDto): Promise<string> {
-    const candidate = await this.SpecialistTypeModel.findById(dto._id).exec();
+  async editSpecialistType(dto: SpecialistTypeDto): Promise<object> {
+    let candidate = await this.SpecialistTypeModel.findById(dto._id).exec();
     //  One({
     //   _id: dto._id,
     // });
-    console.log(dto.name, dto.note);
+    console.log(dto.name, dto.note, dto._id);
     if (!candidate) throw new BadRequestException('_id: not found');
+    candidate = await this.SpecialistTypeModel.findOne({
+      name: dto.name,
+    });
+    if (candidate && candidate._id != dto._id)
+      throw new BadRequestException('name: must be unique');
     this.SpecialistTypeModel.findByIdAndUpdate(dto._id, {
       name: dto.name,
       note: dto.note,
     }).exec();
-    return 'Success';
+    return { message: 'success' };
 
     // .find({
     //   name: { $regex: `${dto.filter}`, $options: 'i' },

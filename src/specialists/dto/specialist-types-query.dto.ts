@@ -19,7 +19,7 @@ import {
 import { SpecialistTypeDto } from '.';
 
 export class SpecialistTypesQueryDto {
-  @Transform(({ value }) => toNumber(value, { default: 1, min: 1 }))
+  @Transform(({ value }) => toNumber(value, { default: 0, min: 0 }))
   @IsNumber()
   @IsOptional()
   public page = 1;
