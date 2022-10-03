@@ -10,11 +10,11 @@ export type UserDocument = User & Document;
 
 @Schema({ timestamps: true })
 export class User {
-  @Prop()
-  updatedAt: Date;
+  // @Prop()
+  // updatedAt: Date;
 
   @Prop({ unique: true })
-  email: string;
+  login: string;
 
   @Prop()
   hash: string;

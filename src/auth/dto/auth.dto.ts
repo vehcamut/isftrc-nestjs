@@ -1,9 +1,9 @@
 import { IsNotEmpty, IsString } from 'class-validator';
 
 export class AuthDto {
-  @IsNotEmpty({ message: 'Логин не должен быть строкой' })
+  @IsNotEmpty({ message: 'Логин не должен быть пустым' })
   @IsString()
-  email: string;
+  login: string;
 
   @IsNotEmpty()
   @IsString()

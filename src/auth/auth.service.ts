@@ -28,9 +28,9 @@ export class AuthService {
   }
 
   async signupLocal(dto: AuthDto): Promise<Tokens> {
-    const email: string = dto.email;
+    const login: string = dto.login;
 
-    const candidate = await this.userModel.findOne({ email });
+    const candidate = await this.userModel.findOne({ login });
     if (candidate) throw new UnauthorizedException('Polizovat yge est');
     const hashedPassword = await this.hashData(dto.password);
     //Убрать пароль? password
@@ -43,7 +43,7 @@ export class AuthService {
 
     const tokens = await this.getTokens(
       newUser.id,
-      newUser.email,
+      newUser.login,
       newUser.roles,
     );
     await this.updateRtHash(newUser.id, tokens.refresh_token);
@@ -51,8 +51,8 @@ export class AuthService {
   }
 
   async signinLocal(dto: AuthDto): Promise<Tokens> {
-    const email: string = dto.email;
-    const candidate = await this.userModel.findOne({ email });
+    const login: string = dto.login;
+    const candidate = await this.userModel.findOne({ login });
 
     if (!candidate) throw new ForbiddenException('Access Denied');
 
@@ -61,7 +61,7 @@ export class AuthService {
 
     const tokens = await this.getTokens(
       candidate.id,
-      candidate.email,
+      candidate.login,
       candidate.roles,
     );
     //await this.updateRtHash(candidate.id, tokens.refresh_token);
@@ -91,7 +91,7 @@ export class AuthService {
 
     if (!user) throw new ForbiddenException('Access Denied');
 
-    const tokens = await this.getTokens(user.id, user.email, user.roles);
+    const tokens = await this.getTokens(user.id, user.login, user.roles);
     const newHash = this.hashDataSHA512(tokens.refresh_token.split('.')[2]);
     await this.userModel
       .findOneAndUpdate(
@@ -132,7 +132,7 @@ export class AuthService {
   }
   async getTokens(
     userId: number,
-    email: string,
+    login: string,
     roles: string[],
   ): Promise<Tokens> {
     const [at, rt] = await Promise.all([
@@ -140,7 +140,7 @@ export class AuthService {
         {
           sub: userId,
           roles,
-          email,
+          login,
         },
         {
           secret: process.env.jwtAccessSecret,
@@ -151,7 +151,7 @@ export class AuthService {
       this.jwtService.signAsync(
         {
           sub: userId,
-          email,
+          login,
         },
         {
           secret: process.env.jwtRefreshSecret,
