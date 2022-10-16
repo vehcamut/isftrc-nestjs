@@ -1,7 +1,7 @@
 import {
   SpecialistType,
   SpecialistTypeSchema,
-} from './shcemas/specialist-types.schema';
+} from './schemas/specialist-types.schema';
 import { SpecialistsController } from './specialists.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Module } from '@nestjs/common';

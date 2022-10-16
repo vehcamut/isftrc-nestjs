@@ -13,7 +13,7 @@ import {
   Query,
   Res,
 } from '@nestjs/common/decorators/http/route-params.decorator';
-import { Public } from 'src/common/decorators';
+import { Public, Roles } from 'src/common/decorators';
 import { SpecialistsService } from './specialists.service';
 import { Response } from 'express';
 
@@ -21,8 +21,9 @@ import { Response } from 'express';
 export class SpecialistsController {
   constructor(private specialistsService: SpecialistsService) {}
 
-  @Public()
+  // @Public()
   @Get('types/get')
+  @Roles('registrator')
   @HttpCode(HttpStatus.OK)
   async getSpecialistTypes(
     @Query() dto: SpecialistTypesQueryDto,
@@ -37,22 +38,25 @@ export class SpecialistsController {
     return response.data;
   }
 
-  @Public()
+  // @Public()
   @Post('types/add')
+  @Roles('registrator')
   @HttpCode(HttpStatus.CREATED)
   async addSpecialistType(@Body() dto: SpecialistTypeDto): Promise<object> {
     return this.specialistsService.addSpecialistType(dto);
   }
 
-  @Public()
+  // @Public()
   @Post('types/update')
+  @Roles('registrator')
   @HttpCode(HttpStatus.CREATED)
   async editSpecialistType(@Body() dto: SpecialistTypeDto): Promise<object> {
     return this.specialistsService.editSpecialistType(dto);
   }
 
-  @Public()
+  //@Public()
   @Delete('types/remove')
+  @Roles('registrator')
   @HttpCode(HttpStatus.CREATED)
   async removeSpecialistType(
     @Body() dto: SpecialistTypeRemoveDto,

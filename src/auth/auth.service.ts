@@ -1,5 +1,5 @@
 import { RtStrategy } from './strategies/rt.strategy';
-import { User, UserDocument } from './schemas';
+import { User, UserDocument } from '../common/schemas'; //'./schemas';
 import {
   ForbiddenException,
   Injectable,
@@ -53,7 +53,6 @@ export class AuthService {
   async signinLocal(dto: AuthDto): Promise<Tokens> {
     const login: string = dto.login;
     const candidate = await this.userModel.findOne({ login });
-
     if (!candidate) throw new ForbiddenException('Access Denied');
 
     const passwordMatches = await bcrypt.compare(dto.password, candidate.hash);
@@ -89,7 +88,7 @@ export class AuthService {
       .where('rt')
       .elemMatch({ hash: hash });
 
-    if (!user) throw new ForbiddenException('Access Denied');
+    if (!user) throw new UnauthorizedException('Access Denied');
 
     const tokens = await this.getTokens(user.id, user.login, user.roles);
     const newHash = this.hashDataSHA512(tokens.refresh_token.split('.')[2]);

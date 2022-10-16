@@ -1,5 +1,5 @@
 import { SpecialistTypeRemoveDto } from './dto/specialist-type.dto';
-import { SpecialistType, SpecialistTypeDocument } from './shcemas';
+import { SpecialistType, SpecialistTypeDocument } from './schemas';
 import { SpecialistTypeDto, SpecialistTypesQueryDto } from './dto';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';

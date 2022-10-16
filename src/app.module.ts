@@ -5,6 +5,7 @@ import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { APP_GUARD } from '@nestjs/core';
 import { SpecialistsModule } from './specialists/specialists.module';
+import { UsersModule } from './users/users.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -14,6 +15,7 @@ import { SpecialistsModule } from './specialists/specialists.module';
     MongooseModule.forRoot(process.env.DATABASE_URI),
     AuthModule,
     SpecialistsModule,
+    UsersModule,
   ],
   controllers: [],
   //провайдер защит jwt для инъекции

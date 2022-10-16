@@ -5,9 +5,11 @@ import {
   HttpCode,
   HttpStatus,
   Post,
+  Patch,
   Req,
   Res,
   UseGuards,
+  Get,
 } from '@nestjs/common';
 import { AuthDto } from './dto';
 import { Tokens } from './types';
@@ -38,16 +40,12 @@ export class AuthController {
     return tokens;
   }
 
-  @Public()
   @Post('test')
   @HttpCode(HttpStatus.OK)
-  async signindLocal(
-    @Res({ passthrough: true }) response: Response,
-    @Req() request: Request,
-    @Body() dto: AuthDto,
-  ) {
-    console.log(request.headers['user-agent']);
-    const tokens = await this.authService.test(dto);
+  async signindLocal() {
+    //return
+    //console.log(request.headers['user-agent']);
+    //const tokens = await this.authService.test(dto);
     //this.authService.setCookie(response, tokens);
   }
 
@@ -78,17 +76,17 @@ export class AuthController {
 
   @Public()
   @UseGuards(RtGuard)
-  @Post('refresh')
+  @Patch('refresh')
   @HttpCode(HttpStatus.OK)
   async refreshTokens(
     @GetCurrenUser('refreshToken') refreshTokens: string,
     @GetCurrenUserId() userId: number,
     @Res({ passthrough: true }) response: Response,
-  ): Promise<Tokens> {
+  ): Promise<object> {
     console.log(refreshTokens);
     const tokens = await this.authService.refreshTokens(userId, refreshTokens);
     this.authService.setCookie(response, tokens);
-    return tokens;
+    return { message: 'success' };
     //return this.authService.refreshTokens();
   }
 }

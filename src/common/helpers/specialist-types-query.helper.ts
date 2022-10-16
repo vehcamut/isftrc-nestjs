@@ -1,4 +1,4 @@
-import { SpecialistType } from './../../specialists/shcemas';
+import { SpecialistType } from '../../specialists/schemas';
 import { trim } from './any.helper';
 
 export function toSpecialistType(value: SpecialistType): SpecialistType {

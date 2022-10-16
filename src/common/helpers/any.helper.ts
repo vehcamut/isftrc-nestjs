@@ -56,3 +56,13 @@ export function toNumber(value: string, opts: ToNumberOptions = {}): number {
 
   return newValue;
 }
+
+export function toPhoneNumber(value: string): string {
+  return value
+    .trim()
+    .replaceAll('-', '')
+    .replaceAll('(', '')
+    .replaceAll(')', '')
+    .replaceAll(' ', '')
+    .slice(-10, 11);
+}
