@@ -1,4 +1,4 @@
-export type Tokens = {
+export interface Tokens {
   access_token: string;
   refresh_token: string;
-};
+}

@@ -15,7 +15,7 @@ import {
   toDate,
   toSpecificSortOrderType,
   toSpecialistType,
-} from '../../common/helpers';
+} from '../helpers';
 import { SpecialistTypeDto } from '.';
 
 export class SpecialistTypesQueryDto {

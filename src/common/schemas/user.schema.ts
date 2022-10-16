@@ -7,7 +7,7 @@ import {
 import {
   JWTRefreshTokenDocument,
   JWTRefreshTokenSchema,
-} from './jwt-refresh-token.schema';
+} from './jwtRefreshToken.schema';
 import { Get } from '@nestjs/common';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';

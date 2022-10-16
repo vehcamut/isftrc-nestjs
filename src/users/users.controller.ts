@@ -15,6 +15,7 @@ import { Public, Roles } from 'src/common/decorators';
 //import { GetUsersDto } from './';
 import { UsersService } from './users.service';
 import { GetUsersDto, UserDto } from 'src/common/dtos';
+import { Put } from '@nestjs/common/decorators';
 
 @Controller('users')
 export class UsersController {
@@ -37,7 +38,7 @@ export class UsersController {
     return response.data;
   }
 
-  @Post('add')
+  @Put('add')
   //@Public()
   @Roles('registrator', 'admin')
   @HttpCode(HttpStatus.CREATED)

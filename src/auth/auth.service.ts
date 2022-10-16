@@ -6,10 +6,10 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { AuthDto } from './dto';
+import { AuthDto } from '../common/dtos';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
-import { Tokens } from './types';
+import { Tokens } from '../common/interfaces';
 import { JwtService } from '@nestjs/jwt';
 import { createHmac } from 'crypto';
 import { Response } from 'express';

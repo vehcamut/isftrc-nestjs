@@ -1,5 +1,9 @@
-import { SpecialistTypeRemoveDto } from './dto/specialist-type.dto';
-import { SpecialistTypeDto, SpecialistTypesQueryDto } from './dto';
+import {
+  SpecialistTypeRemoveDto,
+  SpecialistTypeDto,
+  SpecialistTypesQueryDto,
+  SpecialistDto,
+} from '../common/dtos';
 import {
   Controller,
   HttpCode,
@@ -7,6 +11,7 @@ import {
   Get,
   Post,
   Delete,
+  Put,
 } from '@nestjs/common';
 import {
   Body,
@@ -39,11 +44,19 @@ export class SpecialistsController {
   }
 
   // @Public()
-  @Post('types/add')
+  @Put('types/add')
   @Roles('registrator')
   @HttpCode(HttpStatus.CREATED)
   async addSpecialistType(@Body() dto: SpecialistTypeDto): Promise<object> {
     return this.specialistsService.addSpecialistType(dto);
+  }
+
+  @Public()
+  @Put('add')
+  //@Roles('registrator')
+  @HttpCode(HttpStatus.CREATED)
+  async addSpecialist(@Body() dto: SpecialistDto): Promise<object> {
+    return this.specialistsService.addSpecialist(dto);
   }
 
   // @Public()

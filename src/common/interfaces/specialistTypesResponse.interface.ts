@@ -1,4 +1,4 @@
-import { SpecialistTypeDto } from './../dto/specialist-type.dto';
+import { SpecialistTypeDto } from '../dtos';
 export interface ISpecialistTypesRes {
   count: number;
   data: SpecialistTypeDto[];

@@ -1,18 +1,37 @@
-import { SpecialistTypeRemoveDto } from './dto/specialist-type.dto';
-import { SpecialistType, SpecialistTypeDocument } from './schemas';
-import { SpecialistTypeDto, SpecialistTypesQueryDto } from './dto';
+import {
+  SpecialistTypeRemoveDto,
+  SpecialistTypeDto,
+  SpecialistTypesQueryDto,
+  SpecialistDto,
+} from '../common/dtos';
+import {
+  Specialist,
+  SpecialistDocument,
+  SpecialistType,
+  SpecialistTypeDocument,
+} from '../common/schemas';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, SortOrder } from 'mongoose';
 import { BadRequestException } from '@nestjs/common/exceptions';
-import { ISpecialistTypesRes } from './interfaces';
+import { ISpecialistTypesRes } from '../common/interfaces';
 
 @Injectable()
 export class SpecialistsService {
   constructor(
     @InjectModel(SpecialistType.name)
     private SpecialistTypeModel: Model<SpecialistTypeDocument>,
+    @InjectModel(Specialist.name)
+    private SpecialistModel: Model<SpecialistDocument>,
   ) {}
+  async addSpecialist(dto: SpecialistDto): Promise<object> {
+    const candidate = await this.SpecialistModel.findOne({
+      userId: dto.userId,
+    });
+    if (candidate) throw new BadRequestException('name: must be unique');
+    const query = this.SpecialistTypeModel.create(dto);
+    return { message: 'success' };
+  }
   async getSpecialistTypes(
     dto: SpecialistTypesQueryDto,
   ): Promise<ISpecialistTypesRes> {

@@ -1,6 +1,6 @@
 import { Transform } from 'class-transformer';
 import { IsNumber, IsOptional, IsString } from 'class-validator';
-import { toNumber, toSpecificSortOrderType, trim } from '../../common/helpers';
+import { toNumber, toSpecificSortOrderType, trim } from '../helpers';
 
 export class GetUsersDto {
   @Transform(({ value }) => toNumber(value, { default: 0, min: 0 }))
