@@ -1,3 +1,5 @@
+import { UpdateSpecialistDto } from './../common/dtos/specialist.dto';
+import { GetRequestDto } from './../common/dtos/getRequest.dto';
 import {
   SpecialistTypeRemoveDto,
   SpecialistTypeDto,
@@ -16,6 +18,7 @@ import {
 import {
   Body,
   Query,
+  Req,
   Res,
 } from '@nestjs/common/decorators/http/route-params.decorator';
 import { Public, Roles } from 'src/common/decorators';
@@ -51,17 +54,43 @@ export class SpecialistsController {
     return this.specialistsService.addSpecialistType(dto);
   }
 
-  @Public()
   @Put('add')
-  //@Roles('registrator')
+  @Roles('registrator', 'admin')
   @HttpCode(HttpStatus.CREATED)
-  async addSpecialist(@Body() dto: SpecialistDto): Promise<object> {
-    return this.specialistsService.addSpecialist(dto);
+  async addSpecialist(
+    @Req() request: Request | any,
+    @Body() dto: SpecialistDto,
+  ): Promise<object> {
+    return this.specialistsService.addSpecialist(dto, request.user?.roles);
+  }
+
+  @Get('get')
+  @Public()
+  //@Roles('registrator')
+  @HttpCode(HttpStatus.OK)
+  async getSpecialist(
+    @Query() dto: GetRequestDto,
+    @Res({ passthrough: true }) res: Response,
+    //@Body() dto: SpecialistTypesQueryDto,
+  ): Promise<SpecialistDto[]> {
+    const response = await this.specialistsService.getSpecialists(dto);
+    res.setHeader('X-Total-Count', response.count);
+    //res.set('X-Total-Count', '100');
+    console.log(dto);
+
+    return response.data;
+  }
+
+  @Put('update')
+  @Roles('registrator', 'admin')
+  @HttpCode(HttpStatus.CREATED)
+  async updateSpecialist(@Body() dto: UpdateSpecialistDto): Promise<object> {
+    return this.specialistsService.updateSpecialist(dto);
   }
 
   // @Public()
   @Post('types/update')
-  @Roles('registrator')
+  @Roles('registrator', 'admin')
   @HttpCode(HttpStatus.CREATED)
   async editSpecialistType(@Body() dto: SpecialistTypeDto): Promise<object> {
     return this.specialistsService.editSpecialistType(dto);
@@ -69,7 +98,7 @@ export class SpecialistsController {
 
   //@Public()
   @Delete('types/remove')
-  @Roles('registrator')
+  @Roles('registrator', 'admin')
   @HttpCode(HttpStatus.CREATED)
   async removeSpecialistType(
     @Body() dto: SpecialistTypeRemoveDto,

@@ -25,7 +25,7 @@ export class UsersController {
   @Public()
   //@Roles('registrator')
   @HttpCode(HttpStatus.OK)
-  async getSpecialistTypes(
+  async getUsers(
     @Query() dto: GetUsersDto,
     @Res({ passthrough: true }) res: Response,
     //@Body() dto: SpecialistTypesQueryDto,
@@ -42,7 +42,7 @@ export class UsersController {
   //@Public()
   @Roles('registrator', 'admin')
   @HttpCode(HttpStatus.CREATED)
-  async addSpecialistType(
+  async addUser(
     @Req() request: Request | any,
     @Body() dto: UserDto,
   ): Promise<object> {

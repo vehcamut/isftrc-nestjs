@@ -22,7 +22,7 @@ export class UsersService {
     private userModel: Model<UserDocument>,
   ) {}
   async getUsers(dto: GetUsersDto): Promise<IGetUserResponse> {
-    //console.log('users: ', dto);
+    console.log('users: ', dto.login);
     const query = this.userModel.find({
       $and: [
         { name: { $regex: `${dto.name}`, $options: 'i' } },

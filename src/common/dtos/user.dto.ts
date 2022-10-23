@@ -7,13 +7,14 @@ import {
   IsDateString,
   IsEmail,
   IsNotEmpty,
+  IsOptional,
   IsPhoneNumber,
   IsString,
   ValidateNested,
 } from 'class-validator';
 import { toPhoneNumber } from '../helpers';
 
-export class UserDto {
+export class UserBaseDto {
   @IsNotEmpty({ message: 'surname: поле фамилия не должено быть пустым' })
   @IsString()
   surname: string;
@@ -26,17 +27,11 @@ export class UserDto {
   @IsString()
   patronymic: string;
 
-  //@Transform(({ value }) => toNumber(value, { default: 1, min: 0 }))
   @IsArray()
   @ArrayNotEmpty({ message: 'phoneNumbers: должен быть хотя бы один телефон' })
   @IsString({ each: true })
   @IsPhoneNumber('RU', { each: true })
-  @Transform(
-    ({ value }) => value.map((value: string) => toPhoneNumber(value)) /*{
-      console.log(value);
-      return value;
-    } */ /*{return value.map((value: string) => toPhoneNumber(value))}*/,
-  )
+  @Transform(({ value }) => value.map((value: string) => toPhoneNumber(value)))
   phoneNumbers: string[];
 
   @IsNotEmpty({
@@ -58,15 +53,28 @@ export class UserDto {
   @IsString()
   login: string;
 
-  @IsNotEmpty({ message: 'hash: поле пароль не должено быть пустым' })
-  @IsString()
-  hash: string;
+  @IsBoolean()
+  status: boolean;
+}
 
+export class UserDto extends UserBaseDto {
   @IsNotEmpty({ message: 'roles: поле роль не должено быть пустым' })
   @IsArray()
   @IsString({ each: true })
   roles: string[];
+}
+export class AddUserDto extends UserDto {
+  @IsNotEmpty({ message: 'hash: поле пароль не должено быть пустым' })
+  @IsString()
+  hash: string;
+}
 
-  @IsBoolean()
-  status: boolean;
+export class UpdateUserDto extends UserDto {
+  @IsNotEmpty({ message: '_id: поле пароль не должено быть пустым' })
+  @IsString()
+  _id: string;
+
+  @IsOptional()
+  @IsString()
+  hash: string;
 }
