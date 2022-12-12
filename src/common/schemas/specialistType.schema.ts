@@ -1,4 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { ApiProperty } from '@nestjs/swagger';
 import { Document } from 'mongoose';
 
 export type SpecialistTypeDocument = SpecialistType & Document;
@@ -6,10 +7,18 @@ export type SpecialistTypeDocument = SpecialistType & Document;
 @Schema({ timestamps: true })
 export class SpecialistType {
   @Prop({ unique: true, required: true })
+  @ApiProperty({
+    example: 'Педиатр',
+    description: 'Название / Name',
+  })
   name: string;
 
   @Prop({ default: '' })
-  note: string;
+  @ApiProperty({
+    example: 'Очень важное примечание',
+    description: 'Примечание / Note',
+  })
+  note?: string;
 }
 
 export const SpecialistTypeSchema =

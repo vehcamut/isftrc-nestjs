@@ -11,7 +11,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model, SortOrder } from 'mongoose';
 import { User, UserDocument } from 'src/common/schemas';
 import { IGetUserResponse } from 'src/common/interfaces';
-import { GetUsersDto, UserDto } from 'src/common/dtos';
+import { AddUserDto, GetUsersDto, UserDto } from 'src/common/dtos';
 //import { User, UserDocument } from './schemas';
 //import { UserDto } from './dto';
 
@@ -59,7 +59,7 @@ export class UsersService {
     return { data, count };
   }
 
-  async addUser(dto: UserDto, roles: string[]): Promise<object> {
+  async addUser(dto: AddUserDto, roles: string[]): Promise<object> {
     const login: string = dto.login;
     const candidate = await this.userModel.findOne({ login });
     if (candidate) throw new BadRequestException('login: must be unique');

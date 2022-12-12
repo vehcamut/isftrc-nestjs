@@ -1,11 +1,11 @@
-import { UpdateSpecialistDto } from './../common/dtos/specialist.dto';
-import { GetRequestDto } from './../common/dtos/getRequest.dto';
+import { UpdateSpecialistDto } from '../../src/common/dtos/specialist.dto';
+import { GetRequestDto } from '../../src/common/dtos/getRequest.dto';
 import {
   SpecialistTypeRemoveDto,
   SpecialistTypeDto,
   SpecialistTypesQueryDto,
   SpecialistDto,
-} from '../common/dtos';
+} from '../../src/common/dtos';
 import {
   Controller,
   HttpCode,

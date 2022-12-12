@@ -1,25 +1,25 @@
-import { UpdateSpecialistDto } from './../common/dtos/specialist.dto';
+import { UpdateSpecialistDto } from '../../src/common/dtos/specialist.dto';
 import {
   SpecialistTypeRemoveDto,
   SpecialistTypeDto,
   SpecialistTypesQueryDto,
   SpecialistDto,
   GetRequestDto,
-} from '../common/dtos';
+} from '../../src/common/dtos';
 import {
-  Specialist,
+  // Specialist,
   // SpecialistDocument,
   SpecialistType,
   SpecialistTypeDocument,
   User,
   UserDocument,
-} from '../common/schemas';
+} from '../../src/common/schemas';
 import * as bcrypt from 'bcrypt';
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, SortOrder, Types } from 'mongoose';
 import { BadRequestException } from '@nestjs/common/exceptions';
-import { IGetResponse, ISpecialistTypesRes } from '../common/interfaces';
+import { IGetResponse, ISpecialistTypesRes } from '../../src/common/interfaces';
 
 @Injectable()
 export class SpecialistsService {
@@ -62,7 +62,7 @@ export class SpecialistsService {
     //   throw new BadRequestException(`types: include unknown type ${'sds'}`);
     // }
 
-    const hashedPassword = await this.hashData(dto.hash);
+    const hashedPassword = ''; //await this.hashData(dto.hash);
     // if (
     //   !roles.includes('admin') &&
     //   (dto.roles.includes('admin') || dto.roles.includes('registrator'))

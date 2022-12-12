@@ -14,14 +14,17 @@ import {
 import { Public, Roles } from 'src/common/decorators';
 //import { GetUsersDto } from './';
 import { UsersService } from './users.service';
-import { GetUsersDto, UserDto } from 'src/common/dtos';
+import { ApiOkResponse } from '@nestjs/swagger';
+import { AddUserDto, GetUsersDto, UserDto } from 'src/common/dtos';
 import { Put } from '@nestjs/common/decorators';
+import { User } from 'src/common/schemas';
 
 @Controller('users')
 export class UsersController {
   constructor(private userService: UsersService) {}
 
   @Get('get')
+  //@ApiOkResponse({ type: User })
   @Public()
   //@Roles('registrator')
   @HttpCode(HttpStatus.OK)
@@ -44,7 +47,7 @@ export class UsersController {
   @HttpCode(HttpStatus.CREATED)
   async addUser(
     @Req() request: Request | any,
-    @Body() dto: UserDto,
+    @Body() dto: AddUserDto,
   ): Promise<object> {
     return this.userService.addUser(dto, request.user?.roles);
   }

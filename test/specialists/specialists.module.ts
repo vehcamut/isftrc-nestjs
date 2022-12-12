@@ -1,11 +1,11 @@
 import {
-  Specialist,
+  //Specialist,
   //SpecialistSchema,
   SpecialistType,
   SpecialistTypeSchema,
   User,
   UserSchema,
-} from '../common/schemas';
+} from '../../src/common/schemas';
 import { SpecialistsController } from './specialists.controller';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Module } from '@nestjs/common';

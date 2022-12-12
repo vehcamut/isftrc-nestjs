@@ -54,7 +54,7 @@ export class UserBaseDto {
   login: string;
 
   @IsBoolean()
-  status: boolean;
+  isActive: boolean;
 }
 
 export class UserDto extends UserBaseDto {

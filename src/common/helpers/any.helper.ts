@@ -28,10 +28,12 @@ export function toSpecificSortOrderType(value: string): number {
     case 'desc':
     case '1':
     case 'descending':
+    case 'descend':
       return -1;
     case 'asc':
     case '0':
     case 'ascending':
+    case 'ascend':
     default:
       return 1;
   }

@@ -4,3 +4,6 @@ export * from './specialistTypesResponse.interface';
 export * from './specialist.interface';
 export * from './user.interface';
 export * from './getResponse.interface';
+export * from './person.interface';
+export * from './representative.interface';
+export * from './patient.interface';

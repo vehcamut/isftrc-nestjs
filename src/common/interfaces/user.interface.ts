@@ -1,14 +1,11 @@
-import { JWTRefreshTokenDocument } from '../schemas/';
-export interface IUser {
-  surname: string;
-  name: string;
-  patronymic: string;
-  phoneNumbers: string[];
-  dateOfBirth: Date;
-  emails: string[];
+import { IPerson } from './';
+
+export interface IUser extends IPerson {
   login: string;
   hash: string;
+  phoneNumbers: string[];
+  emails: string[];
   roles: string[];
-  status: boolean;
-  rt: JWTRefreshTokenDocument[];
+  isActive: boolean;
+  rt: string[];
 }
