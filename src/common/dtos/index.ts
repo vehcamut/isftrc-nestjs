@@ -8,3 +8,6 @@ export * from './getRequest.dto';
 export * from './getPatients.dto';
 export * from './patient.dto';
 export * from './address.dto';
+export * from './getAdvertisingSource.dto';
+export * from './advertisingSource.dto';
+export * from './getRepresentatives.dto';

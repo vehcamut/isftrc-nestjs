@@ -12,6 +12,13 @@ export class AdvertisingSource {
     description: 'Название / Name',
   })
   name: string;
+
+  @Prop({ required: true, default: true })
+  @ApiProperty({
+    example: true,
+    description: 'Статус / Status',
+  })
+  isActive: boolean;
 }
 
 export const AdvertisingSourcesSchema =
