@@ -1,7 +1,7 @@
 import { SchemaTypes, Types } from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
-import { IRepresentative, ISpecialist, IUser } from '../interfaces';
+import { Gender, IRepresentative, ISpecialist, IUser } from '../interfaces';
 import { ApiProperty } from '@nestjs/swagger';
 
 export type UserDocument = User & Document;
@@ -44,12 +44,12 @@ export class User implements IUser, ISpecialist, IRepresentative {
   })
   dateOfBirth: Date;
 
-  @Prop({ required: true })
+  @Prop({ required: true, enum: Gender })
   @ApiProperty({
     example: 'male',
     description: 'Пол / Gender',
   })
-  gender: string;
+  gender: Gender;
 
   @Prop({ required: true, default: [] })
   @ApiProperty({

@@ -11,3 +11,4 @@ export * from './address.dto';
 export * from './getAdvertisingSource.dto';
 export * from './advertisingSource.dto';
 export * from './getRepresentatives.dto';
+export * from './representative.dto';

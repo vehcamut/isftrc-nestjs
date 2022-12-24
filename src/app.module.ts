@@ -1,3 +1,4 @@
+import { RepresentativesModule } from './representatives/representatives.module';
 import { AtGuard, RolesGuard } from './common/guards';
 import { MongooseModule } from '@nestjs/mongoose';
 import { Module } from '@nestjs/common';
@@ -18,6 +19,7 @@ import { AdvertisingSourceModule } from './advertisingSource/advertisingSource.m
     MongooseModule.forRoot(process.env.DATABASE_URI),
     AuthModule,
     AdvertisingSourceModule,
+    RepresentativesModule,
     //SpecialistsModule,
     UsersModule,
     PatientsModule,

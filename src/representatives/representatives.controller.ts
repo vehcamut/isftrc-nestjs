@@ -1,3 +1,4 @@
+import { UserBaseDto, AddBaseUserDto } from './../common/dtos/user.dto';
 import { SpecialistDto } from '../common/dtos/specialist.dto';
 import {
   Controller,
@@ -11,8 +12,10 @@ import { Body, Patch, Post, Put, Req } from '@nestjs/common/decorators';
 import { Response } from 'express';
 import { Public } from 'src/common/decorators';
 import {
+  AddRepresentativeDto,
   GetPatientsByIdDto,
   GetPatientsDto,
+  GetRepresentativesDto,
   GetRequestDto,
   PatientBaseDto,
   PatientChangeStatusDto,
@@ -31,9 +34,9 @@ export class RepresentativesController {
   //@Roles('registrator')
   @HttpCode(HttpStatus.OK)
   async get(
-    @Query() dto: GetR,
+    @Query() dto: GetRepresentativesDto,
     @Res({ passthrough: true }) res: Response,
-  ): Promise<PatientBaseDto[]> {
+  ): Promise<UserBaseDto[]> {
     const response = await this.representativesService.get(dto);
     res.setHeader('X-Total-Count', response.count);
     return response.data;
@@ -58,17 +61,17 @@ export class RepresentativesController {
   //   //return response.data;
   // }
 
-  // @Post('add')
-  // @Public()
-  // //@Roles('registrator')
-  // @HttpCode(HttpStatus.CREATED)
-  // async add(@Req() request: Request | any, @Body() dto: PatientBaseDto) {
-  //   return this.patientsService.add(
-  //     dto,
-  //     request.user?._id,
-  //     request.user?.roles,
-  //   );
-  // }
+  @Post('add')
+  @Public()
+  //@Roles('registrator')
+  @HttpCode(HttpStatus.CREATED)
+  async add(@Req() request: Request | any, @Body() dto: AddRepresentativeDto) {
+    return this.representativesService.add(
+      dto,
+      request.user?._id,
+      request.user?.roles,
+    );
+  }
 
   // @Put('update')
   // @Public()

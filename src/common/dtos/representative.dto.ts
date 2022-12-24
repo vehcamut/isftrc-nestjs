@@ -16,7 +16,7 @@ import {
 import { toPhoneNumber } from '../helpers';
 import { Gender } from '../interfaces';
 
-export class UserBaseDto {
+export class AddRepresentativeDto {
   @IsNotEmpty({ message: 'surname: поле фамилия не должено быть пустым' })
   @IsString()
   surname: string;
@@ -55,10 +55,6 @@ export class UserBaseDto {
   @IsString()
   login: string;
 
-  @IsOptional()
-  @IsBoolean()
-  isActive?: boolean;
-
   @IsNotEmpty({ message: 'gender: поле пол не должено быть пустым' })
   @IsEnum(Gender)
   gender: Gender;
@@ -66,32 +62,11 @@ export class UserBaseDto {
   @IsNotEmpty({ message: 'address: поле адрес не должено быть пустым' })
   @IsString()
   address: string;
-}
 
-export class AddBaseUserDto extends UserBaseDto {
-  @IsOptional()
-  @IsNotEmpty({ message: 'hash: поле пароль не должено быть пустым' })
-  @IsString()
-  hash?: string;
-}
-export class UserDto extends UserBaseDto {
-  @IsNotEmpty({ message: 'roles: поле роль не должено быть пустым' })
   @IsArray()
+  @ArrayNotEmpty({
+    message: 'advertisingSources: должен быть хотя бы один источник рекламы',
+  })
   @IsString({ each: true })
-  roles: string[];
-}
-export class AddUserDto extends UserDto {
-  @IsNotEmpty({ message: 'hash: поле пароль не должено быть пустым' })
-  @IsString()
-  hash: string;
-}
-
-export class UpdateUserDto extends UserDto {
-  @IsNotEmpty({ message: '_id: поле пароль не должено быть пустым' })
-  @IsString()
-  _id: string;
-
-  @IsOptional()
-  @IsString()
-  hash: string;
+  advertisingSources: string[];
 }

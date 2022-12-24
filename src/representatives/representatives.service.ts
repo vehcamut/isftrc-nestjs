@@ -5,9 +5,15 @@ import {
   Patient,
   PatientDocument,
   UserDocument,
+  AdvertisingSource,
+  AdvertisingSourceDocument,
 } from 'src/common/schemas';
+import * as bcrypt from 'bcrypt';
 import {
+  AddBaseUserDto,
+  AddRepresentativeDto,
   GetPatientsDto,
+  GetRepresentativesDto,
   GetRequestDto,
   PatientBaseDto,
   PatientChangeStatusDto,
@@ -15,15 +21,17 @@ import {
 } from 'src/common/dtos';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import mongoose, { Model, SortOrder } from 'mongoose';
+import mongoose, { Model, SortOrder, Types } from 'mongoose';
 
 @Injectable()
 export class RepresentativesService {
   constructor(
     @InjectModel(User.name)
-    private patientModel: Model<UserDocument>,
+    private representativesModel: Model<UserDocument>,
+    @InjectModel(AdvertisingSource.name)
+    private advertisingSourceModel: Model<AdvertisingSourceDocument>,
   ) {}
-  async get(dto: GetPatientsDto): Promise<any> {
+  async get(dto: GetRepresentativesDto): Promise<any> {
     const findCond = {
       $and: [
         {
@@ -31,11 +39,13 @@ export class RepresentativesService {
             { name: { $regex: `${dto.filter}`, $options: 'i' } },
             { surname: { $regex: `${dto.filter}`, $options: 'i' } },
             { patronymic: { $regex: `${dto.filter}`, $options: 'i' } },
-            { number: { $regex: `${dto.filter}` } },
+            { phoneNumbers: { $regex: `${dto.filter}`, $options: 'i' } },
+            { emails: { $regex: `${dto.filter}`, $options: 'i' } },
             { address: { $regex: `${dto.filter}`, $options: 'i' } },
-            { note: { $regex: `${dto.filter}`, $options: 'i' } },
+            { login: { $regex: `${dto.filter}`, $options: 'i' } },
           ],
         },
+        { roles: { $in: ['representative'] } },
         dto.gender
           ? {
               gender: dto.gender,
@@ -48,8 +58,8 @@ export class RepresentativesService {
           : {},
       ],
     };
-    const query = this.patientModel.find(findCond);
-    const count = await this.patientModel.find(findCond).count().exec();
+    const query = this.representativesModel.find(findCond);
+    const count = await this.representativesModel.find(findCond).count().exec();
     console.log(count);
     if (dto.sort)
       query.sort({
@@ -60,37 +70,68 @@ export class RepresentativesService {
       .skip(dto.page * dto.limit)
       .limit(dto.limit)
       .select(
-        'number name surname patronymic dateOfBirth gender address isActive note representatives _id',
+        'name surname patronymic dateOfBirth phoneNumbers emails gender address isActive advertisingSources _id login',
       );
     const data = await query.exec();
     return { data, count };
   }
 
-  async getById(dto: GetPatientsByIdDto): Promise<any> {
-    //TODO проверка на принадлежность пациента
-    if (!mongoose.Types.ObjectId.isValid(dto.id))
-      throw new BadRequestException('_id: not found');
-    const candidate = await this.patientModel
-      .findById(dto.id)
-      .select(
-        'number name surname patronymic dateOfBirth gender address isActive note representatives _id',
-      )
+  // async getById(dto: GetPatientsByIdDto): Promise<any> {
+  //   //TODO проверка на принадлежность пациента
+  //   if (!mongoose.Types.ObjectId.isValid(dto.id))
+  //     throw new BadRequestException('_id: not found');
+  //   const candidate = await this.representativesModel
+  //     .findById(dto.id)
+  //     .select(
+  //       'number name surname patronymic dateOfBirth gender address isActive note representatives _id',
+  //     )
+  //     .exec();
+  //   if (!candidate) throw new BadRequestException('_id: not found');
+
+  //   return candidate;
+  // }
+
+  async add(
+    dto: AddRepresentativeDto,
+    id: string,
+    roles: string[],
+  ): Promise<object> {
+    const count = await this.representativesModel
+      .findOne({ login: dto.login })
       .exec();
-    if (!candidate) throw new BadRequestException('_id: not found');
+    console.log(count);
+    if (count) throw new BadRequestException('login: must be unique');
+    const hashedPassword = await this.hashData(dto.login);
+    const advertisingSources: Types.ObjectId[] = [];
 
-    return candidate;
-  }
+    for (let i = 0; i < dto.advertisingSources.length; i++) {
+      console.log(dto.advertisingSources[i]);
+      try {
+        advertisingSources.push(new Types.ObjectId(dto.advertisingSources[i]));
+        //dto.advertisingSources[i] = new Types.ObjectId(dto.advertisingSources[i]);
+      } catch (e) {
+        console.log(e);
+        throw new BadRequestException(
+          `types: include unknown type ${dto.advertisingSources[i]}`,
+        );
+      }
 
-  async add(dto: PatientBaseDto, id: string, roles: string[]): Promise<object> {
-    const count = await this.patientModel.find().count().exec();
-    console.log(dto);
-    //TODO: Сделать проверку представителей
-    const user = await this.patientModel.create({
+      const candidate = await this.advertisingSourceModel.findById(
+        advertisingSources[i],
+      );
+      if (!candidate)
+        throw new BadRequestException(
+          `types: include unknown type ${dto.advertisingSources[i]}`,
+        );
+    }
+
+    const user = await this.representativesModel.create({
       ...dto,
-      number: count + 1,
+      hash: hashedPassword,
+      advertisingSources,
     });
-    const newPatient = new this.patientModel(user);
-    newPatient.save();
+    const newRepresentative = new this.representativesModel(user);
+    newRepresentative.save();
     return;
   }
 
@@ -101,7 +142,7 @@ export class RepresentativesService {
   ): Promise<object> {
     if (!mongoose.Types.ObjectId.isValid(dto._id))
       throw new BadRequestException('_id: not found');
-    const candidate = await this.patientModel.findById(dto._id).exec();
+    const candidate = await this.representativesModel.findById(dto._id).exec();
     // .select(
     //   'number name surname patronymic dateOfBirth gender address isActive note representatives _id',
     // )
@@ -109,7 +150,7 @@ export class RepresentativesService {
     if (!candidate) throw new BadRequestException('_id: not found');
     delete dto.number;
     console.log(dto);
-    this.patientModel.findByIdAndUpdate(dto._id, dto).exec();
+    this.representativesModel.findByIdAndUpdate(dto._id, dto).exec();
     return;
   }
 
@@ -120,13 +161,17 @@ export class RepresentativesService {
   ): Promise<object> {
     if (!mongoose.Types.ObjectId.isValid(dto._id))
       throw new BadRequestException('_id: not found');
-    const candidate = await this.patientModel.findById(dto._id).exec();
+    const candidate = await this.representativesModel.findById(dto._id).exec();
     // .select(
     //   'number name surname patronymic dateOfBirth gender address isActive note representatives _id',
     // )
     // .exec();
     if (!candidate) throw new BadRequestException('_id: not found');
-    this.patientModel.findByIdAndUpdate(dto._id, dto).exec();
+    this.representativesModel.findByIdAndUpdate(dto._id, dto).exec();
     return;
+  }
+
+  async hashData(data: string) {
+    return await bcrypt.hash(data, 12);
   }
 }
