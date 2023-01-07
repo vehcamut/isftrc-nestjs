@@ -25,6 +25,11 @@ export class GetPatientsDto extends GetRequestDto {
   isActive?: boolean;
 }
 
+export class GetFreePatientsDto extends GetPatientsDto {
+  @IsString()
+  representaticeId: string;
+}
+
 export class GetPatientsByIdDto {
   @IsString()
   id: string;

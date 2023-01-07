@@ -25,7 +25,7 @@ export class GetRepresentativesDto extends GetRequestDto {
   isActive?: boolean;
 }
 
-// export class GetPatientsByIdDto {
-//   @IsString()
-//   id: string;
-// }
+export class GetRepresentativesByIdDto {
+  @IsString()
+  id: string;
+}

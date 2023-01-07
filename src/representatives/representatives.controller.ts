@@ -15,13 +15,17 @@ import {
   AddRepresentativeDto,
   GetPatientsByIdDto,
   GetPatientsDto,
+  GetRepresentativesByIdDto,
   GetRepresentativesDto,
   GetRequestDto,
   PatientBaseDto,
   PatientChangeStatusDto,
   PatientWithIdDto,
+  RepresentativeWithIdDto,
+  representativeDto,
 } from 'src/common/dtos';
 import { RepresentativesService } from './representatives.service';
+import { IPatient } from 'src/common/interfaces';
 
 @Controller('representatives')
 export class RepresentativesController {
@@ -42,24 +46,24 @@ export class RepresentativesController {
     return response.data;
   }
 
-  // @Get('getById')
-  // @Public()
-  // //@Roles('registrator')
-  // @HttpCode(HttpStatus.OK)
-  // async getById(
-  //   @Query() dto: GetPatientsByIdDto,
-  //   @Res({ passthrough: true }) res: Response,
-  // ): Promise<PatientBaseDto> {
-  //   // const date = Date.now();
-  //   // let currentDate = null;
-  //   // do {
-  //   //   currentDate = Date.now();
-  //   // } while (currentDate - date < 4000);
-  //   return await this.patientsService.getById(dto);
-  //   //const response = await this.patientsService.getById(dto);
-  //   //res.setHeader('X-Total-Count', response.count);
-  //   //return response.data;
-  // }
+  @Get('getById')
+  @Public()
+  //@Roles('registrator')
+  @HttpCode(HttpStatus.OK)
+  async getById(
+    @Query() dto: GetRepresentativesByIdDto,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<representativeDto> {
+    // const date = Date.now();
+    // let currentDate = null;
+    // do {
+    //   currentDate = Date.now();
+    // } while (currentDate - date < 4000);
+    return await this.representativesService.getById(dto);
+    //const response = await this.patientsService.getById(dto);
+    //res.setHeader('X-Total-Count', response.count);
+    //return response.data;
+  }
 
   @Post('add')
   @Public()
@@ -73,17 +77,39 @@ export class RepresentativesController {
     );
   }
 
-  // @Put('update')
-  // @Public()
-  // //@Roles('registrator')
-  // @HttpCode(HttpStatus.OK)
-  // async update(@Req() request: Request | any, @Body() dto: PatientWithIdDto) {
-  //   return this.patientsService.update(
-  //     dto,
-  //     request.user?._id,
-  //     request.user?.roles,
-  //   );
-  // }
+  @Put('update')
+  @Public()
+  //@Roles('registrator')
+  @HttpCode(HttpStatus.OK)
+  async update(
+    @Req() request: Request | any,
+    @Body() dto: RepresentativeWithIdDto,
+  ) {
+    return this.representativesService.update(
+      dto,
+      request.user?._id,
+      request.user?.roles,
+    );
+  }
+
+  @Get('patients')
+  @Public()
+  //@Roles('registrator')
+  @HttpCode(HttpStatus.OK)
+  async getPatientsById(
+    @Query() dto: GetRepresentativesByIdDto,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<IPatient[]> {
+    // const date = Date.now();
+    // let currentDate = null;
+    // do {
+    //   currentDate = Date.now();
+    // } while (currentDate - date < 4000);
+    return await this.representativesService.getPatientsById(dto);
+    //const response = await this.patientsService.getById(dto);
+    //res.setHeader('X-Total-Count', response.count);
+    //return response.data;
+  }
 
   // @Patch('changeStatus')
   // @Public()

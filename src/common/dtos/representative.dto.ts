@@ -1,3 +1,5 @@
+import { AdvertisingSource } from './../schemas/advertisingSource.schema';
+import { UserBaseDto } from './user.dto';
 import { Transform, Type } from 'class-transformer';
 import {
   ArrayNotEmpty,
@@ -15,6 +17,7 @@ import {
 } from 'class-validator';
 import { toPhoneNumber } from '../helpers';
 import { Gender } from '../interfaces';
+import { AdverstingSourseBaseDto } from './advertisingSource.dto';
 
 export class AddRepresentativeDto {
   @IsNotEmpty({ message: 'surname: поле фамилия не должено быть пустым' })
@@ -32,7 +35,10 @@ export class AddRepresentativeDto {
   @IsArray()
   @ArrayNotEmpty({ message: 'phoneNumbers: должен быть хотя бы один телефон' })
   @IsString({ each: true })
-  @IsPhoneNumber('RU', { each: true })
+  @IsPhoneNumber('RU', {
+    each: true,
+    message: 'Каждый номер должен быть действительным',
+  })
   @Transform(({ value }) => value.map((value: string) => toPhoneNumber(value)))
   phoneNumbers: string[];
 
@@ -69,4 +75,18 @@ export class AddRepresentativeDto {
   })
   @IsString({ each: true })
   advertisingSources: string[];
+
+  @IsOptional()
+  @IsString()
+  hash?: string;
+}
+
+export class RepresentativeWithIdDto extends AddRepresentativeDto {
+  @IsNotEmpty({ message: 'surname: поле фамилия не должено быть пустым' })
+  @IsString()
+  _id: string;
+}
+export class representativeDto extends UserBaseDto {
+  @IsString()
+  advertisingSources: AdverstingSourseBaseDto;
 }

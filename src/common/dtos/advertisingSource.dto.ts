@@ -15,3 +15,8 @@ export class AdvertisingSourceWithIdDto extends AdvertisingSourceDto {
   @IsString()
   _id: string;
 }
+
+export class AdverstingSourseBaseDto {
+  name: string;
+  _id: string;
+}

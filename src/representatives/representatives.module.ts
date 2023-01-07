@@ -18,6 +18,7 @@ import { Connection } from 'mongoose';
     MongooseModule.forFeature([
       { name: User.name, schema: UserSchema },
       { name: AdvertisingSource.name, schema: AdvertisingSourcesSchema },
+      { name: Patient.name, schema: PatientSchema },
     ]),
     // MongooseModule.forFeatureAsync([
     //   {

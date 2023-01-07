@@ -13,15 +13,18 @@ import {
   AddBaseUserDto,
   AddRepresentativeDto,
   GetPatientsDto,
+  GetRepresentativesByIdDto,
   GetRepresentativesDto,
   GetRequestDto,
   PatientBaseDto,
   PatientChangeStatusDto,
   PatientWithIdDto,
+  RepresentativeWithIdDto,
 } from 'src/common/dtos';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model, SortOrder, Types } from 'mongoose';
+import { hashDataSHA512 } from 'src/common/common';
 
 @Injectable()
 export class RepresentativesService {
@@ -30,6 +33,8 @@ export class RepresentativesService {
     private representativesModel: Model<UserDocument>,
     @InjectModel(AdvertisingSource.name)
     private advertisingSourceModel: Model<AdvertisingSourceDocument>,
+    @InjectModel(Patient.name)
+    private patientModel: Model<PatientDocument>,
   ) {}
   async get(dto: GetRepresentativesDto): Promise<any> {
     const findCond = {
@@ -76,20 +81,35 @@ export class RepresentativesService {
     return { data, count };
   }
 
-  // async getById(dto: GetPatientsByIdDto): Promise<any> {
-  //   //TODO проверка на принадлежность пациента
-  //   if (!mongoose.Types.ObjectId.isValid(dto.id))
-  //     throw new BadRequestException('_id: not found');
-  //   const candidate = await this.representativesModel
-  //     .findById(dto.id)
-  //     .select(
-  //       'number name surname patronymic dateOfBirth gender address isActive note representatives _id',
-  //     )
-  //     .exec();
-  //   if (!candidate) throw new BadRequestException('_id: not found');
+  async getById(dto: GetRepresentativesByIdDto): Promise<any> {
+    //TODO проверка на принадлежность пациента
+    if (!mongoose.Types.ObjectId.isValid(dto.id))
+      throw new BadRequestException('_id: not found');
+    const candidate = await this.representativesModel
+      .findById(dto.id)
+      .select(
+        'name surname patronymic dateOfBirth gender address isActive phoneNumbers emails login _id advertisingSources',
+      )
+      .populate('advertisingSources', 'name _id', this.advertisingSourceModel, {
+        isActive: true,
+      })
+      .exec();
+    if (!candidate) throw new BadRequestException('_id: not found');
+    console.log(candidate);
+    // candidate.advertisingSources.forEach(async function (value, index) {
+    //   const id = this[index];
+    //   const cand = await this.advertisingSourceModel
+    //     .findById(id)
+    //     .select('name _id isActive')
+    //     .exec();
 
-  //   return candidate;
-  // }
+    //   if (cand && cand.isActive) {
+    //     this[index] = { _id: cand._id, name: cand.name };
+    //   }
+    // }, candidate.advertisingSources);
+
+    return candidate;
+  }
 
   async add(
     dto: AddRepresentativeDto,
@@ -100,8 +120,11 @@ export class RepresentativesService {
       .findOne({ login: dto.login })
       .exec();
     console.log(count);
-    if (count) throw new BadRequestException('login: must be unique');
-    const hashedPassword = await this.hashData(dto.login);
+    if (count) throw new BadRequestException('Логин должен быть уникальным');
+    let hashedPassword: string;
+    if (dto.hash) hashedPassword = hashDataSHA512(dto.hash);
+    else hashedPassword = hashDataSHA512(dto.login);
+    // const hashedPassword = await this.hashData(dto.login);
     const advertisingSources: Types.ObjectId[] = [];
 
     for (let i = 0; i < dto.advertisingSources.length; i++) {
@@ -136,7 +159,7 @@ export class RepresentativesService {
   }
 
   async update(
-    dto: PatientWithIdDto,
+    dto: RepresentativeWithIdDto,
     id: string,
     roles: string[],
   ): Promise<object> {
@@ -148,8 +171,8 @@ export class RepresentativesService {
     // )
     // .exec();
     if (!candidate) throw new BadRequestException('_id: not found');
-    delete dto.number;
     console.log(dto);
+    if (dto.hash) dto.hash = hashDataSHA512(dto.hash);
     this.representativesModel.findByIdAndUpdate(dto._id, dto).exec();
     return;
   }
@@ -169,6 +192,39 @@ export class RepresentativesService {
     if (!candidate) throw new BadRequestException('_id: not found');
     this.representativesModel.findByIdAndUpdate(dto._id, dto).exec();
     return;
+  }
+
+  async getPatientsById(dto: GetRepresentativesByIdDto): Promise<any> {
+    //TODO проверка на принадлежность пациента
+    if (!mongoose.Types.ObjectId.isValid(dto.id))
+      throw new BadRequestException('_id: not found');
+    const candidate = await this.representativesModel
+      .findById(dto.id)
+      .select('-_id patients')
+      .populate(
+        'patients',
+        'number name surname patronymic dateOfBirth gender address isActive note _id',
+        this.patientModel,
+        {
+          isActive: true,
+        },
+      )
+      .exec();
+    if (!candidate) throw new BadRequestException('_id: not found');
+    console.log(candidate);
+    // candidate.advertisingSources.forEach(async function (value, index) {
+    //   const id = this[index];
+    //   const cand = await this.advertisingSourceModel
+    //     .findById(id)
+    //     .select('name _id isActive')
+    //     .exec();
+
+    //   if (cand && cand.isActive) {
+    //     this[index] = { _id: cand._id, name: cand.name };
+    //   }
+    // }, candidate.advertisingSources);
+
+    return candidate?.patients;
   }
 
   async hashData(data: string) {
