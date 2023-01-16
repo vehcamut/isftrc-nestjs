@@ -1,16 +1,24 @@
 import { Module } from '@nestjs/common';
-import { PatientsService } from './patients.service';
-import { PatientsController } from './patients.controller';
+import { RepresentativesService } from './representatives.service';
+import { RepresentativesController } from './representatives.controller';
 import { getConnectionToken, MongooseModule } from '@nestjs/mongoose';
-import { Patient, PatientSchema, User, UserSchema } from 'src/common/schemas';
+import {
+  User,
+  UserSchema,
+  Patient,
+  PatientSchema,
+  AdvertisingSource,
+  AdvertisingSourcesSchema,
+} from 'src/common/schemas';
 import { Connection } from 'mongoose';
 
 @Module({
-  controllers: [PatientsController],
+  controllers: [RepresentativesController],
   imports: [
     MongooseModule.forFeature([
-      { name: Patient.name, schema: PatientSchema },
       { name: User.name, schema: UserSchema },
+      { name: AdvertisingSource.name, schema: AdvertisingSourcesSchema },
+      { name: Patient.name, schema: PatientSchema },
     ]),
     // MongooseModule.forFeatureAsync([
     //   {
@@ -25,6 +33,6 @@ import { Connection } from 'mongoose';
     //   },
     // ]),
   ],
-  providers: [PatientsService],
+  providers: [RepresentativesService],
 })
-export class PatientsModule {}
+export class RepresentativesModule {}

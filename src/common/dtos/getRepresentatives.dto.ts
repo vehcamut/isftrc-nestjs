@@ -23,9 +23,18 @@ export class GetRepresentativesDto extends GetRequestDto {
   @IsBoolean()
   @IsOptional()
   isActive?: boolean;
+
+  @IsString()
+  @IsOptional()
+  patientId?: string;
 }
 
 export class GetRepresentativesByIdDto {
   @IsString()
   id: string;
+
+  @Transform(({ value }) => toBoolean(value))
+  @IsBoolean()
+  @IsOptional()
+  isActive?: boolean;
 }

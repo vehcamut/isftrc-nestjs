@@ -68,6 +68,14 @@ export class PatientWithIdDto extends PatientBaseDto {
   _id: string;
 }
 
+export class AddPatientToRepresentative {
+  @IsString()
+  patientId: string;
+
+  @IsString()
+  representativeId: string;
+}
+
 export class PatientChangeStatusDto {
   @IsString()
   _id: string;

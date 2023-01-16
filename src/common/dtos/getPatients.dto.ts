@@ -23,12 +23,29 @@ export class GetPatientsDto extends GetRequestDto {
   @IsBoolean()
   @IsOptional()
   isActive?: boolean;
+
+  @IsString()
+  @IsOptional()
+  representativeId?: string;
 }
 
-export class GetFreePatientsDto extends GetPatientsDto {
+export class GetPatientRepresentativesDto extends GetRequestDto {
   @IsString()
-  representaticeId: string;
+  id: string;
+
+  @IsEnum(Gender)
+  @IsOptional()
+  gender?: Gender;
+
+  @Transform(({ value }) => toBoolean(value))
+  @IsBoolean()
+  @IsOptional()
+  isActive?: boolean;
 }
+// export class GetFreePatientsDto extends GetPatientsDto {
+//   @IsString()
+//   representaticeId: string;
+// }
 
 export class GetPatientsByIdDto {
   @IsString()

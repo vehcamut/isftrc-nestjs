@@ -13,12 +13,19 @@ export class SpecialistType {
   })
   name: string;
 
-  @Prop({ default: '' })
+  // @Prop({ default: '' })
+  // @ApiProperty({
+  //   example: 'Очень важное примечание',
+  //   description: 'Примечание / Note',
+  // })
+  // note?: string;
+
+  @Prop({ required: true, default: true })
   @ApiProperty({
-    example: 'Очень важное примечание',
-    description: 'Примечание / Note',
+    example: true,
+    description: 'Статус / Status',
   })
-  note?: string;
+  isActive: boolean;
 }
 
 export const SpecialistTypeSchema =

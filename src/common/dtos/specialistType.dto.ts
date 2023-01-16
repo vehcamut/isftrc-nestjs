@@ -1,26 +1,25 @@
-/*export interface SpecialistTypesDto {
-  name: string;
-  note: string;
-}*/
-import { Exclude } from 'class-transformer';
+import { GetRequestDto } from './getRequest.dto';
+import { IsBoolean } from 'class-validator';
+import { Exclude, Transform } from 'class-transformer';
 import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { toBoolean } from '../helpers';
 
 export class SpecialistTypeDto {
+  @IsNotEmpty({ message: 'name: поле имя не должено быть пустым' })
   @IsString()
-  @IsNotEmpty()
   name: string;
 
-  @IsString()
+  @IsBoolean()
   @IsOptional()
-  note: string;
-
+  isActive?: boolean = false;
+}
+export class SpecialistTypeWithIdDto extends SpecialistTypeDto {
   @IsString()
-  @IsOptional()
   _id: string;
 }
-
-export class SpecialistTypeRemoveDto {
-  @IsString()
+export class GetSpecialistTypeDto extends GetRequestDto {
+  @Transform(({ value }) => toBoolean(value))
+  @IsBoolean()
   @IsOptional()
-  _id: string;
+  isActive?: boolean;
 }

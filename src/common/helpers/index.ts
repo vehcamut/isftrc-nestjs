@@ -1,2 +1,2 @@
 export * from './any.helper';
-export * from './specialistTypesQuery.helper';
+export * from '../../../test/specialists/specialistTypesQuery.helper';

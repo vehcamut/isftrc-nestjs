@@ -10,6 +10,7 @@ import { UsersModule } from './users/users.module';
 import { PatientsModule } from './patients/patients.module';
 import { AddressModule } from './address/address.module';
 import { AdvertisingSourceModule } from './advertisingSource/advertisingSource.module';
+import { SpecialistTypeModule } from './specialistType/specialistType.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { AdvertisingSourceModule } from './advertisingSource/advertisingSource.m
     AuthModule,
     AdvertisingSourceModule,
     RepresentativesModule,
+    SpecialistTypeModule,
     //SpecialistsModule,
     UsersModule,
     PatientsModule,

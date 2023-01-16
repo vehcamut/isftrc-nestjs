@@ -3,6 +3,8 @@ import { BadRequestException } from '@nestjs/common/exceptions';
 import {
   AdvertisingSource,
   AdvertisingSourceDocument,
+  SpecialistType,
+  SpecialistTypeDocument,
 } from 'src/common/schemas';
 import {
   AdvertisingSourceDto,
@@ -10,21 +12,24 @@ import {
   GetAdvertisingSourceDto,
   GetPatientsDto,
   GetRequestDto,
+  GetSpecialistTypeDto,
   PatientBaseDto,
   PatientChangeStatusDto,
   PatientWithIdDto,
+  SpecialistTypeDto,
+  SpecialistTypeWithIdDto,
 } from 'src/common/dtos';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model, SortOrder } from 'mongoose';
 
 @Injectable()
-export class AdvertisingSourceService {
+export class SpecialistTypeService {
   constructor(
-    @InjectModel(AdvertisingSource.name)
-    private advertisingSourceModel: Model<AdvertisingSourceDocument>,
+    @InjectModel(SpecialistType.name)
+    private specialistTypeModel: Model<SpecialistTypeDocument>,
   ) {}
-  async get(dto: GetAdvertisingSourceDto): Promise<any> {
+  async get(dto: GetSpecialistTypeDto): Promise<any> {
     const findCond = {
       $and: [
         {
@@ -37,12 +42,8 @@ export class AdvertisingSourceService {
           : {},
       ],
     };
-    const query = this.advertisingSourceModel.find(findCond);
-    const count = await this.advertisingSourceModel
-      .find(findCond)
-      .count()
-      .exec();
-    console.log(count);
+    const query = this.specialistTypeModel.find(findCond);
+    const count = await this.specialistTypeModel.find(findCond).count().exec();
     if (dto.sort)
       query.sort({
         [dto.sort]: dto.order as SortOrder,
@@ -72,43 +73,40 @@ export class AdvertisingSourceService {
   // }
 
   async add(
-    dto: AdvertisingSourceDto,
+    dto: SpecialistTypeDto,
     id: string,
     roles: string[],
   ): Promise<object> {
-    const count = await this.advertisingSourceModel
+    const count = await this.specialistTypeModel
       .findOne({ name: dto.name })
       .exec();
-    console.log(count);
     if (count) throw new BadRequestException('name: must be unique');
-    //console.log(dto);
     //TODO: Сделать проверку представителей
-    const user = await this.advertisingSourceModel.create({
+    const type = await this.specialistTypeModel.create({
       ...dto,
     });
-    const newPatient = new this.advertisingSourceModel(user);
-    newPatient.save();
+    const newType = new this.specialistTypeModel(type);
+    newType.save();
     return;
   }
 
   async update(
-    dto: AdvertisingSourceWithIdDto,
+    dto: SpecialistTypeWithIdDto,
     id: string,
     roles: string[],
   ): Promise<object> {
     if (!mongoose.Types.ObjectId.isValid(dto._id))
       throw new BadRequestException('_id: not found');
-    const candidate = await this.advertisingSourceModel
-      .findById(dto._id)
-      .exec();
+    const candidate = await this.specialistTypeModel.findById(dto._id).exec();
     // .select(
     //   'number name surname patronymic dateOfBirth gender address isActive note representatives _id',
     // )
     // .exec();
     if (!candidate) throw new BadRequestException('_id: not found');
-    const count = await this.advertisingSourceModel
+    const count = await this.specialistTypeModel
       .findOne({ name: dto.name })
       .exec();
+
     if (count && count._id.toString() !== dto._id)
       throw new BadRequestException('Название должно быть уникальным');
     // delete dto._id;
@@ -116,7 +114,7 @@ export class AdvertisingSourceService {
     // console.log(
     //   await this.advertisingSourceModel.findByIdAndUpdate(dto._id, dto).exec(),
     // );
-    this.advertisingSourceModel.findByIdAndUpdate(dto._id, dto).exec();
+    this.specialistTypeModel.findByIdAndUpdate(dto._id, dto).exec();
     return;
   }
 

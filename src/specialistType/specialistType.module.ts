@@ -1,16 +1,22 @@
+import {
+  SpecialistType,
+  SpecialistTypeSchema,
+} from './../common/schemas/specialistType.schema';
 import { Module } from '@nestjs/common';
-import { PatientsService } from './patients.service';
-import { PatientsController } from './patients.controller';
+import { SpecialistTypeController } from './specialistType.controller';
 import { getConnectionToken, MongooseModule } from '@nestjs/mongoose';
-import { Patient, PatientSchema, User, UserSchema } from 'src/common/schemas';
+import {
+  AdvertisingSource,
+  AdvertisingSourcesSchema,
+} from 'src/common/schemas';
 import { Connection } from 'mongoose';
+import { SpecialistTypeService } from './specialistType.service';
 
 @Module({
-  controllers: [PatientsController],
+  controllers: [SpecialistTypeController],
   imports: [
     MongooseModule.forFeature([
-      { name: Patient.name, schema: PatientSchema },
-      { name: User.name, schema: UserSchema },
+      { name: SpecialistType.name, schema: SpecialistTypeSchema },
     ]),
     // MongooseModule.forFeatureAsync([
     //   {
@@ -25,6 +31,6 @@ import { Connection } from 'mongoose';
     //   },
     // ]),
   ],
-  providers: [PatientsService],
+  providers: [SpecialistTypeService],
 })
-export class PatientsModule {}
+export class SpecialistTypeModule {}

@@ -15,8 +15,8 @@ import {
   toDate,
   toSpecificSortOrderType,
   toSpecialistType,
-} from '../helpers';
-import { SpecialistTypeDto } from '.';
+} from '../../src/common/helpers';
+import { SpecialistTypeDto } from '../../src/common/dtos';
 
 export class SpecialistTypesQueryDto {
   @Transform(({ value }) => toNumber(value, { default: 0, min: 0 }))
