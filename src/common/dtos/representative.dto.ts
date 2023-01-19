@@ -80,7 +80,6 @@ export class AddRepresentativeDto {
   @IsString()
   hash?: string;
 }
-
 export class RepresentativeWithIdDto extends AddRepresentativeDto {
   @IsNotEmpty({ message: 'surname: поле фамилия не должено быть пустым' })
   @IsString()

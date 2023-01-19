@@ -11,6 +11,7 @@ import { PatientsModule } from './patients/patients.module';
 import { AddressModule } from './address/address.module';
 import { AdvertisingSourceModule } from './advertisingSource/advertisingSource.module';
 import { SpecialistTypeModule } from './specialistType/specialistType.module';
+import { SpecialistsModule } from './specialists/specialists.module';
 
 @Module({
   imports: [
@@ -23,7 +24,7 @@ import { SpecialistTypeModule } from './specialistType/specialistType.module';
     AdvertisingSourceModule,
     RepresentativesModule,
     SpecialistTypeModule,
-    //SpecialistsModule,
+    SpecialistsModule,
     UsersModule,
     PatientsModule,
     AddressModule,

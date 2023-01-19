@@ -28,7 +28,6 @@ export class GetRepresentativesDto extends GetRequestDto {
   @IsOptional()
   patientId?: string;
 }
-
 export class GetRepresentativesByIdDto {
   @IsString()
   id: string;

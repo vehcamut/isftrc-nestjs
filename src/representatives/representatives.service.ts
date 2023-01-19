@@ -130,6 +130,7 @@ export class RepresentativesService {
     id: string,
     roles: string[],
   ): Promise<object> {
+    console.log(dto);
     const count = await this.representativesModel
       .findOne({ login: dto.login })
       .exec();
