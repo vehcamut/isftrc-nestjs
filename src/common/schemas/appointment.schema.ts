@@ -10,9 +10,17 @@ export class Appointment {
   @ApiProperty({
     type: Date,
     example: new Date('2005-12-30T00:00:00.000+00:00'),
-    description: 'Дата / Date',
+    description: 'Дата начала / Begin date',
   })
-  date: Date;
+  begDate: Date;
+
+  @Prop({ required: true })
+  @ApiProperty({
+    type: Date,
+    example: new Date('2005-12-30T00:00:00.000+00:00'),
+    description: 'Дата окончания / End date',
+  })
+  endDate: Date;
 
   @Prop({ type: SchemaTypes.ObjectId, ref: 'Service' })
   @ApiProperty({

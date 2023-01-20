@@ -13,6 +13,7 @@ export function trim(value: string): string {
 }
 
 export function toDate(value: string): Date {
+  // console.log(new Date(value));
   return new Date(value);
 }
 

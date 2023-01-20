@@ -12,6 +12,7 @@ import { AddressModule } from './address/address.module';
 import { AdvertisingSourceModule } from './advertisingSource/advertisingSource.module';
 import { SpecialistTypeModule } from './specialistType/specialistType.module';
 import { SpecialistsModule } from './specialists/specialists.module';
+import { AppointmentsModule } from './appointments/appointments.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { SpecialistsModule } from './specialists/specialists.module';
     UsersModule,
     PatientsModule,
     AddressModule,
+    AppointmentsModule,
   ],
   controllers: [],
   //провайдер защит jwt для инъекции
