@@ -26,7 +26,12 @@ export class GetAppointmetnsDto {
   @Transform((value) => toDate(value.value))
   // @Type(() => Date)
   @IsDate()
-  date: Date;
+  begDate?: Date;
+
+  @Transform((value) => toDate(value.value))
+  // @Type(() => Date)
+  @IsDate()
+  endDate?: Date;
 
   @IsBoolean()
   @IsOptional()

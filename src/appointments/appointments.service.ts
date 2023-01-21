@@ -63,18 +63,22 @@ export class AppointmentsService {
     if (!candidate) throw new BadRequestException('_id: not found');
     if (!candidate.isActive || !candidate.roles.includes('specialist'))
       throw new BadRequestException('bad specialist');
-    const date = new Date(dto.date.toDateString());
+    // const date = new Date(dto.date.toDateString());
 
-    const beg = new Date(date).setMonth(date.getMonth() - 1);
-    const end = new Date(date).setMonth(date.getMonth() + 1);
+    // const beg = new Date(date).setMonth(date.getMonth() - 1);
+    // const end = new Date(date).setMonth(date.getMonth() + 1);
     const findCond = {
       $and: [
-        {
-          begDate: { $gte: beg },
-        },
-        {
-          endDate: { $lte: end },
-        },
+        dto.begDate
+          ? {
+              begDate: { $gte: dto.begDate },
+            }
+          : {},
+        dto.endDate
+          ? {
+              endDate: { $lte: dto.endDate },
+            }
+          : {},
         {
           specialist: dto.specialistId,
         },
@@ -87,7 +91,7 @@ export class AppointmentsService {
     };
     const query = this.appointmentModel.find(findCond);
     const count = await this.appointmentModel.find(findCond).count().exec();
-    query.select('_id begDate endDate service specialist');
+    query.sort({ begDate: 1 }).select('_id begDate endDate service specialist');
     const data = await query.exec();
     return { data, count };
   }
@@ -96,12 +100,26 @@ export class AppointmentsService {
     //todo: проверить конец позже начала
     //todo: сортировка по дате
     const findCond = {
-      $and: [
+      $or: [
         {
-          begDate: { $gte: dto.begDate },
+          $and: [
+            {
+              begDate: { $lte: dto.begDate },
+            },
+            {
+              endDate: { $gt: dto.begDate },
+            },
+          ],
         },
         {
-          endDate: { $lte: dto.endDate },
+          $and: [
+            {
+              begDate: { $lt: dto.endDate },
+            },
+            {
+              endDate: { $gte: dto.endDate },
+            },
+          ],
         },
       ],
     };
