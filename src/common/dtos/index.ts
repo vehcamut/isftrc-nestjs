@@ -12,3 +12,4 @@ export * from './advertisingSource.dto';
 export * from './getRepresentatives.dto';
 export * from './representative.dto';
 export * from './appointment.dto';
+export * from './servise.dto';

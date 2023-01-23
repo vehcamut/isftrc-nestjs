@@ -13,6 +13,7 @@ import { AdvertisingSourceModule } from './advertisingSource/advertisingSource.m
 import { SpecialistTypeModule } from './specialistType/specialistType.module';
 import { SpecialistsModule } from './specialists/specialists.module';
 import { AppointmentsModule } from './appointments/appointments.module';
+import { ServicesModule } from './services/services.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { AppointmentsModule } from './appointments/appointments.module';
     PatientsModule,
     AddressModule,
     AppointmentsModule,
+    ServicesModule,
   ],
   controllers: [],
   //провайдер защит jwt для инъекции

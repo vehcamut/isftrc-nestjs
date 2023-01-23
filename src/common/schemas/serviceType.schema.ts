@@ -35,11 +35,18 @@ export class ServiceType {
   })
   group: Types.ObjectId;
 
-  @Prop({ required: true })
+  // @Prop({ required: true })
+  // @ApiProperty({
+  //   example: 1,
+  //   description: 'Уникальный идентификатор / Unique identificator',
+  // })
+  // uid: number;
+
+  @Prop({ required: true, default: true })
   @ApiProperty({
-    example: 1,
-    description: 'Уникальный идентификатор / Unique identificator',
+    example: true,
+    description: 'Статус / Status',
   })
-  uid: number;
+  isActive: boolean;
 }
 export const ServiceTypeSchema = SchemaFactory.createForClass(ServiceType);
