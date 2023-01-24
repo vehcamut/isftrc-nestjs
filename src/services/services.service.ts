@@ -1,4 +1,3 @@
-import { ServiceGroupWithTypesDto } from './../common/dtos/servise.dto';
 import { GetPatientsByIdDto } from '../common/dtos/getPatients.dto';
 import { BadRequestException } from '@nestjs/common/exceptions';
 import {
@@ -10,6 +9,8 @@ import {
   ServiceGroupDocument,
   ServiceType,
   ServiceTypeDocument,
+  SpecialistType,
+  SpecialistTypeDocument,
 } from 'src/common/schemas';
 import {
   AdvertisingSourceDto,
@@ -21,12 +22,15 @@ import {
   PatientBaseDto,
   PatientChangeStatusDto,
   PatientWithIdDto,
+  ServiceTypeWithIdDto,
+  ServiceGroupWithTypesDto,
   ServiceGroupDto,
   ServiceTypeDto,
+  ServiceGroupWithIdDto,
 } from 'src/common/dtos';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import mongoose, { Model, SortOrder } from 'mongoose';
+import mongoose, { Model, SortOrder, Types } from 'mongoose';
 
 @Injectable()
 export class ServicesService {
@@ -35,6 +39,8 @@ export class ServicesService {
     private serviceGroupModel: Model<ServiceGroupDocument>,
     @InjectModel(ServiceType.name)
     private serviceTypeModel: Model<ServiceTypeDocument>,
+    @InjectModel(SpecialistType.name)
+    private specialistTypeModel: Model<SpecialistTypeDocument>,
   ) {}
   async get(dto: GetServiceDto): Promise<any> {
     const findCond = {
@@ -79,6 +85,8 @@ export class ServicesService {
         isActive: type.isActive,
         group: type.group.toString(),
         specialistTypes: type.specialistTypes.map((st) => st.toString()),
+        price: type.price,
+        time: type.time,
       });
     });
     // .find(findCond);
@@ -95,7 +103,22 @@ export class ServicesService {
     //   .limit(dto.limit)
     //   .select('name isActive _id');
     // const data = await query.exec();
+    // const date = Date.now();
+    // let currentDate = null;
+    // do {
+    //   currentDate = Date.now();
+    // } while (currentDate - date < 5000);
+
     return groupsWithType;
+  }
+
+  async getGroups(dto: GetServiceDto): Promise<any> {
+    const groups = this.serviceGroupModel
+      .find()
+      .select('name isActive _id')
+      .exec();
+
+    return groups;
   }
 
   // async getById(dto: GetPatientsByIdDto): Promise<any> {
@@ -121,7 +144,7 @@ export class ServicesService {
     const cand = await this.serviceGroupModel
       .findOne({ name: dto.name })
       .exec();
-    if (cand) throw new BadRequestException('name: must be unique');
+    if (cand) throw new BadRequestException('Название должно быть уникальным');
     //console.log(dto);
     const group = await this.serviceGroupModel.create(dto);
     const newGroup = new this.serviceGroupModel(group);
@@ -135,49 +158,111 @@ export class ServicesService {
     roles: string[],
   ): Promise<object> {
     const cand = await this.serviceTypeModel.findOne({ name: dto.name }).exec();
-    if (cand) throw new BadRequestException('name: must be unique');
+    if (cand) throw new BadRequestException('Название должно быть уникальным');
 
     if (!mongoose.Types.ObjectId.isValid(dto.group))
-      throw new BadRequestException('_id: not found');
+      throw new BadRequestException('id группы услуг не найден');
 
     const candidate = await this.serviceGroupModel.findById(dto.group).exec();
-    if (!candidate) throw new BadRequestException('_id: not found');
+    if (!candidate) throw new BadRequestException('id группы услуг не найден');
 
-    const type = await this.serviceTypeModel.create(dto);
+    const specialistTypes: Types.ObjectId[] = [];
+
+    for (let i = 0; i < dto.specialistTypes.length; i++) {
+      try {
+        specialistTypes.push(new Types.ObjectId(dto.specialistTypes[i]));
+        //dto.advertisingSources[i] = new Types.ObjectId(dto.advertisingSources[i]);
+      } catch (e) {
+        console.log(e);
+        throw new BadRequestException(
+          `Неизвестная специальность: ${dto.specialistTypes[i]}`,
+        );
+      }
+
+      const candidate = await this.specialistTypeModel.findById(
+        specialistTypes[i],
+      );
+      if (!candidate)
+        throw new BadRequestException(
+          `Неизвестная специальность: ${dto.specialistTypes[i]}`,
+        );
+    }
+
+    const type = await this.serviceTypeModel.create({
+      ...dto,
+      specialistTypes,
+    });
     const newType = new this.serviceTypeModel(type);
     newType.save();
     return;
   }
 
-  // async update(
-  //   dto: AdvertisingSourceWithIdDto,
-  //   id: string,
-  //   roles: string[],
-  // ): Promise<object> {
-  //   if (!mongoose.Types.ObjectId.isValid(dto._id))
-  //     throw new BadRequestException('_id: not found');
-  //   const candidate = await this.advertisingSourceModel
-  //     .findById(dto._id)
-  //     .exec();
-  //   // .select(
-  //   //   'number name surname patronymic dateOfBirth gender address isActive note representatives _id',
-  //   // )
-  //   // .exec();
-  //   if (!candidate) throw new BadRequestException('_id: not found');
-  //   const count = await this.advertisingSourceModel
-  //     .findOne({ name: dto.name })
-  //     .exec();
-  //   if (count && count._id.toString() !== dto._id)
-  //     throw new BadRequestException('Название должно быть уникальным');
-  //   // delete dto._id;
-  //   // console.log(dto);
-  //   // console.log(
-  //   //   await this.advertisingSourceModel.findByIdAndUpdate(dto._id, dto).exec(),
-  //   // );
-  //   this.advertisingSourceModel.findByIdAndUpdate(dto._id, dto).exec();
-  //   return;
-  // }
+  async updateGroup(
+    dto: ServiceGroupWithIdDto,
+    id: string,
+    roles: string[],
+  ): Promise<object> {
+    if (!mongoose.Types.ObjectId.isValid(dto._id))
+      throw new BadRequestException('_id: not found');
+    const candidate = await this.serviceGroupModel.findById(dto._id).exec();
+    if (!candidate) throw new BadRequestException('_id: not found');
+    const count = await this.serviceGroupModel
+      .findOne({ name: dto.name })
+      .exec();
+    if (count && count._id.toString() !== dto._id)
+      throw new BadRequestException('Название должно быть уникальным');
+    this.serviceGroupModel.findByIdAndUpdate(dto._id, dto).exec();
+    return;
+  }
 
+  async updateType(
+    dto: ServiceTypeWithIdDto,
+    id: string,
+    roles: string[],
+  ): Promise<object> {
+    if (!mongoose.Types.ObjectId.isValid(dto._id))
+      throw new BadRequestException('id услуги не найден');
+    const candidate = await this.serviceTypeModel.findById(dto._id).exec();
+    if (!candidate) throw new BadRequestException('id услуги не найден');
+    const count = await this.serviceTypeModel
+      .findOne({ name: dto.name })
+      .exec();
+    if (count && count._id.toString() !== dto._id)
+      throw new BadRequestException('Название должно быть уникальным');
+
+    if (!mongoose.Types.ObjectId.isValid(dto.group))
+      throw new BadRequestException('id группы услуг не найден');
+
+    const groupCand = await this.serviceGroupModel.findById(dto.group).exec();
+    if (!groupCand) throw new BadRequestException('id группы услуг не найден');
+
+    const specialistTypes: Types.ObjectId[] = [];
+
+    for (let i = 0; i < dto.specialistTypes.length; i++) {
+      try {
+        specialistTypes.push(new Types.ObjectId(dto.specialistTypes[i]));
+        //dto.advertisingSources[i] = new Types.ObjectId(dto.advertisingSources[i]);
+      } catch (e) {
+        console.log(e);
+        throw new BadRequestException(
+          `Неизвестная специальность: ${dto.specialistTypes[i]}`,
+        );
+      }
+
+      const candidate = await this.specialistTypeModel.findById(
+        specialistTypes[i],
+      );
+      if (!candidate)
+        throw new BadRequestException(
+          `Неизвестная специальность: ${dto.specialistTypes[i]}`,
+        );
+    }
+
+    this.serviceGroupModel
+      .findByIdAndUpdate(dto._id, { ...dto, specialistTypes })
+      .exec();
+    return;
+  }
   // async changeStatus(
   //   dto: PatientChangeStatusDto,
   //   id: string,

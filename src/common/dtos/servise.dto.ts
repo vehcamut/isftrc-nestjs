@@ -6,8 +6,10 @@ import {
   IsString,
   IsNotEmpty,
   IsArray,
+  IsNumber,
+  IsDate,
 } from 'class-validator';
-import { toBoolean, trim } from '../helpers';
+import { toBoolean, toDate, trim } from '../helpers';
 
 export class GetServiceDto {
   @Transform(({ value }) => trim(value))
@@ -40,10 +42,14 @@ export class ServiceTypeDto {
   @IsString()
   name: string;
 
+  @IsNotEmpty({ message: 'price: поле цена не должено быть пустым' })
+  @IsNumber()
+  price: number;
+
   @IsArray()
-  @IsOptional()
+  // @IsOptional()
   @IsString({ each: true })
-  specialistTypes?: string[] = [];
+  specialistTypes: string[] = [];
 
   @IsNotEmpty({ message: 'group: поле группа не должено быть пустым' })
   @IsString()
@@ -52,6 +58,12 @@ export class ServiceTypeDto {
   @IsBoolean()
   @IsOptional()
   isActive?: boolean = true;
+
+  @IsNotEmpty({ message: 'time: поле время не должено быть пустым' })
+  @Transform((value) => toDate(value.value))
+  // @Type(() => Date)
+  @IsDate()
+  time?: Date;
 }
 
 export class ServiceTypeWithIdDto extends ServiceTypeDto {

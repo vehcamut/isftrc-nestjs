@@ -9,6 +9,8 @@ import {
   ServiceGroupSchema,
   ServiceType,
   ServiceTypeSchema,
+  SpecialistType,
+  SpecialistTypeSchema,
 } from 'src/common/schemas';
 import { Connection } from 'mongoose';
 
@@ -18,6 +20,7 @@ import { Connection } from 'mongoose';
     MongooseModule.forFeature([
       { name: ServiceGroup.name, schema: ServiceGroupSchema },
       { name: ServiceType.name, schema: ServiceTypeSchema },
+      { name: SpecialistType.name, schema: SpecialistTypeSchema },
     ]),
     // MongooseModule.forFeatureAsync([
     //   {

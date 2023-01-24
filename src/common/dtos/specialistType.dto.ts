@@ -1,5 +1,5 @@
 import { GetRequestDto } from './getRequest.dto';
-import { IsBoolean } from 'class-validator';
+import { IsBoolean, IsNumber } from 'class-validator';
 import { Exclude, Transform } from 'class-transformer';
 import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { toBoolean } from '../helpers';

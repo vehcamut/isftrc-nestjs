@@ -48,5 +48,20 @@ export class ServiceType {
     description: 'Статус / Status',
   })
   isActive: boolean;
+
+  @Prop({ require: true })
+  @ApiProperty({
+    example: '500',
+    description: 'Цена / Price',
+  })
+  price: number;
+
+  @Prop({ required: true })
+  @ApiProperty({
+    type: Date,
+    example: new Date('0000-00-00T00:15:00.000+00:00'),
+    description: 'Время оказания / time',
+  })
+  time: Date;
 }
 export const ServiceTypeSchema = SchemaFactory.createForClass(ServiceType);
