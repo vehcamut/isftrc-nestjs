@@ -70,5 +70,15 @@ export class Patient implements IPatient {
     description: 'Комментарий / Note',
   })
   note: string;
+
+  @Prop({ type: [SchemaTypes.ObjectId], ref: 'Course' })
+  @ApiProperty({
+    example: [
+      new Types.ObjectId('632b153c077e63115d32342a'),
+      new Types.ObjectId('632b23c163949a53b89add12'),
+    ],
+    description: 'Курсы / Courses',
+  })
+  courses?: Types.ObjectId[];
 }
 export const PatientSchema = SchemaFactory.createForClass(Patient);

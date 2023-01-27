@@ -166,13 +166,20 @@ export class SpecialistsService {
         );
     }
 
-    const user = await this.specialistModel.create({
+    // const user = await this.specialistModel.create({
+    //   ...dto,
+    //   hash: hashedPassword,
+    //   types,
+    //   roles: ['specialist'],
+    // });
+    // const newSpecialist = new this.specialistModel(user);
+    // newSpecialist.save();
+    const newSpecialist = new this.specialistModel({
       ...dto,
       hash: hashedPassword,
       types,
       roles: ['specialist'],
     });
-    const newSpecialist = new this.specialistModel(user);
     newSpecialist.save();
     return newSpecialist._id;
   }

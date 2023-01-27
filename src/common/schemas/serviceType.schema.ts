@@ -56,6 +56,13 @@ export class ServiceType {
   })
   price: number;
 
+  @Prop({ require: false, default: 0 })
+  @ApiProperty({
+    example: '0',
+    description: 'Количество при добавлении пациента / Default amount patient',
+  })
+  defaultAmountPatient: number;
+
   @Prop({ required: true })
   @ApiProperty({
     type: Date,

@@ -1,3 +1,5 @@
+import { AppointmentWithIdDto } from './appointment.dto';
+import { SpecialistTypeDto, SpecialistTypeWithIdDto } from 'src/common/dtos';
 import { GetRequestDto } from './getRequest.dto';
 import { Transform } from 'class-transformer';
 import {
@@ -17,7 +19,6 @@ export class GetServiceDto {
   @IsOptional()
   public filter = '';
 }
-
 export class ServiceGroupDto {
   @IsNotEmpty({ message: 'name: поле имя не должено быть пустым' })
   @IsString()
@@ -49,7 +50,7 @@ export class ServiceTypeDto {
   @IsArray()
   // @IsOptional()
   @IsString({ each: true })
-  specialistTypes: string[] = [];
+  specialistTypes: any[] = [];
 
   @IsNotEmpty({ message: 'group: поле группа не должено быть пустым' })
   @IsString()
@@ -64,6 +65,11 @@ export class ServiceTypeDto {
   // @Type(() => Date)
   @IsDate()
   time?: Date;
+
+  // @IsNotEmpty({ message: 'price: поле цена не должено быть пустым' })
+  @IsNumber()
+  @IsOptional()
+  defaultAmountPatient?: number = 0;
 }
 
 export class ServiceTypeWithIdDto extends ServiceTypeDto {
@@ -71,7 +77,28 @@ export class ServiceTypeWithIdDto extends ServiceTypeDto {
   _id: string;
 }
 
-// export class AdverstingSourseBaseDto {
-//   name: string;
-//   _id: string;
-// }
+export class AddServiceDto {
+  type: string;
+  course: string;
+  note?: string;
+  patient: string;
+}
+
+export class RemoveService {
+  id: string;
+  patient: string;
+}
+
+export class ServiceDto {
+  type: ServiceTypeWithIdDto;
+  status: boolean;
+  course: string;
+  result?: string;
+  note?: string;
+  appointment?: AppointmentWithIdDto | undefined;
+  patient?: string;
+}
+
+export class ServiceWithIdDto extends ServiceDto {
+  _id: string;
+}

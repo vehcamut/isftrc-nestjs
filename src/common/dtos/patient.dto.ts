@@ -62,7 +62,6 @@ export class PatientBaseDto {
   @IsOptional()
   number?: number;
 }
-
 export class PatientWithIdDto extends PatientBaseDto {
   @IsString()
   _id: string;

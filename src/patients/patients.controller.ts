@@ -12,6 +12,8 @@ import { Body, Patch, Post, Put, Req } from '@nestjs/common/decorators';
 import { Response } from 'express';
 import { Public } from 'src/common/decorators';
 import {
+  AddServiceDto,
+  CourseWithServicesDto,
   GetPatientRepresentativesDto,
   GetPatientsByIdDto,
   GetPatientsDto,
@@ -19,6 +21,9 @@ import {
   PatientBaseDto,
   PatientChangeStatusDto,
   PatientWithIdDto,
+  RemoveService,
+  getCoursesDto,
+  patientCourseDto,
 } from 'src/common/dtos';
 import { PatientsService } from './patients.service';
 
@@ -71,21 +76,6 @@ export class PatientsController {
     return response.data;
   }
 
-  // @Post('removeRepresentative')
-  // @Public()
-  // //@Roles('registrator')
-  // @HttpCode(HttpStatus.CREATED)
-  // async removeRepresentative(
-  //   @Req() request: Request | any,
-  //   @Body() dto: AddPatientToRepresentative,
-  // ) {
-  //   return this.patientsService.removeRepresentative(
-  //     dto,
-  //     request.user?._id,
-  //     request.user?.roles,
-  //   );
-  // }
-
   @Post('add')
   @Public()
   //@Roles('registrator')
@@ -123,5 +113,79 @@ export class PatientsController {
       request.user?._id,
       request.user?.roles,
     );
+  }
+
+  // // открыть последний курс, если закрыт
+  // @Post('openCourse')
+  // @Public()
+  // //@Roles('registrator')
+  // @HttpCode(HttpStatus.CREATED)
+  // async openCourse(
+  //   @Req() request: Request | any,
+  //   @Body() dto: patientCourseDto,
+  // ) {
+  //   return this.patientsService.openCourse(
+  //     dto,
+  //     request.user?._id,
+  //     request.user?.roles,
+  //   );
+  // }
+  // // закрыть последний курс, если закрыт
+  // @Post('closeCourse')
+  // @Public()
+  // //@Roles('registrator')
+  // @HttpCode(HttpStatus.CREATED)
+  // async closeCourse(
+  //   @Req() request: Request | any,
+  //   @Body() dto: patientCourseDto,
+  // ) {
+  //   return this.patientsService.closeCourse(
+  //     dto,
+  //     request.user?._id,
+  //     request.user?.roles,
+  //   );
+  // }
+  // // добавить услугу в курс
+  // @Post('addService')
+  // @Public()
+  // //@Roles('registrator')
+  // @HttpCode(HttpStatus.CREATED)
+  // async addService(@Req() request: Request | any, @Body() dto: AddServiceDto) {
+  //   return this.patientsService.addService(
+  //     dto,
+  //     request.user?._id,
+  //     request.user?.roles,
+  //   );
+  // }
+  // // удалить неоказаную и незаписаную услугу из курса
+  // @Post('removeService')
+  // @Public()
+  // //@Roles('registrator')
+  // @HttpCode(HttpStatus.CREATED)
+  // async removeService(
+  //   @Req() request: Request | any,
+  //   @Body() dto: RemoveService,
+  // ) {
+  //   return this.patientsService.removeService(
+  //     dto,
+  //     request.user?._id,
+  //     request.user?.roles,
+  //   );
+  // }
+  @Get('getCourses')
+  @Public()
+  //@Roles('registrator')
+  @HttpCode(HttpStatus.OK)
+  async getCourses(
+    @Req() request: Request | any,
+    @Query() dto: getCoursesDto,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<CourseWithServicesDto[]> {
+    const response = await this.patientsService.getCourses(
+      dto,
+      request.user?._id,
+      request.user?.roles,
+    );
+    return response;
   }
 }

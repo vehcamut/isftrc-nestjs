@@ -13,3 +13,4 @@ export * from './getRepresentatives.dto';
 export * from './representative.dto';
 export * from './appointment.dto';
 export * from './servise.dto';
+export * from './course.dto';

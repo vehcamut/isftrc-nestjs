@@ -50,19 +50,24 @@ export class ServicesService {
         },
       ],
     };
-    // const query = this.serviceTypeModel.aggregate([
-    //   {
-    //     // $match: findCond,
-    //     $group: {
-    //       _id: '$group',
-    //     },
-    //   },
-    // ]);
+
     const groups = await this.serviceGroupModel
       .find()
       .select('name isActive _id')
       .exec();
-    const types = await this.serviceTypeModel.find(findCond).exec();
+
+    const types = await this.serviceTypeModel
+      .find(findCond)
+      .select('name isActive group time price _id defaultAmountPatient')
+      .populate(
+        'specialistTypes',
+        'isActive name _id',
+        this.specialistTypeModel,
+        {
+          isActive: true,
+        },
+      )
+      .exec();
     const groupsWithType: ServiceGroupWithTypesDto[] = [];
     groups.forEach((group) => {
       groupsWithType.push({
@@ -72,43 +77,22 @@ export class ServicesService {
         types: [],
       });
     });
-    console.log(groupsWithType);
     types.forEach(async (type) => {
       const gr = await groupsWithType.find((el) => {
-        console.log(el._id);
         return el._id === type.group.toString();
       });
-      console.log(type.group.toString(), gr);
       gr.types.push({
         _id: type._id,
         name: type.name,
         isActive: type.isActive,
         group: type.group.toString(),
-        specialistTypes: type.specialistTypes.map((st) => st.toString()),
+        specialistTypes: type.specialistTypes,
         price: type.price,
         time: type.time,
+        defaultAmountPatient: type.defaultAmountPatient,
       });
     });
-    // .find(findCond);
-    // const query = this.serviceModel.find(findCond);
-    // const count = await this.serviceModel.find(findCond).count().exec();
-    // console.log(count);
-    // if (dto.sort)
-    //   query.sort({
-    //     [dto.sort]: dto.order as SortOrder,
-    //   });
-
-    // query
-    //   .skip(dto.page * dto.limit)
-    //   .limit(dto.limit)
-    //   .select('name isActive _id');
-    // const data = await query.exec();
-    // const date = Date.now();
-    // let currentDate = null;
-    // do {
-    //   currentDate = Date.now();
-    // } while (currentDate - date < 5000);
-
+    console.log(groupsWithType);
     return groupsWithType;
   }
 
@@ -258,7 +242,7 @@ export class ServicesService {
         );
     }
 
-    this.serviceGroupModel
+    this.serviceTypeModel
       .findByIdAndUpdate(dto._id, { ...dto, specialistTypes })
       .exec();
     return;

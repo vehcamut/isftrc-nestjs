@@ -6,7 +6,7 @@ export type ServiceDocument = Service & Document;
 
 @Schema({ timestamps: true })
 export class Service {
-  @Prop({ required: true, default: false })
+  @Prop({ required: true, default: true })
   @ApiProperty({
     example: true,
     description: 'Статус / Status',
@@ -27,20 +27,50 @@ export class Service {
   })
   type: Types.ObjectId;
 
-  @Prop({
-    type: [SchemaTypes.ObjectId],
-    ref: 'User',
-    default: [],
-    required: true,
+  @Prop()
+  @ApiProperty({
+    example: 'Результат оказания услуги',
+    description: 'Результат / Result',
   })
+  result?: string;
+
+  @Prop()
+  @ApiProperty({
+    example: 'Примечание к услуге',
+    description: 'Примечание к услуге / Note',
+  })
+  note?: string;
+
+  @Prop({ required: true, type: SchemaTypes.ObjectId, ref: 'Patient' })
   @ApiProperty({
     example: [
-      new Types.ObjectId('632b153c077e63515d42348a'),
-      new Types.ObjectId('632b15c163949a53b89addad'),
+      new Types.ObjectId('632b153c077e63115d32342a'),
+      new Types.ObjectId('632b23c163949a53b89add12'),
     ],
-    description: 'Рекмоендованные специалисты / Recommended specialists',
+    description: 'Пациент / Patient',
   })
-  specialistTypes: Types.ObjectId[];
+  patient: Types.ObjectId;
+
+  @Prop({ type: SchemaTypes.ObjectId, ref: 'Appointment' })
+  @ApiProperty({
+    example: new Types.ObjectId('632b153c077e63515d42348a'),
+    description: 'Встреча / Appointment',
+  })
+  appointment?: Types.ObjectId;
+  // @Prop({
+  //   type: [SchemaTypes.ObjectId],
+  //   ref: 'User',
+  //   default: [],
+  //   required: true,
+  // })
+  // @ApiProperty({
+  //   example: [
+  //     new Types.ObjectId('632b153c077e63515d42348a'),
+  //     new Types.ObjectId('632b15c163949a53b89addad'),
+  //   ],
+  //   description: 'Рекмоендованные специалисты / Recommended specialists',
+  // })
+  // specialistTypes: Types.ObjectId[];
 }
 
 export const ServiceSchema = SchemaFactory.createForClass(Service);

@@ -1,8 +1,15 @@
+import { ServiceTypeWithIdDto } from './../common/dtos/servise.dto';
 import { GetPatientsByIdDto } from './../common/dtos/getPatients.dto';
 import { BadRequestException } from '@nestjs/common/exceptions';
 import {
+  Course,
+  CourseDocument,
   Patient,
   PatientDocument,
+  Service,
+  ServiceDocument,
+  ServiceType,
+  ServiceTypeDocument,
   User,
   UserDocument,
 } from 'src/common/schemas';
@@ -10,11 +17,13 @@ import {
   AddPatientToRepresentative,
   GetPatientRepresentativesDto,
   GetPatientsDto,
+  CourseWithServicesDto,
   GetRepresentativesByIdDto,
   GetRequestDto,
   PatientBaseDto,
   PatientChangeStatusDto,
   PatientWithIdDto,
+  getCoursesDto,
 } from 'src/common/dtos';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -27,6 +36,12 @@ export class PatientsService {
     private patientModel: Model<PatientDocument>,
     @InjectModel(User.name)
     private representativesModel: Model<UserDocument>,
+    @InjectModel(Course.name)
+    private courseModel: Model<CourseDocument>,
+    @InjectModel(Service.name)
+    private serviceModel: Model<ServiceDocument>,
+    @InjectModel(ServiceType.name)
+    private serviceTypeModel: Model<ServiceTypeDocument>,
   ) {}
   async get(dto: GetPatientsDto): Promise<any> {
     let reparr = [];
@@ -187,15 +202,68 @@ export class PatientsService {
   // }
 
   async add(dto: PatientBaseDto, id: string, roles: string[]): Promise<object> {
+    // создание нулевого курса (вне курсов который)
+    // const course = this.courseModel.create({
+    //   number: 0,
+    //   status: true,
+    // });
+    // const newCourse = new this.courseModel(course);
+    // newCourse.save();
+    const newCourse = new this.courseModel({
+      number: 0,
+      status: true,
+    });
+    newCourse.save();
+    console.log(newCourse);
     const count = await this.patientModel.find().count().exec();
     console.log(dto);
     //TODO: Сделать проверку представителей
-    const user = await this.patientModel.create({
+    // const user = await this.patientModel.create({
+    //   ...dto,
+    //   number: count + 1,
+    //   courses: newCourse._id,
+    // });
+    // const newPatient = new this.patientModel(user);
+    // newPatient.save();
+    const newPatient = new this.patientModel({
       ...dto,
       number: count + 1,
+      courses: newCourse._id,
     });
-    const newPatient = new this.patientModel(user);
     newPatient.save();
+    // добавление услуг по умолчанию
+    const types = await this.serviceTypeModel
+      .find({
+        $and: [
+          {
+            defaultAmountPatient: { $gt: 0 },
+          },
+          {
+            isActive: true,
+          },
+        ],
+      })
+      // .select('defaultAmountPatient _id isActive ')
+      .exec();
+    console.log(types);
+    types.forEach((type) => {
+      console.log(newCourse._id, type._id, newPatient._id);
+      for (let i = 0; i < type.defaultAmountPatient; i++) {
+        const srv = {
+          course: newCourse._id,
+          type: type._id,
+          note: 'Данная услуга добавлена автоматически для нового пациента',
+          patient: newPatient._id,
+        };
+        // const service = this.serviceModel.create(srv);
+        // const newService = new this.serviceModel(service);
+        // console.log(srv);
+        // newService.save();
+        const newService = new this.serviceModel(srv);
+        newService.save();
+      }
+    });
+    console.log(newPatient._id);
     return newPatient._id;
   }
 
@@ -233,5 +301,124 @@ export class PatientsService {
     if (!candidate) throw new BadRequestException('_id: not found');
     this.patientModel.findByIdAndUpdate(dto._id, dto).exec();
     return;
+  }
+
+  async getCourses(
+    dto: getCoursesDto,
+    id: string,
+    roles: string[],
+  ): Promise<any[]> {
+    console.log(dto);
+    if (!mongoose.Types.ObjectId.isValid(dto.patient))
+      throw new BadRequestException('Пациент не найден');
+    const patient = await this.patientModel.findById(dto.patient).exec();
+    if (!patient) throw new BadRequestException('Пациент не найден');
+    // курсы пациента
+
+    const courses = await this.courseModel
+      .find({
+        _id: {
+          $in: patient.courses,
+        },
+      })
+      .select('_id number status');
+    const res: CourseWithServicesDto[] = courses.map((v) => {
+      return {
+        _id: v._id,
+        number: v.number,
+        status: v.status,
+        serviceGroups: [],
+      } as CourseWithServicesDto;
+    });
+    // const res1 = await this.serviceModel.aggregate([
+    //   {
+    //     $match: {
+    //       course: {
+    //         $in: patient.courses,
+    //       },
+    //     },
+    //   },
+    //   {
+    //     $group: {
+    //       _id: '$type',
+    //       // ii: { $push: { first: '$note' } },
+    //       //note: { $first: '$note' },
+    //       // to: { "$first": "$to" },
+    //       // message: { "$first": "$message" },
+    //       // date: { "$first": "$date" },
+    //       // origId: { "$first": "$_id" }
+    //     },
+    //   },
+    //   {
+    //     $lookup: {
+    //       from: 'ServiceType',
+    //       localField: 'type',
+    //       foreignField: '_id',
+    //       as: 'type',
+    //     },
+    //   },
+    //   { $unwind: { path: '$type' } },
+    // ]);
+    // console.log(res1);
+    // console.log('!!!!!!!!!!!!!!!!1');
+    const result = await this.serviceModel
+      .find({
+        course: {
+          $in: patient.courses,
+        },
+      })
+      .select('_id status course type result note patient appointment')
+      .populate([
+        {
+          path: 'type',
+          model: 'ServiceType',
+          select: { name: 1, group: 1, isActive: 1, price: 1, time: 1, _id: 1 },
+          populate: {
+            path: 'group',
+            model: 'ServiceGroup',
+            select: {
+              name: 1,
+              isActive: 1,
+            },
+            // transform(doc, id) {
+            //   console.log(doc);
+            //   return doc;
+            // },
+          },
+        },
+      ]);
+    console.log(result);
+    // result.forEach((serv: any) => {
+    //   const nowCourse = res.find((c) => c._id == serv.course.toString());
+    //   const nowGroup = nowCourse.serviceGroups.find(
+    //     (g) => g._id == serv.type.group._id.toString(),
+    //   );
+    //   const appointment = serv.appointment;
+    //   const type = serv.type;
+    //   console.log(type);
+    //   delete type.group;
+
+    //   if (nowGroup) {
+    //     nowGroup.services.push({
+    //       appointment: appointment,
+    //       _id: serv._id,
+    //       status: serv.status,
+    //       note: serv.note,
+    //       result: serv.result,
+    //       type: type,
+    //       course: serv.course,
+    //     });
+    //   }
+    // });
+    // console.log(res);
+    return result;
+    // 'name specialistTypes group isActive price time',
+
+    // const candidate = await this.representativesModel
+    //   .findById(dto.representativeId)
+    //   .select('-_id patients')
+    //   .populate('patients', '_id', this.patientModel)
+    //   .exec();
+    // reparr = patient.courses;
   }
 }
