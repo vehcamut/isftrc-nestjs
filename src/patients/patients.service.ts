@@ -387,31 +387,60 @@ export class PatientsService {
           },
         },
       ]);
-    console.log(result);
-    // result.forEach((serv: any) => {
-    //   const nowCourse = res.find((c) => c._id == serv.course.toString());
-    //   const nowGroup = nowCourse.serviceGroups.find(
-    //     (g) => g._id == serv.type.group._id.toString(),
-    //   );
-    //   const appointment = serv.appointment;
-    //   const type = serv.type;
-    //   console.log(type);
-    //   delete type.group;
+    // console.log(result);
+    result.forEach((serv: any) => {
+      console.log('serv ', serv);
+      const nowCourse = res.find((c) => c._id == serv.course.toString());
+      let nowGroup = nowCourse.serviceGroups.find(
+        (g) => g._id == serv.type.group._id.toString(),
+      );
+      const appointment = serv.appointment;
 
-    //   if (nowGroup) {
-    //     nowGroup.services.push({
-    //       appointment: appointment,
-    //       _id: serv._id,
-    //       status: serv.status,
-    //       note: serv.note,
-    //       result: serv.result,
-    //       type: type,
-    //       course: serv.course,
-    //     });
-    //   }
-    // });
+      if (!nowGroup) {
+        nowCourse.serviceGroups.push({
+          _id: serv.type.group._id,
+          name: serv.type.group.name,
+          isActive: serv.type.group.isActive,
+          services: [],
+        });
+        nowGroup = nowCourse.serviceGroups[nowCourse.serviceGroups.length - 1];
+      }
+      const type = serv.type;
+      // console.log(type);
+      // type.group = undefined;
+      // console.log('!!!!', type);
+
+      if (nowGroup) {
+        const newServ = {
+          appointment: appointment,
+          _id: serv._id,
+          status: serv.status,
+          note: serv.note,
+          result: serv.result,
+          type: type,
+          course: serv.course,
+        };
+        delete newServ.type.group;
+        nowGroup.services.push({
+          appointment: appointment,
+          _id: serv._id,
+          status: serv.status,
+          note: serv.note,
+          result: serv.result,
+          kind: 'service',
+          type: {
+            _id: type._id,
+            name: type.name,
+            price: type.price,
+            // specialistTypes: type.specialistTypes,
+            isActive: type.isActive,
+            time: type.time,
+          },
+        });
+      }
+    });
     // console.log(res);
-    return result;
+    return res;
     // 'name specialistTypes group isActive price time',
 
     // const candidate = await this.representativesModel

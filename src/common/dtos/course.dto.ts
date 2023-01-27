@@ -1,3 +1,4 @@
+import { AppointmentWithIdDto } from './appointment.dto';
 import {
   ServiceGroupWithIdDto,
   ServiceGroupWithTypesDto,
@@ -26,7 +27,25 @@ export class CourseWithServicesDto extends CourseWithId {
 }
 
 export class ServiceGroupWithServisesDto extends ServiceGroupWithIdDto {
-  services: ServiceWithIdDto[];
+  services: ServiceInCourseDto[];
+}
+export class ServiceInCourseDto {
+  kind: string;
+  _id: string;
+  type: ServiceTypeWithoutGroupDto;
+  status: boolean;
+  result?: string;
+  note?: string;
+  appointment?: AppointmentWithIdDto | undefined;
+  patient?: string;
+}
+export class ServiceTypeWithoutGroupDto {
+  _id: string;
+  name: string;
+  price: number;
+  specialistTypes: any[] = [];
+  isActive?: boolean = true;
+  time?: Date;
 }
 
 // export class ServiceDto {
