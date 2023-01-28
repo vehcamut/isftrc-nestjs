@@ -428,14 +428,19 @@ export class PatientsService {
           note: serv.note,
           result: serv.result,
           kind: 'service',
-          type: {
-            _id: type._id,
-            name: type.name,
-            price: type.price,
-            // specialistTypes: type.specialistTypes,
-            isActive: type.isActive,
-            time: type.time,
-          },
+          name: type.name,
+          price: type.price,
+          specialist: appointment?.specialist,
+          data: appointment?.begDate,
+          number: serv.number,
+          // type: {
+          //   _id: type._id,
+          //   name: type.name,
+          //   price: type.price,
+          //   // specialistTypes: type.specialistTypes,
+          //   isActive: type.isActive,
+          //   time: type.time,
+          // },
         });
       }
     });

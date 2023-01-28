@@ -5,8 +5,10 @@ import { getConnectionToken, MongooseModule } from '@nestjs/mongoose';
 import {
   AdvertisingSource,
   AdvertisingSourcesSchema,
+  Service,
   ServiceGroup,
   ServiceGroupSchema,
+  ServiceSchema,
   ServiceType,
   ServiceTypeSchema,
   SpecialistType,
@@ -21,6 +23,7 @@ import { Connection } from 'mongoose';
       { name: ServiceGroup.name, schema: ServiceGroupSchema },
       { name: ServiceType.name, schema: ServiceTypeSchema },
       { name: SpecialistType.name, schema: SpecialistTypeSchema },
+      { name: Service.name, schema: ServiceSchema },
     ]),
     // MongooseModule.forFeatureAsync([
     //   {

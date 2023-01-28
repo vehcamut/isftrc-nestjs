@@ -28,6 +28,8 @@ import {
   ServiceGroupWithIdDto,
   ServiceTypeDto,
   ServiceTypeWithIdDto,
+  GetServiseByIdDto,
+  ServiceDto,
 } from 'src/common/dtos';
 import { ServicesService } from './services.service';
 
@@ -113,6 +115,22 @@ export class ServicesController {
     );
   }
 
+  @Get('getService')
+  @Public()
+  //@Roles('registrator')
+  @HttpCode(HttpStatus.OK)
+  async getService(
+    @Req() request: Request | any,
+    @Query() dto: GetServiseByIdDto,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<ServiceDto> {
+    const response = await this.servicesService.getService(
+      dto,
+      request.user?._id,
+      request.user?.roles,
+    );
+    return response;
+  }
   // @Patch('changeStatus')
   // @Public()
   // //@Roles('registrator')

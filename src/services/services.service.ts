@@ -27,6 +27,7 @@ import {
   ServiceGroupDto,
   ServiceTypeDto,
   ServiceGroupWithIdDto,
+  GetServiseByIdDto,
 } from 'src/common/dtos';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -41,6 +42,8 @@ export class ServicesService {
     private serviceTypeModel: Model<ServiceTypeDocument>,
     @InjectModel(SpecialistType.name)
     private specialistTypeModel: Model<SpecialistTypeDocument>,
+    @InjectModel(Service.name)
+    private serviceModel: Model<ServiceDocument>,
   ) {}
   async get(dto: GetServiceDto): Promise<any> {
     const findCond = {
@@ -105,6 +108,29 @@ export class ServicesService {
     return groups;
   }
 
+  async getService(
+    dto: GetServiseByIdDto,
+    id: string,
+    roles: string[],
+  ): Promise<any> {
+    //todo проверка на принадлежность пациента
+    if (!mongoose.Types.ObjectId.isValid(dto.id))
+      throw new BadRequestException('id услуги не найден');
+
+    const service = await this.serviceModel
+      .findOne({ _id: dto.id })
+      .select('_id status course type result note patient appointment')
+      .populate([
+        {
+          path: 'type',
+          model: 'ServiceType',
+          select: { name: 1, isActive: 1, price: 1, time: 1, _id: 1 },
+        },
+      ]);
+    if (!service) throw new BadRequestException('id услуги не найден');
+
+    return service;
+  }
   // async getById(dto: GetPatientsByIdDto): Promise<any> {
   //   //TODO проверка на принадлежность пациента
   //   if (!mongoose.Types.ObjectId.isValid(dto.id))

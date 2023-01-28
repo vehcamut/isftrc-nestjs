@@ -32,10 +32,15 @@ export class ServiceGroupWithServisesDto extends ServiceGroupWithIdDto {
 export class ServiceInCourseDto {
   kind: string;
   _id: string;
-  type: ServiceTypeWithoutGroupDto;
+  name: string;
+  price: number;
+  data: Date;
+  number?: number;
+  // type: ServiceTypeWithoutGroupDto;
   status: boolean;
   result?: string;
   note?: string;
+  specialist?: string;
   appointment?: AppointmentWithIdDto | undefined;
   patient?: string;
 }
@@ -43,7 +48,6 @@ export class ServiceTypeWithoutGroupDto {
   _id: string;
   name: string;
   price: number;
-  specialistTypes: any[] = [];
   isActive?: boolean = true;
   time?: Date;
 }

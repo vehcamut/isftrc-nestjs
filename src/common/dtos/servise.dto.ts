@@ -95,10 +95,18 @@ export class ServiceDto {
   course: string;
   result?: string;
   note?: string;
+  number?: number;
   appointment?: AppointmentWithIdDto | undefined;
   patient?: string;
 }
 
 export class ServiceWithIdDto extends ServiceDto {
   _id: string;
+}
+
+export class GetServiseByIdDto {
+  @Transform(({ value }) => trim(value))
+  @IsString()
+  @IsOptional()
+  public id = '';
 }
