@@ -100,6 +100,18 @@ export class ServiceDto {
   patient?: string;
 }
 
+export class ServiceInfoDto {
+  type: string;
+  status: boolean;
+  course: string;
+  result?: string;
+  note?: string;
+  number?: number;
+  date?: Date;
+  specialist?: string;
+  patient: string;
+}
+
 export class ServiceWithIdDto extends ServiceDto {
   _id: string;
 }
