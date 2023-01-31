@@ -34,7 +34,7 @@ export class ServiceInCourseDto {
   _id: string;
   name: string;
   price: number;
-  data: Date;
+  date: Date;
   number?: number;
   // type: ServiceTypeWithoutGroupDto;
   status: boolean;

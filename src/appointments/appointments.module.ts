@@ -1,22 +1,18 @@
-import {
-  Appointment,
-  AppointmentSchema,
-} from './../common/schemas/appointment.schema';
-import {
-  SpecialistType,
-  SpecialistTypeSchema,
-} from '../common/schemas/specialistType.schema';
 import { Module } from '@nestjs/common';
 import { AppointmentsService } from './appointments.service';
 import { AppointmentsController } from './appointments.controller';
 import { getConnectionToken, MongooseModule } from '@nestjs/mongoose';
 import {
+  Service,
+  Appointment,
+  AppointmentSchema,
   User,
   UserSchema,
   Patient,
   PatientSchema,
   AdvertisingSource,
   AdvertisingSourcesSchema,
+  ServiceSchema,
 } from 'src/common/schemas';
 import { Connection } from 'mongoose';
 
@@ -26,6 +22,7 @@ import { Connection } from 'mongoose';
     MongooseModule.forFeature([
       { name: Appointment.name, schema: AppointmentSchema },
       { name: User.name, schema: UserSchema },
+      { name: Service.name, schema: ServiceSchema },
       // { name: SpecialistType.name, schema: SpecialistTypeSchema },
     ]),
   ],

@@ -1,8 +1,4 @@
 import {
-  AppointmentDocument,
-  Appointment,
-} from './../common/schemas/appointment.schema';
-import {
   GetSpecialistsDto,
   GetSpecialistsByIdDto,
   AddSpecialistDto,
@@ -10,6 +6,9 @@ import {
 import { GetPatientsByIdDto } from '../common/dtos/getPatients.dto';
 import { BadRequestException } from '@nestjs/common/exceptions';
 import {
+  Service,
+  AppointmentDocument,
+  Appointment,
   User,
   Patient,
   PatientDocument,
@@ -18,9 +17,11 @@ import {
   AdvertisingSourceDocument,
   SpecialistTypeDocument,
   SpecialistType,
+  ServiceDocument,
 } from 'src/common/schemas';
 import * as bcrypt from 'bcrypt';
 import {
+  AddAppointmentResultDto,
   AddBaseUserDto,
   AddPatientToRepresentative,
   AddRepresentativeDto,
@@ -36,6 +37,9 @@ import {
   SpecialistChangeStatusDto,
   GetAppointmetnsDto,
   AppointmentDto,
+  AddAppointmentDto,
+  AppointmentWithIdDto,
+  RemoveAppointmentDto,
 } from 'src/common/dtos';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -49,6 +53,8 @@ export class AppointmentsService {
     private specialistModel: Model<UserDocument>,
     @InjectModel(Appointment.name)
     private appointmentModel: Model<AppointmentDocument>,
+    @InjectModel(Service.name)
+    private serviceModel: Model<ServiceDocument>,
   ) {}
   async get(
     dto: GetAppointmetnsDto,
@@ -91,55 +97,150 @@ export class AppointmentsService {
     };
     const query = this.appointmentModel.find(findCond);
     const count = await this.appointmentModel.find(findCond).count().exec();
-    query.sort({ begDate: 1 }).select('_id begDate endDate service specialist');
+    query
+      .sort({ begDate: 1 })
+      .select('_id begDate endDate service specialist')
+      .populate([
+        {
+          path: 'service',
+          model: 'Service',
+          select: {
+            type: 1,
+            isActive: 1,
+            status: 1,
+            course: 1,
+            result: 1,
+            number: 1,
+            note: 1,
+            patient: 1,
+          },
+          populate: [
+            {
+              path: 'type',
+              model: 'ServiceType',
+              select: {
+                name: 1,
+              },
+              // transform(doc, id) {
+              //   console.log(doc);
+              //   return doc;
+              // },
+            },
+            {
+              path: 'patient',
+              model: 'Patient',
+              select: {
+                name: 1,
+                surname: 1,
+                patronymic: 1,
+                number: 1,
+              },
+              // transform(doc, id) {
+              //   console.log(doc);
+              //   return doc;
+              // },
+            },
+          ],
+        },
+      ]);
     const data = await query.exec();
     return { data, count };
   }
-  async add(dto: AppointmentDto, id: string, roles: string[]): Promise<object> {
-    //todo: проверка кто добавляет время
-    //todo: проверить конец позже начала
-    //todo: сортировка по дате
-    const findCond = {
-      $or: [
-        {
-          $and: [
-            {
-              begDate: { $lte: dto.begDate },
-            },
-            {
-              endDate: { $gt: dto.begDate },
-            },
-          ],
-        },
-        {
-          $and: [
-            {
-              begDate: { $lt: dto.endDate },
-            },
-            {
-              endDate: { $gte: dto.endDate },
-            },
-          ],
-        },
-      ],
-    };
-    const cand = await this.appointmentModel.find(findCond).exec();
-    console.log(cand);
-    if (cand.length) throw new BadRequestException('Данное время уже занято');
-
+  async add(
+    dto: AddAppointmentDto,
+    id: string,
+    roles: string[],
+  ): Promise<AddAppointmentResultDto> {
     if (!mongoose.Types.ObjectId.isValid(dto.specialist))
-      throw new BadRequestException('_id: not found');
+      throw new BadRequestException('специалист не найден');
     const candidate = await this.specialistModel
       .findById(dto.specialist)
       .exec();
     if (!candidate) throw new BadRequestException('_id: not found');
     if (!candidate.isActive || !candidate.roles.includes('specialist'))
-      throw new BadRequestException('bad specialist');
+      throw new BadRequestException('специалист не найден');
 
-    const appointment = await this.appointmentModel.create(dto);
-    const newAppointment = new this.appointmentModel(appointment);
-    newAppointment.save();
-    return newAppointment._id;
+    const hours = dto.time.getHours();
+    const minutes = dto.time.getMinutes();
+    const result: AddAppointmentResultDto = { amount: 0, notAdded: [] };
+    for (let i = 0; i < dto.amount; i++) {
+      const begDate = new Date(dto.begDate);
+      dto.begDate.setHours(dto.begDate.getHours() + hours);
+      dto.begDate.setMinutes(dto.begDate.getMinutes() + minutes);
+      const endDate = new Date(dto.begDate);
+
+      const findCond = {
+        $or: [
+          {
+            $and: [
+              {
+                begDate: { $lte: begDate },
+              },
+              {
+                endDate: { $gt: begDate },
+              },
+            ],
+          },
+          {
+            $and: [
+              {
+                begDate: { $lt: endDate },
+              },
+              {
+                endDate: { $gte: endDate },
+              },
+            ],
+          },
+        ],
+      };
+      const cand = await this.appointmentModel.find(findCond).exec();
+      // if (cand.length) throw new BadRequestException('Данное время уже занято');
+      if (
+        cand.length
+        // &&
+        // begDate.toLocaleString('ru-RU', {
+        //   year: '2-digit',
+        //   month: '2-digit',
+        //   day: '2-digit',
+        // }) !==
+        //   endDate.toLocaleString('ru-RU', {
+        //     year: '2-digit',
+        //     month: '2-digit',
+        //     day: '2-digit',
+        //   })
+      ) {
+        result.notAdded.push({ begDate, endDate });
+        continue;
+      }
+      // const appointment = await this.appointmentModel.create(dto);
+      const newAppointment = new this.appointmentModel({
+        begDate,
+        endDate,
+        specialist: dto.specialist,
+      });
+      newAppointment.save();
+      result.amount++;
+    }
+    return result;
+    //todo: проверка кто добавляет время
+  }
+  async remove(
+    dto: RemoveAppointmentDto,
+    id: string,
+    roles: string[],
+  ): Promise<any> {
+    if (!mongoose.Types.ObjectId.isValid(dto._id))
+      throw new BadRequestException('запись не найдена');
+    const candidate = await this.appointmentModel.findById(dto._id).exec();
+    if (!candidate) throw new BadRequestException('запись не найдена');
+    if (candidate.service) {
+      this.serviceModel.findByIdAndUpdate(candidate.service._id, {
+        $unset: { appointment: 1 },
+      });
+    }
+    this.appointmentModel.findByIdAndDelete(dto._id).exec();
+    return;
+    //todo: проверка кто добавляет время
   }
   // async get(dto: GetSpecialistsDto): Promise<any> {
   //   // let patientId;

@@ -13,7 +13,7 @@ import {
   Query,
   Res,
 } from '@nestjs/common';
-import { Body, Patch, Post, Put, Req } from '@nestjs/common/decorators';
+import { Body, Delete, Patch, Post, Put, Req } from '@nestjs/common/decorators';
 import { Response } from 'express';
 import { Public } from 'src/common/decorators';
 import {
@@ -34,6 +34,10 @@ import {
   GetAppointmetnsDto,
   AppointmentDto,
   AppointmentWithIdDto,
+  AddAppointmentDto,
+  AddedAppoitmentInfoDto,
+  AddAppointmentResultDto,
+  RemoveAppointmentDto,
 } from 'src/common/dtos';
 import { AppointmentsService } from './appointments.service';
 import { IPatient } from 'src/common/interfaces';
@@ -64,8 +68,26 @@ export class AppointmentsController {
   @Public()
   //@Roles('registrator')
   @HttpCode(HttpStatus.CREATED)
-  async add(@Req() request: Request | any, @Body() dto: AppointmentDto) {
+  async add(
+    @Req() request: Request | any,
+    @Body() dto: AddAppointmentDto,
+  ): Promise<AddAppointmentResultDto> {
     return this.appointmentsService.add(
+      dto,
+      request.user?._id,
+      request.user?.roles,
+    );
+  }
+
+  @Delete('remove')
+  @Public()
+  //@Roles('registrator')
+  @HttpCode(HttpStatus.OK)
+  async remove(
+    @Req() request: Request | any,
+    @Body() dto: RemoveAppointmentDto,
+  ) {
+    return this.appointmentsService.remove(
       dto,
       request.user?._id,
       request.user?.roles,

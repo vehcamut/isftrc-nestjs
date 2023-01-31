@@ -30,6 +30,7 @@ import {
   ServiceTypeWithIdDto,
   GetServiseByIdDto,
   ServiceDto,
+  ServiceInfoDto,
 } from 'src/common/dtos';
 import { ServicesService } from './services.service';
 
@@ -123,7 +124,7 @@ export class ServicesController {
     @Req() request: Request | any,
     @Query() dto: GetServiseByIdDto,
     @Res({ passthrough: true }) res: Response,
-  ): Promise<ServiceDto> {
+  ): Promise<ServiceInfoDto> {
     const response = await this.servicesService.getService(
       dto,
       request.user?._id,

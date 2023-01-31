@@ -28,6 +28,7 @@ import {
   ServiceTypeDto,
   ServiceGroupWithIdDto,
   GetServiseByIdDto,
+  ServiceDto,
 } from 'src/common/dtos';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -117,7 +118,7 @@ export class ServicesService {
     if (!mongoose.Types.ObjectId.isValid(dto.id))
       throw new BadRequestException('id услуги не найден');
 
-    const service = await this.serviceModel
+    const service: any = await this.serviceModel
       .findOne({ _id: dto.id })
       .select('_id status course type result note patient appointment')
       .populate([
@@ -126,10 +127,47 @@ export class ServicesService {
           model: 'ServiceType',
           select: { name: 1, isActive: 1, price: 1, time: 1, _id: 1 },
         },
+        {
+          path: 'patient',
+          model: 'Patient',
+          select: { name: 1, surname: 1, patronymic: 1, isActive: 1 },
+        },
+        {
+          path: 'appointment',
+          model: 'Appointment',
+          select: {
+            begDate: 1,
+            // name: 1,
+            specialist: 1,
+          },
+          populate: {
+            path: 'specialist',
+            model: 'User',
+            select: {
+              name: 1,
+              surname: 1,
+              patronymic: 1,
+              isActive: 1,
+            },
+          },
+        },
       ]);
+    console.log(service);
     if (!service) throw new BadRequestException('id услуги не найден');
 
-    return service;
+    return {
+      type: service.type.name,
+      status: service.status,
+      course: service.course,
+      result: service.result,
+      note: service.note,
+      number: service.number,
+      date: service?.appointment?.begDate,
+      specialist: service?.appointment
+        ? `${service?.appointment?.specialist.surname} ${service?.appointment?.specialist.name} ${service?.appointment?.specialist.patronymic}`
+        : undefined,
+      patient: `${service.patient.surname} ${service.patient.name} ${service.patient.patronymic}`,
+    };
   }
   // async getById(dto: GetPatientsByIdDto): Promise<any> {
   //   //TODO проверка на принадлежность пациента

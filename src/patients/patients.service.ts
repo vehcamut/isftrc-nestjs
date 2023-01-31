@@ -386,6 +386,25 @@ export class PatientsService {
             // },
           },
         },
+        {
+          path: 'appointment',
+          model: 'Appointment',
+          select: {
+            begDate: 1,
+            // name: 1,
+            specialist: 1,
+          },
+          populate: {
+            path: 'specialist',
+            model: 'User',
+            select: {
+              name: 1,
+              surname: 1,
+              patronymic: 1,
+              isActive: 1,
+            },
+          },
+        },
       ]);
     // console.log(result);
     result.forEach((serv: any) => {
@@ -422,7 +441,6 @@ export class PatientsService {
         };
         delete newServ.type.group;
         nowGroup.services.push({
-          appointment: appointment,
           _id: serv._id,
           status: serv.status,
           note: serv.note,
@@ -430,8 +448,10 @@ export class PatientsService {
           kind: 'service',
           name: type.name,
           price: type.price,
-          specialist: appointment?.specialist,
-          data: appointment?.begDate,
+          specialist: appointment?.specialist
+            ? `${appointment?.specialist.surname} ${appointment?.specialist.name} ${appointment?.specialist.patronymic}`
+            : undefined,
+          date: appointment?.begDate,
           number: serv.number,
           // type: {
           //   _id: type._id,
