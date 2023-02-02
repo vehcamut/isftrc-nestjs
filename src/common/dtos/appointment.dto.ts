@@ -1,3 +1,4 @@
+import { SpecialistToSelectDto } from './specialist.dto';
 import { Appointment } from './../schemas/appointment.schema';
 import { GetRequestDto } from './getRequest.dto';
 import { Transform, Type } from 'class-transformer';
@@ -33,11 +34,39 @@ export class GetAppointmetnsDto {
   @IsDate()
   endDate?: Date;
 
+  @Transform(({ value }) => toBoolean(value))
   @IsBoolean()
   @IsOptional()
   isFree?: string;
+
+  @Transform((value) => toDate(value.value))
+  @IsDate()
+  @IsOptional()
+  time?: Date;
 }
 
+export class GetFreeAppointmetnsDto {
+  @IsString()
+  specialistId: string;
+
+  @IsString()
+  patientId: string;
+
+  @Transform((value) => toDate(value.value))
+  // @Type(() => Date)
+  @IsDate()
+  begDate?: Date;
+
+  @Transform((value) => toDate(value.value))
+  // @Type(() => Date)
+  @IsDate()
+  endDate?: Date;
+
+  @Transform((value) => toDate(value.value))
+  @IsDate()
+  @IsOptional()
+  time: Date;
+}
 export class AppointmentDto {
   @IsNotEmpty({
     message: 'begDate: поле дата начала не должно быть пустым',
@@ -61,9 +90,8 @@ export class AppointmentDto {
     message: 'specialist: поле специалист не должно быть пустым',
   })
   @IsString()
-  specialist: string;
+  specialist: SpecialistToSelectDto;
 }
-
 export class AddAppointmentDto {
   @IsNotEmpty({
     message: 'begDate: поле дата начала не должно быть пустым',

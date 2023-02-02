@@ -38,6 +38,7 @@ import {
   AddedAppoitmentInfoDto,
   AddAppointmentResultDto,
   RemoveAppointmentDto,
+  GetFreeAppointmetnsDto,
 } from 'src/common/dtos';
 import { AppointmentsService } from './appointments.service';
 import { IPatient } from 'src/common/interfaces';
@@ -61,6 +62,21 @@ export class AppointmentsController {
       request.user?.roles,
     );
     res.setHeader('X-Total-Count', response.count);
+    console.log(response.data);
+    return response.data;
+  }
+  async getForRecord(
+    @Query() dto: GetFreeAppointmetnsDto,
+    @Req() request: Request | any,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<AppointmentWithIdDto[]> {
+    const response = await this.appointmentsService.get(
+      dto,
+      request.user?._id,
+      request.user?.roles,
+    );
+    res.setHeader('X-Total-Count', response.count);
+    console.log(response.data);
     return response.data;
   }
 

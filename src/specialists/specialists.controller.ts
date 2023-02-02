@@ -1,7 +1,3 @@
-import {
-  GetSpecialistsByIdDto,
-  AddSpecialistDto,
-} from './../common/dtos/specialist.dto';
 import { AddPatientToRepresentative } from '../common/dtos/patient.dto';
 import { UserBaseDto, AddBaseUserDto } from '../common/dtos/user.dto';
 import { SpecialistDto } from '../common/dtos/specialist.dto';
@@ -17,18 +13,11 @@ import { Body, Patch, Post, Put, Req } from '@nestjs/common/decorators';
 import { Response } from 'express';
 import { Public } from 'src/common/decorators';
 import {
-  AddRepresentativeDto,
-  GetPatientsByIdDto,
-  GetPatientsDto,
-  GetRepresentativesByIdDto,
+  GetSpecialistsByIdDto,
+  AddSpecialistDto,
+  GetSpecificSpecialists,
+  SpecialistToSelectDto,
   SpecialistWithIdDto,
-  GetRepresentativesDto,
-  GetRequestDto,
-  PatientBaseDto,
-  PatientChangeStatusDto,
-  PatientWithIdDto,
-  RepresentativeWithIdDto,
-  representativeDto,
   GetSpecialistsDto,
   SpecialistChangeStatusDto,
 } from 'src/common/dtos';
@@ -50,6 +39,17 @@ export class SpecialistsController {
     const response = await this.specialistsService.get(dto);
     res.setHeader('X-Total-Count', response.count);
     return response.data;
+  }
+
+  @Get('getSpecific')
+  @Public()
+  //@Roles('registrator')
+  @HttpCode(HttpStatus.OK)
+  async getSpecificSpecialists(
+    @Query() dto: GetSpecificSpecialists,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<SpecialistToSelectDto[]> {
+    return this.specialistsService.getSpecificSpecialists(dto);
   }
 
   @Get('getById')

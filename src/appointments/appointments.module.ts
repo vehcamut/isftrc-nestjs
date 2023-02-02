@@ -23,6 +23,7 @@ import { Connection } from 'mongoose';
       { name: Appointment.name, schema: AppointmentSchema },
       { name: User.name, schema: UserSchema },
       { name: Service.name, schema: ServiceSchema },
+      { name: Patient.name, schema: PatientSchema },
       // { name: SpecialistType.name, schema: SpecialistTypeSchema },
     ]),
   ],

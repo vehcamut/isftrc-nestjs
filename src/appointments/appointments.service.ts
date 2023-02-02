@@ -40,6 +40,7 @@ import {
   AddAppointmentDto,
   AppointmentWithIdDto,
   RemoveAppointmentDto,
+  GetFreeAppointmetnsDto,
 } from 'src/common/dtos';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -55,6 +56,8 @@ export class AppointmentsService {
     private appointmentModel: Model<AppointmentDocument>,
     @InjectModel(Service.name)
     private serviceModel: Model<ServiceDocument>,
+    @InjectModel(Patient.name)
+    private patientModel: Model<PatientDocument>,
   ) {}
   async get(
     dto: GetAppointmetnsDto,
@@ -93,6 +96,11 @@ export class AppointmentsService {
               service: null,
             }
           : {},
+        dto.isFree
+          ? {
+              begDate: { $gte: new Date() },
+            }
+          : {},
       ],
     };
     const query = this.appointmentModel.find(findCond);
@@ -120,6 +128,7 @@ export class AppointmentsService {
               model: 'ServiceType',
               select: {
                 name: 1,
+                time: 1,
               },
               // transform(doc, id) {
               //   console.log(doc);
@@ -142,9 +151,163 @@ export class AppointmentsService {
             },
           ],
         },
+        {
+          path: 'specialist',
+          model: 'User',
+          select: {
+            isActive: 1,
+            name: 1,
+            surname: 1,
+            patronymic: 1,
+          },
+          transform: (doc, id) => {
+            return {
+              _id: id,
+              name: `${doc.surname} ${doc.name[0]}.${doc.patronymic[0]}.`,
+            };
+          },
+        },
       ]);
+    const result: any = [];
     const data = await query.exec();
-    return { data, count };
+    if (dto.time) {
+      const time = new Date(dto.time.setHours(dto.time.getHours()));
+      const numTime =
+        (dto.time.getHours() * 60 + dto.time.getMinutes()) * 60 * 1000;
+      console.log(numTime);
+      data.forEach((appointment) => {
+        const duration =
+          appointment.endDate.getTime() - appointment.begDate.getTime();
+        console.log(duration - numTime);
+        if (duration == numTime) result.push(appointment);
+      });
+      console.log(result);
+      return { data: result, count };
+    } else return { data, count };
+  }
+  async getForRecord(
+    dto: GetFreeAppointmetnsDto,
+    id: string,
+    roles: string[],
+  ): Promise<any> {
+    // проверка id специалиста
+    if (!mongoose.Types.ObjectId.isValid(dto.specialistId))
+      throw new BadRequestException('специалист не найден');
+    const candidate = await this.specialistModel
+      .findById(dto.specialistId)
+      .exec();
+    if (!candidate) throw new BadRequestException('специалист не найден');
+    if (!candidate.isActive || !candidate.roles.includes('specialist'))
+      throw new BadRequestException('специалист не найден');
+    // проверка id пациента
+    if (!mongoose.Types.ObjectId.isValid(dto.patientId))
+      throw new BadRequestException('пациент не найден');
+    const patient = await this.patientModel.findById(dto.patientId).exec();
+    if (!patient) throw new BadRequestException('пациент не найден');
+    if (!patient.isActive) throw new BadRequestException('пациент не найден');
+    // поиск свободных записей у специалиста
+    const findCond = {
+      $and: [
+        dto.begDate
+          ? {
+              begDate: { $gte: dto.begDate },
+            }
+          : {},
+        dto.endDate
+          ? {
+              endDate: { $lte: dto.endDate },
+            }
+          : {},
+        {
+          specialist: dto.specialistId,
+        },
+        {
+          service: null,
+        },
+        {
+          begDate: { $gte: new Date() },
+        },
+      ],
+    };
+    const query = this.appointmentModel.find(findCond);
+    const count = await this.appointmentModel.find(findCond).count().exec();
+    query
+      .sort({ begDate: 1 })
+      .select('_id begDate endDate service specialist')
+      .populate([
+        {
+          path: 'service',
+          model: 'Service',
+          select: {
+            type: 1,
+            isActive: 1,
+            status: 1,
+            course: 1,
+            result: 1,
+            number: 1,
+            note: 1,
+            patient: 1,
+          },
+          populate: [
+            {
+              path: 'type',
+              model: 'ServiceType',
+              select: {
+                name: 1,
+                time: 1,
+              },
+              // transform(doc, id) {
+              //   console.log(doc);
+              //   return doc;
+              // },
+            },
+            {
+              path: 'patient',
+              model: 'Patient',
+              select: {
+                name: 1,
+                surname: 1,
+                patronymic: 1,
+                number: 1,
+              },
+              // transform(doc, id) {
+              //   console.log(doc);
+              //   return doc;
+              // },
+            },
+          ],
+        },
+        {
+          path: 'specialist',
+          model: 'User',
+          select: {
+            isActive: 1,
+            name: 1,
+            surname: 1,
+            patronymic: 1,
+          },
+          transform: (doc, id) => {
+            return {
+              _id: id,
+              name: `${doc.surname} ${doc.name[0]}.${doc.patronymic[0]}.`,
+            };
+          },
+        },
+      ]);
+    const result: any = [];
+    const data = await query.exec();
+    const time = new Date(dto.time.setHours(dto.time.getHours()));
+    const numTime =
+      (dto.time.getHours() * 60 + dto.time.getMinutes()) * 60 * 1000;
+    console.log(numTime);
+    data.forEach((appointment) => {
+      const duration =
+        appointment.endDate.getTime() - appointment.begDate.getTime();
+      console.log(duration - numTime);
+      if (duration == numTime) result.push(appointment);
+    });
+    console.log(result);
+    return { data: result, count };
   }
   async add(
     dto: AddAppointmentDto,
@@ -168,32 +331,40 @@ export class AppointmentsService {
       dto.begDate.setHours(dto.begDate.getHours() + hours);
       dto.begDate.setMinutes(dto.begDate.getMinutes() + minutes);
       const endDate = new Date(dto.begDate);
-
+      console.log(begDate, endDate);
       const findCond = {
-        $or: [
+        $and: [
           {
-            $and: [
-              {
-                begDate: { $lte: begDate },
-              },
-              {
-                endDate: { $gt: begDate },
-              },
-            ],
+            specialist: dto.specialist,
           },
           {
-            $and: [
+            $or: [
               {
-                begDate: { $lt: endDate },
+                $and: [
+                  {
+                    begDate: { $lte: begDate },
+                  },
+                  {
+                    endDate: { $gt: begDate },
+                  },
+                ],
               },
               {
-                endDate: { $gte: endDate },
+                $and: [
+                  {
+                    begDate: { $lt: endDate },
+                  },
+                  {
+                    endDate: { $gte: endDate },
+                  },
+                ],
               },
             ],
           },
         ],
       };
       const cand = await this.appointmentModel.find(findCond).exec();
+      console.log(cand);
       // if (cand.length) throw new BadRequestException('Данное время уже занято');
       if (
         cand.length

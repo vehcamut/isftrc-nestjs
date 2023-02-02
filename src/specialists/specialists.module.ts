@@ -13,6 +13,8 @@ import {
   PatientSchema,
   AdvertisingSource,
   AdvertisingSourcesSchema,
+  ServiceType,
+  ServiceTypeSchema,
 } from 'src/common/schemas';
 import { Connection } from 'mongoose';
 
@@ -22,6 +24,7 @@ import { Connection } from 'mongoose';
     MongooseModule.forFeature([
       { name: User.name, schema: UserSchema },
       { name: SpecialistType.name, schema: SpecialistTypeSchema },
+      { name: ServiceType.name, schema: ServiceTypeSchema },
     ]),
     // MongooseModule.forFeatureAsync([
     //   {

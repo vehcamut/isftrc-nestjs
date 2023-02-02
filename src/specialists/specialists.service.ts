@@ -14,20 +14,13 @@ import {
   AdvertisingSourceDocument,
   SpecialistTypeDocument,
   SpecialistType,
+  ServiceType,
+  ServiceTypeDocument,
 } from 'src/common/schemas';
 import * as bcrypt from 'bcrypt';
 import {
-  AddBaseUserDto,
-  AddPatientToRepresentative,
-  AddRepresentativeDto,
-  GetPatientsDto,
-  GetRepresentativesByIdDto,
-  GetRepresentativesDto,
-  GetRequestDto,
-  PatientBaseDto,
-  PatientChangeStatusDto,
-  PatientWithIdDto,
-  RepresentativeWithIdDto,
+  GetSpecificSpecialists,
+  SpecialistToSelectDto,
   SpecialistWithIdDto,
   SpecialistChangeStatusDto,
 } from 'src/common/dtos';
@@ -43,6 +36,8 @@ export class SpecialistsService {
     private specialistModel: Model<UserDocument>,
     @InjectModel(SpecialistType.name)
     private specialistTypeModel: Model<SpecialistTypeDocument>,
+    @InjectModel(ServiceType.name)
+    private sericeTypeModel: Model<ServiceTypeDocument>,
   ) {}
   async get(dto: GetSpecialistsDto): Promise<any> {
     // let patientId;
@@ -102,6 +97,37 @@ export class SpecialistsService {
       );
     const data = await query.exec();
     return { data, count };
+  }
+
+  async getSpecificSpecialists(
+    dto: GetSpecificSpecialists,
+  ): Promise<SpecialistToSelectDto[]> {
+    if (!mongoose.Types.ObjectId.isValid(dto.type))
+      throw new BadRequestException('тип услуги не найден');
+    // console.log(dto.type);
+    const type = await this.sericeTypeModel.findById(dto.type).exec();
+    // console.log(type);
+    if (!type) throw new BadRequestException('тип услуги не найден');
+    console.log(type.specialistTypes);
+    const findCond = {
+      $and: [
+        { types: { $elemMatch: { $in: type.specialistTypes } } },
+        { roles: { $in: ['specialist'] } },
+        {
+          isActive: true,
+        },
+      ],
+    };
+    const query = this.specialistModel
+      .find(findCond)
+      .select('name surname patronymic _id');
+    const data = await query.exec();
+    return data.map((spec) => {
+      return {
+        _id: spec._id,
+        name: `${spec.surname} ${spec.name[0]}.${spec.patronymic[0]}.`,
+      };
+    });
   }
 
   async getById(dto: GetSpecialistsByIdDto): Promise<any> {

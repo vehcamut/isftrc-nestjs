@@ -97,6 +97,16 @@ export class SpecialistDto extends UserBaseDto {
   @IsString({ each: true })
   types: string[];
 }
+export class GetSpecificSpecialists {
+  @IsNotEmpty({ message: 'type: поле тип не должено быть пустым' })
+  @IsString()
+  type: string;
+}
+
+export class SpecialistToSelectDto {
+  _id: string;
+  name: string;
+}
 export class GetSpecialistsDto extends GetRequestDto {
   @IsEnum(Gender)
   @IsOptional()
