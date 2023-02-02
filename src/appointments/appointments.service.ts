@@ -205,6 +205,20 @@ export class AppointmentsService {
     const patient = await this.patientModel.findById(dto.patientId).exec();
     if (!patient) throw new BadRequestException('пациент не найден');
     if (!patient.isActive) throw new BadRequestException('пациент не найден');
+    // проверка id записи
+    if (!mongoose.Types.ObjectId.isValid(dto.serviceId))
+      throw new BadRequestException('услуга не найдена');
+    const currentService: any = await this.serviceModel
+      .findById(dto.serviceId)
+      .populate([
+        {
+          path: 'type',
+          model: 'ServiceType',
+        },
+      ])
+      .exec();
+    if (!currentService) throw new BadRequestException('услуга не найденв');
+    // if (!currentService.isActive) throw new BadRequestException('услуга не найдена');
     // поиск свободных записей у специалиста
     const findCond = {
       $and: [
@@ -318,7 +332,11 @@ export class AppointmentsService {
       ])
       .exec();
     const result: any = [];
-    const time = (dto.time.getHours() * 60 + dto.time.getMinutes()) * 60 * 1000;
+    const time =
+      (currentService.type.time.getHours() * 60 +
+        currentService.type.time.getMinutes()) *
+      60 *
+      1000;
     appointments.forEach((appointment) => {
       const duration =
         appointment.endDate.getTime() - appointment.begDate.getTime();

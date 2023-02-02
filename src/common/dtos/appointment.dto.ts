@@ -62,10 +62,8 @@ export class GetFreeAppointmetnsDto {
   @IsDate()
   endDate?: Date;
 
-  @Transform((value) => toDate(value.value))
-  @IsDate()
-  @IsOptional()
-  time: Date;
+  @IsString()
+  serviceId: string;
 }
 export class AppointmentDto {
   @IsNotEmpty({
