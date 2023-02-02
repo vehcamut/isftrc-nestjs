@@ -174,14 +174,14 @@ export class AppointmentsService {
       const time = new Date(dto.time.setHours(dto.time.getHours()));
       const numTime =
         (dto.time.getHours() * 60 + dto.time.getMinutes()) * 60 * 1000;
-      console.log(numTime);
+      // console.log(numTime);
       data.forEach((appointment) => {
         const duration =
           appointment.endDate.getTime() - appointment.begDate.getTime();
         console.log(duration - numTime);
         if (duration == numTime) result.push(appointment);
       });
-      console.log(result);
+      // console.log(result);
       return { data: result, count };
     } else return { data, count };
   }
@@ -318,9 +318,7 @@ export class AppointmentsService {
             patient: dto.patientId,
           },
           {
-            appointment: {
-              $not: null,
-            },
+            $not: { appointment: null },
           },
         ],
       })
@@ -337,6 +335,7 @@ export class AppointmentsService {
         currentService.type.time.getMinutes()) *
       60 *
       1000;
+    console.log('!!!!!!!!', time);
     appointments.forEach((appointment) => {
       const duration =
         appointment.endDate.getTime() - appointment.begDate.getTime();
@@ -344,15 +343,16 @@ export class AppointmentsService {
         if (
           services.findIndex(
             (service: any) =>
-              (appointment.begDate <= service.appointment.begDate &&
+              service.appointment &&
+              ((appointment.begDate <= service.appointment.begDate &&
                 appointment.begDate > service.appointment.endDate) ||
-              (appointment.endDate > service.appointment.begDate &&
-                appointment.endDate <= service.appointment.endDate),
+                (appointment.endDate > service.appointment.begDate &&
+                  appointment.endDate <= service.appointment.endDate)),
           ) == -1
         )
           result.push(appointment);
     });
-    console.log(result);
+    // console.log(result);
     return { data: result, count };
   }
   async add(
@@ -377,7 +377,7 @@ export class AppointmentsService {
       dto.begDate.setHours(dto.begDate.getHours() + hours);
       dto.begDate.setMinutes(dto.begDate.getMinutes() + minutes);
       const endDate = new Date(dto.begDate);
-      console.log(begDate, endDate);
+      // console.log(begDate, endDate);
       const findCond = {
         $and: [
           {
@@ -430,7 +430,7 @@ export class AppointmentsService {
         ],
       };
       const cand = await this.appointmentModel.find(findCond).exec();
-      console.log(cand);
+      // console.log(cand);
       // if (cand.length) throw new BadRequestException('Данное время уже занято');
       if (
         cand.length

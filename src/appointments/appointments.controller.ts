@@ -62,21 +62,26 @@ export class AppointmentsController {
       request.user?.roles,
     );
     res.setHeader('X-Total-Count', response.count);
-    console.log(response.data);
+    // console.log(response.data);
     return response.data;
   }
+
+  @Get('getForRecord')
+  @Public()
+  //@Roles('registrator')
+  @HttpCode(HttpStatus.OK)
   async getForRecord(
     @Query() dto: GetFreeAppointmetnsDto,
     @Req() request: Request | any,
     @Res({ passthrough: true }) res: Response,
   ): Promise<AppointmentWithIdDto[]> {
-    const response = await this.appointmentsService.get(
+    const response = await this.appointmentsService.getForRecord(
       dto,
       request.user?._id,
       request.user?.roles,
     );
     res.setHeader('X-Total-Count', response.count);
-    console.log(response.data);
+    // console.log(response.data);
     return response.data;
   }
 
