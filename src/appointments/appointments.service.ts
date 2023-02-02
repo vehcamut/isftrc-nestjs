@@ -294,17 +294,45 @@ export class AppointmentsService {
           },
         },
       ]);
+    const appointments = await query.exec();
+    //поиск записей пациента
+    //todo проверить несостыковки
+    const services = await this.serviceModel
+      .find({
+        $and: [
+          {
+            patient: dto.patientId,
+          },
+          {
+            appointment: {
+              $not: null,
+            },
+          },
+        ],
+      })
+      .populate([
+        {
+          path: 'appointment',
+          model: 'Appointment',
+        },
+      ])
+      .exec();
     const result: any = [];
-    const data = await query.exec();
-    const time = new Date(dto.time.setHours(dto.time.getHours()));
-    const numTime =
-      (dto.time.getHours() * 60 + dto.time.getMinutes()) * 60 * 1000;
-    console.log(numTime);
-    data.forEach((appointment) => {
+    const time = (dto.time.getHours() * 60 + dto.time.getMinutes()) * 60 * 1000;
+    appointments.forEach((appointment) => {
       const duration =
         appointment.endDate.getTime() - appointment.begDate.getTime();
-      console.log(duration - numTime);
-      if (duration == numTime) result.push(appointment);
+      if (duration == time)
+        if (
+          services.findIndex(
+            (service: any) =>
+              (appointment.begDate <= service.appointment.begDate &&
+                appointment.begDate > service.appointment.endDate) ||
+              (appointment.endDate > service.appointment.begDate &&
+                appointment.endDate <= service.appointment.endDate),
+          ) == -1
+        )
+          result.push(appointment);
     });
     console.log(result);
     return { data: result, count };
@@ -339,6 +367,26 @@ export class AppointmentsService {
           },
           {
             $or: [
+              {
+                $and: [
+                  {
+                    begDate: { $gt: begDate },
+                  },
+                  {
+                    begDate: { $lt: endDate },
+                  },
+                ],
+              },
+              {
+                $and: [
+                  {
+                    endDate: { $gt: begDate },
+                  },
+                  {
+                    endDate: { $lt: endDate },
+                  },
+                ],
+              },
               {
                 $and: [
                   {
