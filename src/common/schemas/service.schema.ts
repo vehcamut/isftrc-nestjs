@@ -6,7 +6,7 @@ export type ServiceDocument = Service & Document;
 
 @Schema({ timestamps: true })
 export class Service {
-  @Prop({ required: true, default: true })
+  @Prop({ required: true, default: false })
   @ApiProperty({
     example: true,
     description: 'Статус / Status',

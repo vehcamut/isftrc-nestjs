@@ -12,6 +12,7 @@ import {
   IsDate,
 } from 'class-validator';
 import { toBoolean, toDate, trim } from '../helpers';
+import { ToBoolean } from 'class-sanitizer';
 
 export class GetServiceDto {
   @Transform(({ value }) => trim(value))
@@ -78,9 +79,19 @@ export class ServiceTypeWithIdDto extends ServiceTypeDto {
 }
 
 export class AddServiceDto {
+  @IsNotEmpty({ message: 'type: поле тип услуги не должено быть пустым' })
+  @IsString()
   type: string;
-  course: string;
+
+  @IsBoolean()
+  inCourse: boolean;
+
+  @IsOptional()
+  @IsString()
   note?: string;
+
+  @IsNotEmpty({ message: 'patient: поле пациент не должено быть пустым' })
+  @IsString()
   patient: string;
 }
 

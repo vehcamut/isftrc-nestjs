@@ -14,6 +14,7 @@ import {
   UserDocument,
 } from 'src/common/schemas';
 import {
+  AddServiceDto,
   AddPatientToRepresentative,
   GetPatientRepresentativesDto,
   GetPatientsDto,
@@ -24,6 +25,8 @@ import {
   PatientChangeStatusDto,
   PatientWithIdDto,
   getCoursesDto,
+  patientCourseDto,
+  CourseDto,
 } from 'src/common/dtos';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -474,5 +477,93 @@ export class PatientsService {
     //   .populate('patients', '_id', this.patientModel)
     //   .exec();
     // reparr = patient.courses;
+  }
+
+  async openCourse(
+    dto: patientCourseDto,
+    id: string,
+    roles: string[],
+  ): Promise<any> {
+    // поиск паиента и курсов
+    if (!mongoose.Types.ObjectId.isValid(dto.patientId))
+      throw new BadRequestException('пациент не найден');
+    const patient: any = await this.patientModel
+      .findById(dto.patientId)
+      .populate([
+        {
+          path: 'courses',
+          model: 'Course',
+        },
+      ])
+      .exec();
+    if (!patient) throw new BadRequestException('пациент не найден');
+
+    const courses: CourseDto[] = patient.courses;
+    const lastCourse = courses[courses.length - 1];
+    if (lastCourse.number != 0 && lastCourse.status == true)
+      throw new BadRequestException(
+        'курс не может быть открыт, пока не закрыт предыдущий',
+      );
+    const newCourse = new this.courseModel({
+      number: courses.length,
+      status: true,
+    });
+    newCourse.save();
+    this.patientModel
+      .findByIdAndUpdate(dto.patientId, {
+        $push: {
+          courses: newCourse._id,
+        },
+      })
+      .exec();
+    return;
+  }
+
+  async addService(
+    dto: AddServiceDto,
+    id: string,
+    roles: string[],
+  ): Promise<any> {
+    // поиск паиента и курсов
+    if (!mongoose.Types.ObjectId.isValid(dto.patient))
+      throw new BadRequestException('пациент не найден');
+    const patient: any = await this.patientModel
+      .findById(dto.patient)
+      .populate([
+        {
+          path: 'courses',
+          model: 'Course',
+        },
+      ])
+      .exec();
+    if (!patient) throw new BadRequestException('пациент не найден');
+
+    if (!mongoose.Types.ObjectId.isValid(dto.type))
+      throw new BadRequestException('тип услуги не найден');
+    const serviceType: any = await this.serviceTypeModel
+      .findById(dto.type)
+      .populate([
+        {
+          path: 'group',
+          model: 'ServiceGroup',
+        },
+      ])
+      .exec();
+    if (!serviceType || !serviceType.isActive || !serviceType.group.isActive)
+      throw new BadRequestException('тип услуги не найден');
+
+    const courses = patient.courses;
+    const course = courses.find((course) =>
+      dto.inCourse ? course.number === courses.length - 1 : course.number === 0,
+    );
+    const srv = {
+      course: course._id,
+      type: dto.type,
+      note: dto.note,
+      patient: dto.patient,
+    };
+    const newService = new this.serviceModel(srv);
+    newService.save();
+    return newService._id;
   }
 }

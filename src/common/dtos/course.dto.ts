@@ -61,5 +61,5 @@ export class ServiceTypeWithoutGroupDto {
 // }
 
 export class patientCourseDto {
-  patient: string;
+  patientId: string;
 }

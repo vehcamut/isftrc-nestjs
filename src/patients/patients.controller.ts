@@ -115,21 +115,35 @@ export class PatientsController {
     );
   }
 
-  // // открыть последний курс, если закрыт
-  // @Post('openCourse')
-  // @Public()
-  // //@Roles('registrator')
-  // @HttpCode(HttpStatus.CREATED)
-  // async openCourse(
-  //   @Req() request: Request | any,
-  //   @Body() dto: patientCourseDto,
-  // ) {
-  //   return this.patientsService.openCourse(
-  //     dto,
-  //     request.user?._id,
-  //     request.user?.roles,
-  //   );
-  // }
+  // открыть последний курс, если закрыт
+  @Post('openCourse')
+  @Public()
+  //@Roles('registrator')
+  @HttpCode(HttpStatus.CREATED)
+  async openCourse(
+    @Req() request: Request | any,
+    @Body() dto: patientCourseDto,
+  ) {
+    return this.patientsService.openCourse(
+      dto,
+      request.user?._id,
+      request.user?.roles,
+    );
+  }
+
+  // добавить услугу в курс
+  @Post('addService')
+  @Public()
+  //@Roles('registrator')
+  @HttpCode(HttpStatus.CREATED)
+  async addService(@Req() request: Request | any, @Body() dto: AddServiceDto) {
+    return this.patientsService.addService(
+      dto,
+      request.user?._id,
+      request.user?.roles,
+    );
+  }
+
   // // закрыть последний курс, если закрыт
   // @Post('closeCourse')
   // @Public()
@@ -145,18 +159,7 @@ export class PatientsController {
   //     request.user?.roles,
   //   );
   // }
-  // // добавить услугу в курс
-  // @Post('addService')
-  // @Public()
-  // //@Roles('registrator')
-  // @HttpCode(HttpStatus.CREATED)
-  // async addService(@Req() request: Request | any, @Body() dto: AddServiceDto) {
-  //   return this.patientsService.addService(
-  //     dto,
-  //     request.user?._id,
-  //     request.user?.roles,
-  //   );
-  // }
+
   // // удалить неоказаную и незаписаную услугу из курса
   // @Post('removeService')
   // @Public()
