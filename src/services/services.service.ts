@@ -11,6 +11,8 @@ import {
   ServiceTypeDocument,
   SpecialistType,
   SpecialistTypeDocument,
+  Appointment,
+  AppointmentDocument,
 } from 'src/common/schemas';
 import {
   AdvertisingSourceDto,
@@ -29,6 +31,7 @@ import {
   ServiceGroupWithIdDto,
   GetServiseByIdDto,
   ServiceDto,
+  AddAppointmentToServiceDto,
 } from 'src/common/dtos';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -45,6 +48,8 @@ export class ServicesService {
     private specialistTypeModel: Model<SpecialistTypeDocument>,
     @InjectModel(Service.name)
     private serviceModel: Model<ServiceDocument>,
+    @InjectModel(Appointment.name)
+    private appointmentModel: Model<AppointmentDocument>,
   ) {}
   async get(dto: GetServiceDto): Promise<any> {
     const findCond = {
@@ -169,20 +174,6 @@ export class ServicesService {
       patient: `${service.patient.surname} ${service.patient.name} ${service.patient.patronymic}`,
     };
   }
-  // async getById(dto: GetPatientsByIdDto): Promise<any> {
-  //   //TODO проверка на принадлежность пациента
-  //   if (!mongoose.Types.ObjectId.isValid(dto.id))
-  //     throw new BadRequestException('_id: not found');
-  //   const candidate = await this.patientModel
-  //     .findById(dto.id)
-  //     .select(
-  //       'number name surname patronymic dateOfBirth gender address isActive note representatives _id',
-  //     )
-  //     .exec();
-  //   if (!candidate) throw new BadRequestException('_id: not found');
-
-  //   return candidate;
-  // }
 
   async addGroup(
     dto: ServiceGroupDto,
@@ -311,20 +302,66 @@ export class ServicesService {
       .exec();
     return;
   }
-  // async changeStatus(
-  //   dto: PatientChangeStatusDto,
-  //   id: string,
-  //   roles: string[],
-  // ): Promise<object> {
-  //   if (!mongoose.Types.ObjectId.isValid(dto._id))
-  //     throw new BadRequestException('_id: not found');
-  //   const candidate = await this.patientModel.findById(dto._id).exec();
-  //   // .select(
-  //   //   'number name surname patronymic dateOfBirth gender address isActive note representatives _id',
-  //   // )
-  //   // .exec();
-  //   if (!candidate) throw new BadRequestException('_id: not found');
-  //   this.patientModel.findByIdAndUpdate(dto._id, dto).exec();
-  //   return;
-  // }
+
+  async setAppointment(
+    dto: AddAppointmentToServiceDto,
+    id: string,
+    roles: string[],
+  ): Promise<object> {
+    // проверка id услуги
+    if (!mongoose.Types.ObjectId.isValid(dto.serviceId))
+      throw new BadRequestException('услуга не найдена');
+    const service: any = await this.serviceModel
+      .findById(dto.serviceId)
+      .populate([
+        {
+          path: 'type',
+          model: 'ServiceType',
+        },
+      ])
+      .exec();
+    if (!service) throw new BadRequestException('услуга не найдена');
+    //todo: здесь сразу отвязывается старое время
+    if (service.appointment) {
+      const currentAppointment = await this.appointmentModel
+        .findById(service.appointment)
+        .exec();
+      this.appointmentModel
+        .findByIdAndUpdate(currentAppointment._id, {
+          service: null,
+        })
+        .exec();
+      // throw new BadRequestException('услуга уже записана');
+    }
+    // проверка id записи
+    if (!mongoose.Types.ObjectId.isValid(dto.appointmentId))
+      throw new BadRequestException('запись не найдена');
+    const appointment = await this.appointmentModel
+      .findById(dto.appointmentId)
+      .exec();
+    if (!appointment) throw new BadRequestException('запись не найдена');
+    if (appointment.service)
+      throw new BadRequestException('данное время уже занято');
+    const time =
+      (service.type.time.getHours() * 60 + service.type.time.getMinutes()) *
+      60 *
+      1000;
+    console.log('!!!!!!!!', time);
+    const duration =
+      appointment.endDate.getTime() - appointment.begDate.getTime();
+    if (duration == time) {
+      this.serviceModel
+        .findByIdAndUpdate(service._id, {
+          appointment: new Types.ObjectId(appointment._id),
+        })
+        .exec();
+      this.appointmentModel
+        .findByIdAndUpdate(appointment._id, {
+          service: new Types.ObjectId(service._id),
+        })
+        .exec();
+    } else
+      throw new BadRequestException('Данное время не подходит по длительности');
+    return;
+  }
 }

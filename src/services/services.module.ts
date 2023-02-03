@@ -5,6 +5,8 @@ import { getConnectionToken, MongooseModule } from '@nestjs/mongoose';
 import {
   AdvertisingSource,
   AdvertisingSourcesSchema,
+  Appointment,
+  AppointmentSchema,
   Service,
   ServiceGroup,
   ServiceGroupSchema,
@@ -24,6 +26,7 @@ import { Connection } from 'mongoose';
       { name: ServiceType.name, schema: ServiceTypeSchema },
       { name: SpecialistType.name, schema: SpecialistTypeSchema },
       { name: Service.name, schema: ServiceSchema },
+      { name: Appointment.name, schema: AppointmentSchema },
     ]),
     // MongooseModule.forFeatureAsync([
     //   {

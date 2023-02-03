@@ -31,6 +31,7 @@ import {
   GetServiseByIdDto,
   ServiceDto,
   ServiceInfoDto,
+  AddAppointmentToServiceDto,
 } from 'src/common/dtos';
 import { ServicesService } from './services.service';
 
@@ -132,18 +133,19 @@ export class ServicesController {
     );
     return response;
   }
-  // @Patch('changeStatus')
-  // @Public()
-  // //@Roles('registrator')
-  // @HttpCode(HttpStatus.OK)
-  // async changeStatus(
-  //   @Req() request: Request | any,
-  //   @Body() dto: PatientChangeStatusDto,
-  // ) {
-  //   return this.advertisingSourceService.changeStatus(
-  //     dto,
-  //     request.user?._id,
-  //     request.user?.roles,
-  //   );
-  // }
+
+  @Post('setAppointment')
+  @Public()
+  //@Roles('registrator')
+  @HttpCode(HttpStatus.CREATED)
+  async setAppointment(
+    @Req() request: Request | any,
+    @Body() dto: AddAppointmentToServiceDto,
+  ) {
+    return this.servicesService.setAppointment(
+      dto,
+      request.user?._id,
+      request.user?.roles,
+    );
+  }
 }

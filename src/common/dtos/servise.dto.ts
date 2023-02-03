@@ -122,3 +122,13 @@ export class GetServiseByIdDto {
   @IsOptional()
   public id = '';
 }
+
+export class AddAppointmentToServiceDto {
+  @IsNotEmpty()
+  @IsString()
+  appointmentId: string;
+
+  @IsNotEmpty()
+  @IsString()
+  serviceId: string;
+}
