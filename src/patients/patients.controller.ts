@@ -8,7 +8,7 @@ import {
   Query,
   Res,
 } from '@nestjs/common';
-import { Body, Patch, Post, Put, Req } from '@nestjs/common/decorators';
+import { Body, Delete, Patch, Post, Put, Req } from '@nestjs/common/decorators';
 import { Response } from 'express';
 import { Public } from 'src/common/decorators';
 import {
@@ -21,7 +21,7 @@ import {
   PatientBaseDto,
   PatientChangeStatusDto,
   PatientWithIdDto,
-  RemoveService,
+  RemoveServiceDto,
   getCoursesDto,
   patientCourseDto,
 } from 'src/common/dtos';
@@ -144,6 +144,22 @@ export class PatientsController {
     );
   }
 
+  // удалить неоказаную и незаписаную услугу из курса
+  @Delete('removeService')
+  @Public()
+  //@Roles('registrator')
+  @HttpCode(HttpStatus.CREATED)
+  async removeService(
+    @Req() request: Request | any,
+    @Body() dto: RemoveServiceDto,
+  ) {
+    return this.patientsService.removeService(
+      dto,
+      request.user?._id,
+      request.user?.roles,
+    );
+  }
+
   // // закрыть последний курс, если закрыт
   // @Post('closeCourse')
   // @Public()
@@ -160,21 +176,6 @@ export class PatientsController {
   //   );
   // }
 
-  // // удалить неоказаную и незаписаную услугу из курса
-  // @Post('removeService')
-  // @Public()
-  // //@Roles('registrator')
-  // @HttpCode(HttpStatus.CREATED)
-  // async removeService(
-  //   @Req() request: Request | any,
-  //   @Body() dto: RemoveService,
-  // ) {
-  //   return this.patientsService.removeService(
-  //     dto,
-  //     request.user?._id,
-  //     request.user?.roles,
-  //   );
-  // }
   @Get('getCourses')
   @Public()
   //@Roles('registrator')

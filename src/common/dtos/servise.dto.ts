@@ -20,6 +20,12 @@ export class GetServiceDto {
   @IsOptional()
   public filter = '';
 }
+
+export class GetTypesDto {
+  @Transform(({ value }) => trim(value))
+  @IsString()
+  public group: string;
+}
 export class ServiceGroupDto {
   @IsNotEmpty({ message: 'name: поле имя не должено быть пустым' })
   @IsString()
@@ -90,14 +96,18 @@ export class AddServiceDto {
   @IsString()
   note?: string;
 
+  @IsNotEmpty({ message: 'amount: поле количество не должено быть пустым' })
+  @IsNumber()
+  amount: number;
+
   @IsNotEmpty({ message: 'patient: поле пациент не должено быть пустым' })
   @IsString()
   patient: string;
 }
 
-export class RemoveService {
+export class RemoveServiceDto {
   id: string;
-  patient: string;
+  // patient: string;
 }
 
 export class ServiceDto {

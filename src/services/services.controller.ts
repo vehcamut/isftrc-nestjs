@@ -32,6 +32,7 @@ import {
   ServiceDto,
   ServiceInfoDto,
   AddAppointmentToServiceDto,
+  GetTypesDto,
 } from 'src/common/dtos';
 import { ServicesService } from './services.service';
 
@@ -60,6 +61,18 @@ export class ServicesController {
     @Res({ passthrough: true }) res: Response,
   ): Promise<ServiceGroupWithIdDto[]> {
     const response = await this.servicesService.getGroups(dto);
+    return response;
+  }
+
+  @Get('getTypes')
+  @Public()
+  //@Roles('registrator')
+  @HttpCode(HttpStatus.OK)
+  async getTypes(
+    @Query() dto: GetTypesDto,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<ServiceTypeWithIdDto[]> {
+    const response = await this.servicesService.getTypes(dto);
     return response;
   }
 

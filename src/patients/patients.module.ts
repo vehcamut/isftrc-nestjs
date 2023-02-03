@@ -3,6 +3,8 @@ import { PatientsService } from './patients.service';
 import { PatientsController } from './patients.controller';
 import { getConnectionToken, MongooseModule } from '@nestjs/mongoose';
 import {
+  Appointment,
+  AppointmentSchema,
   Patient,
   PatientSchema,
   User,
@@ -25,6 +27,7 @@ import { Connection } from 'mongoose';
       { name: Course.name, schema: CourseSchema },
       { name: Service.name, schema: ServiceSchema },
       { name: ServiceType.name, schema: ServiceTypeSchema },
+      { name: Appointment.name, schema: AppointmentSchema },
     ]),
     // MongooseModule.forFeatureAsync([
     //   {

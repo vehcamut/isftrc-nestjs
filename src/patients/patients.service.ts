@@ -2,6 +2,8 @@ import { ServiceTypeWithIdDto } from './../common/dtos/servise.dto';
 import { GetPatientsByIdDto } from './../common/dtos/getPatients.dto';
 import { BadRequestException } from '@nestjs/common/exceptions';
 import {
+  Appointment,
+  AppointmentDocument,
   Course,
   CourseDocument,
   Patient,
@@ -15,6 +17,7 @@ import {
 } from 'src/common/schemas';
 import {
   AddServiceDto,
+  RemoveServiceDto,
   AddPatientToRepresentative,
   GetPatientRepresentativesDto,
   GetPatientsDto,
@@ -45,6 +48,8 @@ export class PatientsService {
     private serviceModel: Model<ServiceDocument>,
     @InjectModel(ServiceType.name)
     private serviceTypeModel: Model<ServiceTypeDocument>,
+    @InjectModel(Appointment.name)
+    private appointmentModel: Model<AppointmentDocument>,
   ) {}
   async get(dto: GetPatientsDto): Promise<any> {
     let reparr = [];
@@ -556,14 +561,49 @@ export class PatientsService {
     const course = courses.find((course) =>
       dto.inCourse ? course.number === courses.length - 1 : course.number === 0,
     );
-    const srv = {
-      course: course._id,
-      type: dto.type,
-      note: dto.note,
-      patient: dto.patient,
-    };
-    const newService = new this.serviceModel(srv);
-    newService.save();
-    return newService._id;
+    const addedServices: string[] = [];
+    for (let i = 0; i < dto.amount; i++) {
+      const srv = {
+        course: course._id,
+        type: dto.type,
+        note: dto.note,
+        patient: dto.patient,
+      };
+      const newService = new this.serviceModel(srv);
+      newService.save();
+      addedServices.push(newService._id);
+    }
+
+    return addedServices;
+  }
+
+  async removeService(
+    dto: RemoveServiceDto,
+    id: string,
+    roles: string[],
+  ): Promise<any> {
+    // поиск паиента и курсов
+    if (!mongoose.Types.ObjectId.isValid(dto.id))
+      throw new BadRequestException('услуга не найдена');
+    const service: any = await this.serviceModel
+      .findById(dto.id)
+      .populate([
+        {
+          path: 'appointment',
+          model: 'Appointment',
+        },
+      ])
+      .exec();
+    if (!service) throw new BadRequestException('услуга не найдена');
+    if (service.appointment) {
+      this.appointmentModel
+        .findByIdAndUpdate(service.appointment._id, {
+          service: null,
+        })
+        .exec();
+    }
+
+    this.serviceModel.findByIdAndRemove(dto.id).exec();
+    return;
   }
 }

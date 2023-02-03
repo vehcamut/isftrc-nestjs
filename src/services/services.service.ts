@@ -32,6 +32,7 @@ import {
   GetServiseByIdDto,
   ServiceDto,
   AddAppointmentToServiceDto,
+  GetTypesDto,
 } from 'src/common/dtos';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -107,11 +108,30 @@ export class ServicesService {
 
   async getGroups(dto: GetServiceDto): Promise<any> {
     const groups = this.serviceGroupModel
-      .find()
-      .select('name isActive _id')
+      .find({
+        isActive: true,
+      })
+      .select('name _id')
       .exec();
 
     return groups;
+  }
+
+  async getTypes(dto: GetTypesDto): Promise<any> {
+    if (!mongoose.Types.ObjectId.isValid(dto.group))
+      throw new BadRequestException('группа услуг не найдена');
+    const group = await this.serviceGroupModel.findById(dto.group).exec();
+    if (!group) throw new BadRequestException('группа услуг не найдена');
+
+    const types = this.serviceTypeModel
+      .find({
+        group: group._id,
+        isActive: true,
+      })
+      .select('name _id')
+      .exec();
+
+    return types;
   }
 
   async getService(
