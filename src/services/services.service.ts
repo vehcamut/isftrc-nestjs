@@ -134,6 +134,47 @@ export class ServicesService {
     return types;
   }
 
+  async getAllInfoService(
+    dto: GetServiseByIdDto,
+    id: string,
+    roles: string[],
+  ): Promise<any> {
+    //todo проверка на принадлежность пациента
+    if (!mongoose.Types.ObjectId.isValid(dto.id))
+      throw new BadRequestException('id услуги не найден');
+
+    const service: any = await this.serviceModel
+      .findOne({ _id: dto.id })
+      .populate([
+        {
+          path: 'type',
+          model: 'ServiceType',
+        },
+        {
+          path: 'patient',
+          model: 'Patient',
+        },
+        {
+          path: 'appointment',
+          model: 'Appointment',
+          populate: {
+            path: 'specialist',
+            model: 'User',
+            select: {
+              name: 1,
+              surname: 1,
+              patronymic: 1,
+              isActive: 1,
+            },
+          },
+        },
+      ]);
+    console.log(service);
+    if (!service) throw new BadRequestException('id услуги не найден');
+
+    return service;
+  }
+
   async getService(
     dto: GetServiseByIdDto,
     id: string,
@@ -181,6 +222,7 @@ export class ServicesService {
     if (!service) throw new BadRequestException('id услуги не найден');
 
     return {
+      id: service._id,
       type: service.type.name,
       status: service.status,
       course: service.course,

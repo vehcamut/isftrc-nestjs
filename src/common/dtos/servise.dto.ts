@@ -122,6 +122,7 @@ export class ServiceDto {
 }
 
 export class ServiceInfoDto {
+  id: string;
   type: string;
   status: boolean;
   course: string;

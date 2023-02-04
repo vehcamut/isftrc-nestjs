@@ -147,6 +147,23 @@ export class ServicesController {
     return response;
   }
 
+  @Get('getAllInfoService')
+  @Public()
+  //@Roles('registrator')
+  @HttpCode(HttpStatus.OK)
+  async getAllInfoService(
+    @Req() request: Request | any,
+    @Query() dto: GetServiseByIdDto,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<any> {
+    const response = await this.servicesService.getAllInfoService(
+      dto,
+      request.user?._id,
+      request.user?.roles,
+    );
+    return response;
+  }
+
   @Post('setAppointment')
   @Public()
   //@Roles('registrator')
