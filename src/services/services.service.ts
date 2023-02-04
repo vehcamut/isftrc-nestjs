@@ -33,6 +33,7 @@ import {
   ServiceDto,
   AddAppointmentToServiceDto,
   GetTypesDto,
+  CloseServiceDto,
 } from 'src/common/dtos';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -424,6 +425,62 @@ export class ServicesService {
         .exec();
     } else
       throw new BadRequestException('Данное время не подходит по длительности');
+    return;
+  }
+
+  async closeService(
+    dto: CloseServiceDto,
+    id: string,
+    roles: string[],
+  ): Promise<object> {
+    //todo врач может закрывать только в тот же день, только свои услуги
+    // проверка id услуги
+    if (!mongoose.Types.ObjectId.isValid(dto.id))
+      throw new BadRequestException('услуга не найдена');
+    const service: any = await this.serviceModel
+      .findById(dto.id)
+      .populate([
+        // {
+        //   path: 'type',
+        //   model: 'ServiceType',
+        // },
+        {
+          path: 'appointment',
+          model: 'Appointment',
+        },
+      ])
+      .exec();
+    if (!service) throw new BadRequestException('услуга не найдена');
+    // if (service.status) throw new BadRequestException('услуга уже закрыта');
+    if (!service.appointment)
+      throw new BadRequestException(
+        'не возможно закрыть услугу, для которой не назначена дата',
+      );
+    if (service.appointment.endDate > new Date())
+      throw new BadRequestException('не возможно закрыть услугу в будущем');
+    // // const updateData: any = {
+    //   result: dto.result,
+    // };
+    // if (!service.status) {
+    //   const courseId = service.course;
+    //   const typeId = service.type;
+    //   const services = await this.serviceModel
+    //     .find({
+    //       status: true,
+    //       course: courseId,
+    //       type: typeId,
+    //     })
+    //     .exec();
+    //   // services.find()
+    //   updateData.status = true;
+    //   // updateData.number = services.length + 1;
+    // }
+    //todo: здесь сразу отвязывается старое время
+    // console.log(updateData);
+    this.serviceModel
+      .findByIdAndUpdate(dto.id, { status: true, result: dto.result })
+      .exec();
+    // проверка id записи
     return;
   }
 }

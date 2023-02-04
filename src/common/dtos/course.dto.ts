@@ -24,10 +24,14 @@ export class getCoursesDto {
 
 export class CourseWithServicesDto extends CourseWithId {
   serviceGroups: ServiceGroupWithServisesDto[];
+  total: number;
 }
 
 export class ServiceGroupWithServisesDto extends ServiceGroupWithIdDto {
   services: ServiceInCourseDto[];
+  total: number;
+  income: number;
+  outcome: number;
 }
 export class ServiceInCourseDto {
   kind: string;

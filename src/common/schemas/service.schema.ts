@@ -13,6 +13,13 @@ export class Service {
   })
   status: boolean;
 
+  // @Prop()
+  // @ApiProperty({
+  //   example: '1',
+  //   description: 'Номер сеанса / Number',
+  // })
+  // number?: number;
+
   @Prop({ required: true, type: SchemaTypes.ObjectId, ref: 'Course' })
   @ApiProperty({
     example: new Types.ObjectId('632b153c077e63515d42348a'),

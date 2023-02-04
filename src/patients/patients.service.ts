@@ -336,6 +336,7 @@ export class PatientsService {
         number: v.number,
         status: v.status,
         serviceGroups: [],
+        total: 0,
       } as CourseWithServicesDto;
     });
     // const res1 = await this.serviceModel.aggregate([
@@ -375,12 +376,20 @@ export class PatientsService {
           $in: patient.courses,
         },
       })
-      .select('_id status course type result note patient appointment')
+      .select('_id status course type result note patient appointment number')
       .populate([
         {
           path: 'type',
           model: 'ServiceType',
-          select: { name: 1, group: 1, isActive: 1, price: 1, time: 1, _id: 1 },
+          select: {
+            name: 1,
+            group: 1,
+            isActive: 1,
+            price: 1,
+            time: 1,
+            _id: 1,
+            // number: 1,
+          },
           populate: {
             path: 'group',
             model: 'ServiceGroup',
@@ -414,9 +423,10 @@ export class PatientsService {
           },
         },
       ]);
+    // .sort({ begDate: 1 });
     // console.log(result);
     result.forEach((serv: any) => {
-      console.log('serv ', serv);
+      // console.log('serv ', serv);
       const nowCourse = res.find((c) => c._id == serv.course.toString());
       let nowGroup = nowCourse.serviceGroups.find(
         (g) => g._id == serv.type.group._id.toString(),
@@ -429,6 +439,9 @@ export class PatientsService {
           name: serv.type.group.name,
           isActive: serv.type.group.isActive,
           services: [],
+          total: 0,
+          income: 0,
+          outcome: 0,
         });
         nowGroup = nowCourse.serviceGroups[nowCourse.serviceGroups.length - 1];
       }
@@ -438,16 +451,22 @@ export class PatientsService {
       // console.log('!!!!', type);
 
       if (nowGroup) {
-        const newServ = {
-          appointment: appointment,
-          _id: serv._id,
-          status: serv.status,
-          note: serv.note,
-          result: serv.result,
-          type: type,
-          course: serv.course,
-        };
-        delete newServ.type.group;
+        // const newServ = {
+        //   appointment: appointment,
+        //   _id: serv._id,
+        //   status: serv.status,
+        //   note: serv.note,
+        //   result: serv.result,
+        //   type: type,
+        //   course: serv.course,
+        //   number: serv.number,
+        // };
+        // delete newServ.type.group;
+        if (serv.status) {
+          nowGroup.total -= type.price;
+          nowGroup.outcome -= type.price;
+          nowCourse.total -= type.price;
+        }
         nowGroup.services.push({
           _id: serv._id,
           status: serv.status,
@@ -460,7 +479,7 @@ export class PatientsService {
             ? `${appointment?.specialist.surname} ${appointment?.specialist.name} ${appointment?.specialist.patronymic}`
             : undefined,
           date: appointment?.begDate,
-          number: serv.number,
+          // number: serv.number,
           // type: {
           //   _id: type._id,
           //   name: type.name,
@@ -472,6 +491,11 @@ export class PatientsService {
         });
       }
     });
+    res.forEach((c) =>
+      c.serviceGroups.forEach((g) =>
+        g.services.sort((s1, s2) => s1.date.getTime() - s2.date.getTime()),
+      ),
+    );
     // console.log(res);
     return res;
     // 'name specialistTypes group isActive price time',

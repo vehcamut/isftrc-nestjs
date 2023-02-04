@@ -33,6 +33,7 @@ import {
   ServiceInfoDto,
   AddAppointmentToServiceDto,
   GetTypesDto,
+  CloseServiceDto,
 } from 'src/common/dtos';
 import { ServicesService } from './services.service';
 
@@ -173,6 +174,21 @@ export class ServicesController {
     @Body() dto: AddAppointmentToServiceDto,
   ) {
     return this.servicesService.setAppointment(
+      dto,
+      request.user?._id,
+      request.user?.roles,
+    );
+  }
+
+  @Post('closeService')
+  @Public()
+  //@Roles('registrator')
+  @HttpCode(HttpStatus.CREATED)
+  async closeService(
+    @Req() request: Request | any,
+    @Body() dto: CloseServiceDto,
+  ) {
+    return this.servicesService.closeService(
       dto,
       request.user?._id,
       request.user?.roles,

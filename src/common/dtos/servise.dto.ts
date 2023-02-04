@@ -154,3 +154,13 @@ export class AddAppointmentToServiceDto {
   @IsString()
   serviceId: string;
 }
+
+export class CloseServiceDto {
+  @IsNotEmpty()
+  @IsString()
+  id: string;
+
+  @IsNotEmpty()
+  @IsString()
+  result: string;
+}
