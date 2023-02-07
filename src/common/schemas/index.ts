@@ -7,3 +7,4 @@ export * from './serviceGroup.schema';
 export * from './serviceType.schema';
 export * from './specialistType.schema';
 export * from './user.schema';
+export * from './payment.schema';

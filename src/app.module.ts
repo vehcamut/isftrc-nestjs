@@ -1,3 +1,4 @@
+import { PaymentsModule } from './payments/payments.module';
 import { RepresentativesModule } from './representatives/representatives.module';
 import { AtGuard, RolesGuard } from './common/guards';
 import { MongooseModule } from '@nestjs/mongoose';
@@ -32,6 +33,7 @@ import { ServicesModule } from './services/services.module';
     AddressModule,
     AppointmentsModule,
     ServicesModule,
+    PaymentsModule,
   ],
   controllers: [],
   //провайдер защит jwt для инъекции
