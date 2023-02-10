@@ -45,9 +45,16 @@ export class Payment {
   @Prop({ type: SchemaTypes.ObjectId, ref: 'User' })
   @ApiProperty({
     example: new Types.ObjectId('632b153c077e63515d42348a'),
-    description: 'Плвтельщик / Payer',
+    description: 'Плательщик / Payer',
   })
   payer?: Types.ObjectId;
+
+  @Prop({ type: SchemaTypes.ObjectId, ref: 'Payment' })
+  @ApiProperty({
+    example: new Types.ObjectId('632b153c077e63515d42348a'),
+    description: 'Связанная оплата / Related payment',
+  })
+  relatedPayment?: Types.ObjectId;
 }
 
 export const PaymentSchema = SchemaFactory.createForClass(Payment);

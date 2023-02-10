@@ -11,7 +11,7 @@ import {
   Query,
   Res,
 } from '@nestjs/common';
-import { Body, Patch, Post, Put, Req } from '@nestjs/common/decorators';
+import { Body, Delete, Patch, Post, Put, Req } from '@nestjs/common/decorators';
 import { Response } from 'express';
 import { Public } from 'src/common/decorators';
 import {
@@ -36,6 +36,8 @@ import {
   GetTypesDto,
   CloseServiceDto,
   PaymentDto,
+  RemoveServiceDto,
+  PaymentInfoDto,
 } from 'src/common/dtos';
 import { PaymentsService } from './payments.service';
 
@@ -66,6 +68,38 @@ export class PaymentsController {
     @Res({ passthrough: true }) res: Response,
   ): Promise<number> {
     const response = await this.paymentsService.getAdvance(
+      dto,
+      request.user?._id,
+      request.user?.roles,
+    );
+    return response;
+  }
+
+  @Delete('remove')
+  @Public()
+  //@Roles('registrator')
+  @HttpCode(HttpStatus.CREATED)
+  async removeService(
+    @Req() request: Request | any,
+    @Body() dto: RemoveServiceDto,
+  ) {
+    return this.paymentsService.remove(
+      dto,
+      request.user?._id,
+      request.user?.roles,
+    );
+  }
+
+  @Get('getById')
+  @Public()
+  //@Roles('registrator')
+  @HttpCode(HttpStatus.OK)
+  async getById(
+    @Req() request: Request | any,
+    @Query() dto: GetServiseByIdDto,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<PaymentInfoDto> {
+    const response = await this.paymentsService.getById(
       dto,
       request.user?._id,
       request.user?.roles,

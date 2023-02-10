@@ -52,3 +52,13 @@ export class GetAdvanceDto {
   @IsString()
   public patient = '';
 }
+
+export class PaymentInfoDto {
+  id: string;
+  name?: string;
+  group?: string;
+  amount: number;
+  date: Date;
+  payer?: string;
+  canRemove: boolean;
+}

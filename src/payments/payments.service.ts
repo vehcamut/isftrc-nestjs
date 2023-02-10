@@ -42,6 +42,7 @@ import {
   CloseServiceDto,
   PaymentDto,
   GetAdvanceDto,
+  RemoveServiceDto,
 } from 'src/common/dtos';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -126,7 +127,7 @@ export class PaymentsService {
         amount: dto.amount * -1,
         course: zeroCourse._id,
       });
-      newMinusPayment.save();
+      await newMinusPayment.save();
 
       const newPlusPayment = new this.paymentModel({
         name: 'Перевод авансовых средств',
@@ -134,8 +135,15 @@ export class PaymentsService {
         amount: dto.amount,
         course: nowCourse._id,
         group: dto.groupId,
+        relatedPayment: newMinusPayment._id,
       });
-      newPlusPayment.save();
+      await newPlusPayment.save();
+      console.log(newMinusPayment._id, newPlusPayment._id);
+      this.paymentModel
+        .findByIdAndUpdate(newMinusPayment._id, {
+          relatedPayment: newPlusPayment._id,
+        })
+        .exec();
     } else {
       if (dto.payer) {
         // проверка id представителя
@@ -217,6 +225,100 @@ export class PaymentsService {
     return sum;
   }
 
+  async remove(
+    dto: RemoveServiceDto,
+    id: string,
+    roles: string[],
+  ): Promise<any> {
+    // поиск паиента и курсов
+    if (!mongoose.Types.ObjectId.isValid(dto.id))
+      throw new BadRequestException('оплата не найдена');
+    const payment: any = await this.paymentModel
+      .findById(dto.id)
+      .populate([
+        {
+          path: 'relatedPayment',
+          model: 'Payment',
+          populate: {
+            path: 'course',
+            model: 'Course',
+          },
+        },
+        {
+          path: 'course',
+          model: 'Course',
+        },
+      ])
+      .exec();
+    if (!payment) throw new BadRequestException('оплата не найдена');
+    if (
+      !payment.course.status ||
+      (payment.relatedPayment && !payment.relatedPayment.course.status)
+    )
+      throw new BadRequestException(
+        'оплата не может быть удалена, так как курс уже закрыт',
+      );
+    if (payment.relatedPayment)
+      this.paymentModel.findByIdAndRemove(payment.relatedPayment.id).exec();
+    this.paymentModel.findByIdAndRemove(payment.id).exec();
+    return;
+  }
+
+  async getById(
+    dto: GetServiseByIdDto,
+    id: string,
+    roles: string[],
+  ): Promise<any> {
+    //todo проверка на принадлежность пациента
+    if (!mongoose.Types.ObjectId.isValid(dto.id))
+      throw new BadRequestException('id оплаты не найден');
+
+    const payment: any = await this.paymentModel
+      .findById({ _id: dto.id })
+      .populate([
+        {
+          path: 'payer',
+          model: 'User',
+          select: { name: 1, surname: 1, patronymic: 1, isActive: 1 },
+        },
+        {
+          path: 'group',
+          model: 'ServiceGroup',
+          select: { name: 1, isActive: 1 },
+        },
+        {
+          path: 'relatedPayment',
+          model: 'Payment',
+          populate: {
+            path: 'course',
+            model: 'Course',
+          },
+        },
+        {
+          path: 'course',
+          model: 'Course',
+        },
+      ]);
+
+    if (!payment) throw new BadRequestException('id услуги не найден');
+
+    const canRemove = !(
+      !payment.course.status ||
+      (payment.relatedPayment && !payment.relatedPayment.course.status)
+    );
+
+    return {
+      id: payment._id,
+      name: payment.name,
+      group: payment?.group?.name,
+      amount: payment.amount,
+      date: payment.date,
+      payer: payment.payer
+        ? `${payment.payer.surname} ${payment.payer.name[0]}.${payment.payer.patronymic[0]}.`
+        : undefined,
+      canRemove,
+    };
+  }
   // async get(dto: GetServiceDto): Promise<any> {
   //   const findCond = {
   //     $and: [
