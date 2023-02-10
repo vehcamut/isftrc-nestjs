@@ -22,6 +22,12 @@ export class getCoursesDto {
   patient: string;
 }
 
+export class PatientCoursesInfo {
+  courses: CourseWithServicesDto[];
+  canBeClose: boolean;
+  canBeOpen: boolean;
+  canBeNew: boolean;
+}
 export class CourseWithServicesDto extends CourseWithId {
   serviceGroups: (ServiceGroupWithServisesDto | PaymentsWithoutGroup)[];
   total: number;

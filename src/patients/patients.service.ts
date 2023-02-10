@@ -32,6 +32,8 @@ import {
   getCoursesDto,
   patientCourseDto,
   CourseDto,
+  CourseWithId,
+  PatientCoursesInfo,
 } from 'src/common/dtos';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -319,7 +321,8 @@ export class PatientsService {
     dto: getCoursesDto,
     id: string,
     roles: string[],
-  ): Promise<any[]> {
+  ): Promise<PatientCoursesInfo> {
+    let canBeClose = true;
     console.log(dto);
     if (!mongoose.Types.ObjectId.isValid(dto.patient))
       throw new BadRequestException('Пациент не найден');
@@ -343,6 +346,7 @@ export class PatientsService {
         total: 0,
       } as CourseWithServicesDto;
     });
+
     // const res1 = await this.serviceModel.aggregate([
     //   {
     //     $match: {
@@ -432,6 +436,10 @@ export class PatientsService {
     result.forEach((serv: any) => {
       // console.log('serv ', serv);
       const nowCourse = res.find((c) => c._id == serv.course.toString());
+
+      if (nowCourse.number == courses.length - 1 && !serv.status)
+        canBeClose = false;
+
       let nowGroup = nowCourse.serviceGroups.find(
         (g) => g._id == serv.type.group._id.toString(),
       );
@@ -591,8 +599,16 @@ export class PatientsService {
         g.services.sort((s1, s2) => s1.date.getTime() - s2.date.getTime()),
       ),
     );
+    const lastCourse = res.find((c) => c.number == res.length - 1);
+    if (lastCourse.total < 0 || !lastCourse.status) canBeClose = false;
+
     // console.log(res);
-    return res;
+    return {
+      courses: res,
+      canBeClose,
+      canBeOpen: !lastCourse.status && courses.length > 1,
+      canBeNew: !lastCourse.status,
+    };
     // 'name specialistTypes group isActive price time',
 
     // const candidate = await this.representativesModel
@@ -603,7 +619,7 @@ export class PatientsService {
     // reparr = patient.courses;
   }
 
-  async openCourse(
+  async newCourse(
     dto: patientCourseDto,
     id: string,
     roles: string[],
@@ -640,6 +656,129 @@ export class PatientsService {
         },
       })
       .exec();
+    return;
+  }
+
+  async closeCourse(
+    dto: patientCourseDto,
+    id: string,
+    roles: string[],
+  ): Promise<any> {
+    // поиск пациента и курсов
+    if (!mongoose.Types.ObjectId.isValid(dto.patientId))
+      throw new BadRequestException('пациент не найден');
+    const patient: any = await this.patientModel
+      .findById(dto.patientId)
+      .populate([
+        {
+          path: 'courses',
+          model: 'Course',
+        },
+      ])
+      .exec();
+    if (!patient) throw new BadRequestException('пациент не найден');
+
+    const courses: CourseWithId[] = patient.courses;
+    const lastCourse = courses[courses.length - 1];
+    if (lastCourse.number == 0)
+      throw new BadRequestException('нулевой курс всегда открыт');
+    if (lastCourse.status == false)
+      throw new BadRequestException('курс уже закрыт');
+
+    this.courseModel
+      .findByIdAndUpdate(lastCourse._id, { status: false })
+      .exec();
+
+    let sum = 0;
+
+    const service = await this.serviceModel
+      .find({ course: lastCourse._id })
+      .select('_id status course type result note patient appointment number')
+      .populate([
+        {
+          path: 'type',
+          model: 'ServiceType',
+          select: {
+            name: 1,
+            group: 1,
+            isActive: 1,
+            price: 1,
+            time: 1,
+            _id: 1,
+          },
+        },
+      ]);
+
+    service.forEach((serv: any) => {
+      if (!serv.status) throw new BadRequestException('есть незакрытые услуги');
+      sum -= serv.type.price;
+    });
+
+    const payments = await this.paymentModel.find({
+      course: lastCourse._id,
+    });
+    // console.log(payments);
+    payments.forEach((payment: any) => {
+      sum += payment.amount;
+    });
+    if (sum < 0) throw new BadRequestException('баланс курса отриательный');
+    if (sum > 0) {
+      const zeroCourse = courses[0];
+      const newMinusPayment = new this.paymentModel({
+        name: `Перевод лишних средств`,
+        date: new Date(),
+        amount: sum * -1,
+        course: lastCourse._id,
+      });
+      await newMinusPayment.save();
+
+      const newPlusPayment = new this.paymentModel({
+        name: `Перевод средств с курса №${lastCourse.number}`,
+        date: new Date(),
+        amount: sum,
+        course: zeroCourse._id,
+        relatedPayment: newMinusPayment._id,
+      });
+      await newPlusPayment.save();
+
+      this.paymentModel
+        .findByIdAndUpdate(newMinusPayment._id, {
+          relatedPayment: newPlusPayment._id,
+        })
+        .exec();
+    }
+    // console.log(res);
+    return;
+  }
+
+  async openCourse(
+    dto: patientCourseDto,
+    id: string,
+    roles: string[],
+  ): Promise<any> {
+    // поиск паиента и курсов
+    if (!mongoose.Types.ObjectId.isValid(dto.patientId))
+      throw new BadRequestException('пациент не найден');
+    const patient: any = await this.patientModel
+      .findById(dto.patientId)
+      .populate([
+        {
+          path: 'courses',
+          model: 'Course',
+        },
+      ])
+      .exec();
+    if (!patient) throw new BadRequestException('пациент не найден');
+
+    const courses: CourseWithId[] = patient.courses;
+    const lastCourse = courses[courses.length - 1];
+    if (lastCourse.number == 0)
+      throw new BadRequestException('нулевой курс всегда открыт');
+    if (lastCourse.status == true)
+      throw new BadRequestException('курс уже открыт');
+
+    this.courseModel.findByIdAndUpdate(lastCourse._id, { status: true }).exec();
+
     return;
   }
 

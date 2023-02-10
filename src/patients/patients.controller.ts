@@ -20,6 +20,7 @@ import {
   GetRequestDto,
   PatientBaseDto,
   PatientChangeStatusDto,
+  PatientCoursesInfo,
   PatientWithIdDto,
   RemoveServiceDto,
   getCoursesDto,
@@ -115,16 +116,16 @@ export class PatientsController {
     );
   }
 
-  // открыть последний курс, если закрыт
-  @Post('openCourse')
+  // открыть новый курс, если закрыт
+  @Post('newCourse')
   @Public()
   //@Roles('registrator')
   @HttpCode(HttpStatus.CREATED)
-  async openCourse(
+  async newCourse(
     @Req() request: Request | any,
     @Body() dto: patientCourseDto,
   ) {
-    return this.patientsService.openCourse(
+    return this.patientsService.newCourse(
       dto,
       request.user?._id,
       request.user?.roles,
@@ -160,21 +161,37 @@ export class PatientsController {
     );
   }
 
-  // // закрыть последний курс, если закрыт
-  // @Post('closeCourse')
-  // @Public()
-  // //@Roles('registrator')
-  // @HttpCode(HttpStatus.CREATED)
-  // async closeCourse(
-  //   @Req() request: Request | any,
-  //   @Body() dto: patientCourseDto,
-  // ) {
-  //   return this.patientsService.closeCourse(
-  //     dto,
-  //     request.user?._id,
-  //     request.user?.roles,
-  //   );
-  // }
+  // закрыть последний курс, если закрыт
+  @Post('closeCourse')
+  @Public()
+  //@Roles('registrator')
+  @HttpCode(HttpStatus.CREATED)
+  async closeCourse(
+    @Req() request: Request | any,
+    @Body() dto: patientCourseDto,
+  ) {
+    return this.patientsService.closeCourse(
+      dto,
+      request.user?._id,
+      request.user?.roles,
+    );
+  }
+
+  // открыть новый курс, если закрыт
+  @Post('openCourse')
+  @Public()
+  //@Roles('registrator')
+  @HttpCode(HttpStatus.CREATED)
+  async openCourse(
+    @Req() request: Request | any,
+    @Body() dto: patientCourseDto,
+  ) {
+    return this.patientsService.openCourse(
+      dto,
+      request.user?._id,
+      request.user?.roles,
+    );
+  }
 
   @Get('getCourses')
   @Public()
@@ -184,7 +201,7 @@ export class PatientsController {
     @Req() request: Request | any,
     @Query() dto: getCoursesDto,
     @Res({ passthrough: true }) res: Response,
-  ): Promise<CourseWithServicesDto[]> {
+  ): Promise<PatientCoursesInfo> {
     const response = await this.patientsService.getCourses(
       dto,
       request.user?._id,
