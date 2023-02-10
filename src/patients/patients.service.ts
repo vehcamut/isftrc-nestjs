@@ -8,6 +8,8 @@ import {
   CourseDocument,
   Patient,
   PatientDocument,
+  Payment,
+  PaymentDocument,
   Service,
   ServiceDocument,
   ServiceType,
@@ -50,6 +52,8 @@ export class PatientsService {
     private serviceTypeModel: Model<ServiceTypeDocument>,
     @InjectModel(Appointment.name)
     private appointmentModel: Model<AppointmentDocument>,
+    @InjectModel(Payment.name)
+    private paymentModel: Model<PaymentDocument>,
   ) {}
   async get(dto: GetPatientsDto): Promise<any> {
     let reparr = [];
@@ -464,7 +468,7 @@ export class PatientsService {
         // delete newServ.type.group;
         if (serv.status) {
           nowGroup.total -= type.price;
-          nowGroup.outcome -= type.price;
+          nowGroup.outcome += type.price;
           nowCourse.total -= type.price;
         }
         nowGroup.services.push({
@@ -491,6 +495,97 @@ export class PatientsService {
         });
       }
     });
+
+    const payments = await this.paymentModel
+      .find({
+        course: {
+          $in: patient.courses,
+        },
+      })
+      .populate([
+        {
+          path: 'group',
+          model: 'ServiceGroup',
+          // select: {
+          //   name: 1,
+          //   isActive: 1,
+          // },
+        },
+        {
+          path: 'payer',
+          model: 'User',
+        },
+      ]);
+    // console.log(payments);
+    payments.forEach((payment: any) => {
+      // console.log('serv ', serv);
+      const nowCourse = res.find((c) => c._id == payment.course.toString());
+
+      let nowGroup;
+      console.log(payment.group);
+      if (!payment.group) {
+        if (nowCourse.serviceGroups[0]._id != `${nowCourse._id}0`)
+          nowCourse.serviceGroups.unshift({
+            _id: `${nowCourse._id}0`,
+            name: 'Оплаты вне групп',
+            isActive: true,
+            services: [],
+            total: 0,
+            income: 0,
+            outcome: 0,
+          });
+        nowGroup = nowCourse.serviceGroups[0];
+      } else {
+        nowGroup = nowCourse.serviceGroups.find(
+          (g) => g._id == payment.group._id.toString(),
+        );
+
+        if (!nowGroup) {
+          nowCourse.serviceGroups.push({
+            _id: payment.group._id,
+            name: payment.group.name,
+            isActive: payment.group.isActive,
+            services: [],
+            total: 0,
+            income: 0,
+            outcome: 0,
+          });
+          nowGroup =
+            nowCourse.serviceGroups[nowCourse.serviceGroups.length - 1];
+        }
+      }
+
+      if (nowGroup) {
+        nowGroup.total += payment.amount;
+        if (payment.amount > 0) nowGroup.income += payment.amount;
+        else nowGroup.outcome -= payment.amount;
+        nowCourse.total += payment.amount;
+        nowGroup.services.push({
+          _id: payment._id,
+          status: true,
+          note: '',
+          result: '',
+          kind: 'payment',
+          name: payment.name,
+          price: payment.amount < 0 ? payment.amount * -1 : undefined,
+          cost: payment.amount >= 0 ? payment.amount : undefined,
+          specialist: payment?.payer
+            ? `${payment?.payer.surname} ${payment?.payer.name} ${payment?.payer.patronymic}`
+            : undefined,
+          date: payment?.date,
+          // number: serv.number,
+          // type: {
+          //   _id: type._id,
+          //   name: type.name,
+          //   price: type.price,
+          //   // specialistTypes: type.specialistTypes,
+          //   isActive: type.isActive,
+          //   time: type.time,
+          // },
+        });
+      }
+    });
+
     res.forEach((c) =>
       c.serviceGroups.forEach((g) =>
         g.services.sort((s1, s2) => s1.date.getTime() - s2.date.getTime()),

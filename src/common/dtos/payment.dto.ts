@@ -7,12 +7,13 @@ import {
   IsBoolean,
   IsOptional,
 } from 'class-validator';
-import { toDate } from '../helpers';
+import { toDate, trim } from '../helpers';
 
 export class PaymentDto {
-  @IsNotEmpty({ message: 'Название не должно быть пустым' })
+  // @IsNotEmpty({ message: 'Название не должно быть пустым' })
+  @IsOptional()
   @IsString()
-  name: string;
+  name?: string;
 
   // @IsNotEmpty({ message: 'Группа не должна быть пустой' })
   @IsOptional()
@@ -43,4 +44,11 @@ export class PaymentDto {
   @IsOptional()
   @IsBoolean()
   fromTheAdvance?: boolean;
+}
+
+export class GetAdvanceDto {
+  @IsNotEmpty()
+  @Transform(({ value }) => trim(value))
+  @IsString()
+  public patient = '';
 }

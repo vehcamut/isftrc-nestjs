@@ -15,6 +15,7 @@ import { Body, Patch, Post, Put, Req } from '@nestjs/common/decorators';
 import { Response } from 'express';
 import { Public } from 'src/common/decorators';
 import {
+  GetAdvanceDto,
   GetAdvertisingSourceDto,
   GetPatientsByIdDto,
   GetPatientsDto,
@@ -34,9 +35,9 @@ import {
   AddAppointmentToServiceDto,
   GetTypesDto,
   CloseServiceDto,
+  PaymentDto,
 } from 'src/common/dtos';
 import { PaymentsService } from './payments.service';
-import { PaymentDto } from 'src/common/dtos/payment.dto';
 
 @Controller('payments')
 export class PaymentsController {
@@ -53,6 +54,23 @@ export class PaymentsController {
       request.user?._id,
       request.user?.roles,
     );
+  }
+
+  @Get('getAdvance')
+  @Public()
+  //@Roles('registrator')
+  @HttpCode(HttpStatus.OK)
+  async getService(
+    @Req() request: Request | any,
+    @Query() dto: GetAdvanceDto,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<number> {
+    const response = await this.paymentsService.getAdvance(
+      dto,
+      request.user?._id,
+      request.user?.roles,
+    );
+    return response;
   }
 
   // @Get('getGroupsWithTypes')

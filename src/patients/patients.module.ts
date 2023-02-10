@@ -15,6 +15,8 @@ import {
   ServiceSchema,
   ServiceType,
   ServiceTypeSchema,
+  PaymentSchema,
+  Payment,
 } from 'src/common/schemas';
 import { Connection } from 'mongoose';
 
@@ -28,6 +30,7 @@ import { Connection } from 'mongoose';
       { name: Service.name, schema: ServiceSchema },
       { name: ServiceType.name, schema: ServiceTypeSchema },
       { name: Appointment.name, schema: AppointmentSchema },
+      { name: Payment.name, schema: PaymentSchema },
     ]),
     // MongooseModule.forFeatureAsync([
     //   {

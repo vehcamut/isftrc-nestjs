@@ -23,8 +23,16 @@ export class getCoursesDto {
 }
 
 export class CourseWithServicesDto extends CourseWithId {
-  serviceGroups: ServiceGroupWithServisesDto[];
+  serviceGroups: (ServiceGroupWithServisesDto | PaymentsWithoutGroup)[];
   total: number;
+}
+
+export class PaymentsWithoutGroup {
+  _id: string;
+  services: ServiceInCourseDto[];
+  total: number;
+  income: number;
+  outcome: number;
 }
 
 export class ServiceGroupWithServisesDto extends ServiceGroupWithIdDto {
@@ -37,7 +45,8 @@ export class ServiceInCourseDto {
   kind: string;
   _id: string;
   name: string;
-  price: number;
+  price?: number;
+  cost?: number;
   date: Date;
   number?: number;
   // type: ServiceTypeWithoutGroupDto;

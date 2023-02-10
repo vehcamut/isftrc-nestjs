@@ -41,6 +41,7 @@ import {
   GetTypesDto,
   CloseServiceDto,
   PaymentDto,
+  GetAdvanceDto,
 } from 'src/common/dtos';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -140,17 +141,22 @@ export class PaymentsService {
         // проверка id представителя
         if (!mongoose.Types.ObjectId.isValid(dto.payer))
           throw new BadRequestException('представитель не найден');
-        const payer = await this.representativeModel.findById(dto.payer).exec();
+        // const payer = await this.representativeModel.findById(dto.payer).exec();
+        const payer = await this.representativeModel
+          .findOne({ _id: dto.payer, patients: patient._id })
+          .exec();
         if (
           !payer ||
           !payer.isActive ||
           payer.roles.findIndex((r) => r === 'representative') == -1
         )
           throw new BadRequestException('представитель не найден');
-        if (!payer.patients.find(patient._id))
-          throw new BadRequestException(
-            'данный представитель не связан с пациентом',
-          );
+        // console.log(payer.patients);
+        // if (!payer.patients.find(patient._id))
+        //   throw new BadRequestException(
+        //     'данный представитель не связан с пациентом',
+        //   );
+        // console.log('OTLADKA!');
       }
       const newPayment = new this.paymentModel({
         name: dto.name,
@@ -165,6 +171,50 @@ export class PaymentsService {
       // }
     }
     return;
+  }
+
+  async getAdvance(
+    dto: GetAdvanceDto,
+    id: string,
+    roles: string[],
+  ): Promise<number> {
+    // проверка id пациента
+    if (!mongoose.Types.ObjectId.isValid(dto.patient))
+      throw new BadRequestException('пациент не найден');
+    const patient: any = await this.patientModel
+      .findById(dto.patient)
+      .populate([
+        {
+          path: 'courses',
+          model: 'Course',
+        },
+      ])
+      .exec();
+    if (!patient || !patient.isActive)
+      throw new BadRequestException('пациент не найден');
+
+    const courses = patient.courses;
+    const course = courses.find((course) => course.number === 0);
+    const services: any = await this.serviceModel
+      .find({ course: course._id, status: true })
+      .populate([
+        {
+          path: 'type',
+          model: 'ServiceType',
+        },
+      ])
+      .exec();
+    const payments = await this.paymentModel
+      .find({ course: course._id })
+      .exec();
+    let sum = 0;
+    sum += services.reduce(
+      (sum, curentServ) => sum - curentServ.type.price,
+      sum,
+    );
+    sum += payments.reduce((sum, curentServ) => sum + curentServ.amount, sum);
+
+    return sum;
   }
 
   // async get(dto: GetServiceDto): Promise<any> {
