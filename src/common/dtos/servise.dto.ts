@@ -122,6 +122,7 @@ export class ServiceDto {
 }
 
 export class ServiceInfoDto {
+  canBeRemoved: boolean;
   id: string;
   type: string;
   status: boolean;

@@ -195,6 +195,11 @@ export class ServicesService {
           select: { name: 1, isActive: 1, price: 1, time: 1, _id: 1 },
         },
         {
+          path: 'course',
+          model: 'Course',
+          select: { status: 1 },
+        },
+        {
           path: 'patient',
           model: 'Patient',
           select: { name: 1, surname: 1, patronymic: 1, isActive: 1 },
@@ -223,10 +228,11 @@ export class ServicesService {
     if (!service) throw new BadRequestException('id услуги не найден');
 
     return {
+      canBeRemoved: service.course.status,
       id: service._id,
       type: service.type.name,
       status: service.status,
-      course: service.course,
+      course: service.course._id,
       result: service.result,
       note: service.note,
       number: service.number,

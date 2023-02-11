@@ -596,7 +596,12 @@ export class PatientsService {
 
     res.forEach((c) =>
       c.serviceGroups.forEach((g) =>
-        g.services.sort((s1, s2) => s1.date.getTime() - s2.date.getTime()),
+        g.services.sort((s1, s2) => {
+          if (!s1.date && !s2.date) return 0;
+          if (s1.date && !s2.date) return 1;
+          if (!s1.date && s2.date) return -1;
+          return s1.date.getTime() - s2.date.getTime();
+        }),
       ),
     );
     const lastCourse = res.find((c) => c.number == res.length - 1);
@@ -850,9 +855,15 @@ export class PatientsService {
           path: 'appointment',
           model: 'Appointment',
         },
+        {
+          path: 'course',
+          model: 'Course',
+        },
       ])
       .exec();
     if (!service) throw new BadRequestException('услуга не найдена');
+    if (!service.course.status)
+      throw new BadRequestException('нельзя удалить услугу из закрытого курса');
     if (service.appointment) {
       this.appointmentModel
         .findByIdAndUpdate(service.appointment._id, {
