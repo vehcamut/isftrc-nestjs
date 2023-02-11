@@ -1,3 +1,4 @@
+// import { ServiceDto } from './course.dto';
 import { SpecialistToSelectDto } from './specialist.dto';
 import { Appointment } from './../schemas/appointment.schema';
 import { GetRequestDto } from './getRequest.dto';
@@ -163,3 +164,15 @@ export class AppointmentWithIdDto extends AppointmentDto {
   @IsString()
   _id: string;
 }
+
+export class GetAppointmetnsByIdDto {
+  @IsString()
+  id: string;
+}
+
+// export class AppointmentInfoDto {
+//   begDate: Date;
+//   endDate: Date;
+//   service?: ServiceDto;
+//   specialist: SpecialistToSelectDto;
+// }

@@ -431,12 +431,13 @@ export class ServicesService {
             service: new Types.ObjectId(service._id),
           })
           .exec();
+        return appointment._id;
       } else
         throw new BadRequestException(
           'Данное время не подходит по длительности',
         );
     }
-    return;
+    return undefined;
   }
 
   async closeService(
@@ -468,7 +469,7 @@ export class ServicesService {
       throw new BadRequestException(
         'не возможно закрыть услугу, для которой не назначена дата',
       );
-    if (service.appointment.endDate > new Date())
+    if (service.appointment.begDate > new Date())
       throw new BadRequestException('не возможно закрыть услугу в будущем');
     // // const updateData: any = {
     //   result: dto.result,
@@ -511,6 +512,10 @@ export class ServicesService {
         {
           path: 'appointment',
           model: 'Appointment',
+        },
+        {
+          path: 'course',
+          model: 'Course',
         },
       ])
       .exec();

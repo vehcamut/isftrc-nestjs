@@ -42,6 +42,7 @@ import {
   RemoveAppointmentDto,
   GetFreeAppointmetnsDto,
   GetPatientAppointmetnsDto,
+  GetAppointmetnsByIdDto,
 } from 'src/common/dtos';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -602,6 +603,107 @@ export class AppointmentsService {
     this.appointmentModel.findByIdAndDelete(dto._id).exec();
     return;
     //todo: проверка кто добавляет время
+  }
+  async getById(
+    dto: GetAppointmetnsByIdDto,
+    id: string,
+    roles: string[],
+  ): Promise<any> {
+    //TODO если врач то провреить что он есть
+    //TODO если предстватиель то провреить что пациент его
+    if (!mongoose.Types.ObjectId.isValid(dto.id))
+      throw new BadRequestException('запись не найдена');
+    // const patient = await this.patientModel.findById(dto.patientId).exec();
+    // if (!patient) throw new BadRequestException('_id: not found');
+    //todo: активность пауиента???
+    const query: any = this.appointmentModel.findById(dto.id);
+    // const count = await this.appointmentModel.find(findCond).count().exec();
+    query.select('_id begDate endDate service specialist').populate([
+      {
+        path: 'service',
+        model: 'Service',
+        select: {
+          type: 1,
+          isActive: 1,
+          status: 1,
+          course: 1,
+          result: 1,
+          number: 1,
+          note: 1,
+          patient: 1,
+        },
+        populate: [
+          {
+            path: 'course',
+            model: 'Course',
+            select: {
+              number: 1,
+              status: 1,
+            },
+          },
+          {
+            path: 'type',
+            model: 'ServiceType',
+            select: {
+              name: 1,
+              time: 1,
+            },
+          },
+          {
+            path: 'patient',
+            model: 'Patient',
+            select: {
+              name: 1,
+              surname: 1,
+              patronymic: 1,
+              number: 1,
+            },
+          },
+        ],
+      },
+      {
+        path: 'specialist',
+        model: 'User',
+        select: {
+          isActive: 1,
+          name: 1,
+          surname: 1,
+          patronymic: 1,
+        },
+        transform: (doc, id) => {
+          return {
+            _id: id,
+            name: `${doc.surname} ${doc.name[0]}.${doc.patronymic[0]}.`,
+          };
+        },
+      },
+    ]);
+    const appointment = await query.exec();
+    if (!appointment) throw new BadRequestException('запись не найдена');
+    const service = JSON.parse(JSON.stringify(appointment.service));
+    const canBeRemoved = appointment.service
+      ? appointment.service.course.status
+      : undefined;
+    return {
+      _id: appointment._id,
+      begDate: appointment.begDate,
+      endDate: appointment.endDate,
+      specialist: appointment.specialist,
+      service: { ...service, canBeRemoved },
+    };
+    // appointments.forEach((appointment) => {
+    //   // console.log(appointment.service.patient._id, '!!!', patient._id);
+    //   if (appointment.service.patient._id.toString() === dto.patientId) {
+    //     const canBeRemoved = appointment.service.course.status;
+    //     // let canBeRemoved = true;
+    //     // if (appointment.service.course.status == false) canBeRemoved = false;
+    //     // console.log(canBeRemoved);
+    //     const service = JSON.parse(JSON.stringify(appointment.service));
+    //     // const service.toH
+    //     // result.push(appointment);
+    //     result.push();
+    //   }
+    // });
   }
   // async get(dto: GetSpecialistsDto): Promise<any> {
   //   // let patientId;

@@ -598,8 +598,8 @@ export class PatientsService {
       c.serviceGroups.forEach((g) =>
         g.services.sort((s1, s2) => {
           if (!s1.date && !s2.date) return 0;
-          if (s1.date && !s2.date) return 1;
-          if (!s1.date && s2.date) return -1;
+          if (s1.date && !s2.date) return -1;
+          if (!s1.date && s2.date) return 1;
           return s1.date.getTime() - s2.date.getTime();
         }),
       ),
