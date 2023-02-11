@@ -45,6 +45,26 @@ export class GetAppointmetnsDto {
   time?: Date;
 }
 
+export class GetPatientAppointmetnsDto {
+  @IsString()
+  patientId: string;
+
+  @Transform((value) => toDate(value.value))
+  // @Type(() => Date)
+  @IsDate()
+  begDate?: Date;
+
+  @Transform((value) => toDate(value.value))
+  // @Type(() => Date)
+  @IsDate()
+  endDate?: Date;
+
+  @Transform((value) => toDate(value.value))
+  @IsDate()
+  @IsOptional()
+  time?: Date;
+}
+
 export class GetFreeAppointmetnsDto {
   @IsString()
   specialistId: string;

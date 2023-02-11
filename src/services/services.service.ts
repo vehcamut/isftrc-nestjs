@@ -34,6 +34,7 @@ import {
   AddAppointmentToServiceDto,
   GetTypesDto,
   CloseServiceDto,
+  OpenServiceDto,
 } from 'src/common/dtos';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -402,35 +403,39 @@ export class ServicesService {
         .exec();
       // throw new BadRequestException('услуга уже записана');
     }
-    // проверка id записи
-    if (!mongoose.Types.ObjectId.isValid(dto.appointmentId))
-      throw new BadRequestException('запись не найдена');
-    const appointment = await this.appointmentModel
-      .findById(dto.appointmentId)
-      .exec();
-    if (!appointment) throw new BadRequestException('запись не найдена');
-    if (appointment.service)
-      throw new BadRequestException('данное время уже занято');
-    const time =
-      (service.type.time.getHours() * 60 + service.type.time.getMinutes()) *
-      60 *
-      1000;
-    console.log('!!!!!!!!', time);
-    const duration =
-      appointment.endDate.getTime() - appointment.begDate.getTime();
-    if (duration == time) {
-      this.serviceModel
-        .findByIdAndUpdate(service._id, {
-          appointment: new Types.ObjectId(appointment._id),
-        })
+
+    if (dto.serviceId) {
+      // проверка id записи
+      if (!mongoose.Types.ObjectId.isValid(dto.appointmentId))
+        throw new BadRequestException('запись не найдена');
+      const appointment = await this.appointmentModel
+        .findById(dto.appointmentId)
         .exec();
-      this.appointmentModel
-        .findByIdAndUpdate(appointment._id, {
-          service: new Types.ObjectId(service._id),
-        })
-        .exec();
-    } else
-      throw new BadRequestException('Данное время не подходит по длительности');
+      if (!appointment) throw new BadRequestException('запись не найдена');
+      if (appointment.service)
+        throw new BadRequestException('данное время уже занято');
+      const time =
+        (service.type.time.getHours() * 60 + service.type.time.getMinutes()) *
+        60 *
+        1000;
+      const duration =
+        appointment.endDate.getTime() - appointment.begDate.getTime();
+      if (duration == time) {
+        this.serviceModel
+          .findByIdAndUpdate(service._id, {
+            appointment: new Types.ObjectId(appointment._id),
+          })
+          .exec();
+        this.appointmentModel
+          .findByIdAndUpdate(appointment._id, {
+            service: new Types.ObjectId(service._id),
+          })
+          .exec();
+      } else
+        throw new BadRequestException(
+          'Данное время не подходит по длительности',
+        );
+    }
     return;
   }
 
@@ -439,6 +444,7 @@ export class ServicesService {
     id: string,
     roles: string[],
   ): Promise<object> {
+    //todo проверка что уже закрыта
     //todo врач может закрывать только в тот же день, только свои услуги
     // проверка id услуги
     if (!mongoose.Types.ObjectId.isValid(dto.id))
@@ -486,6 +492,54 @@ export class ServicesService {
     this.serviceModel
       .findByIdAndUpdate(dto.id, { status: true, result: dto.result })
       .exec();
+    // проверка id записи
+    return;
+  }
+
+  async openService(
+    dto: OpenServiceDto,
+    id: string,
+    roles: string[],
+  ): Promise<object> {
+    //todo врач может открывать только в тот же день, только свои услуги
+    // проверка id услуги
+    if (!mongoose.Types.ObjectId.isValid(dto.id))
+      throw new BadRequestException('услуга не найдена');
+    const service: any = await this.serviceModel
+      .findById(dto.id)
+      .populate([
+        {
+          path: 'appointment',
+          model: 'Appointment',
+        },
+      ])
+      .exec();
+    if (!service) throw new BadRequestException('услуга не найдена');
+    if (!service.status) throw new BadRequestException('услуга уже открыта');
+    if (!service.course.status)
+      throw new BadRequestException('нельзя открыть услугу из закрытого курса');
+    // if (service.appointment.endDate > new Date())
+    //   throw new BadRequestException('не возможно закрыть услугу в будущем');
+    // // const updateData: any = {
+    //   result: dto.result,
+    // };
+    // if (!service.status) {
+    //   const courseId = service.course;
+    //   const typeId = service.type;
+    //   const services = await this.serviceModel
+    //     .find({
+    //       status: true,
+    //       course: courseId,
+    //       type: typeId,
+    //     })
+    //     .exec();
+    //   // services.find()
+    //   updateData.status = true;
+    //   // updateData.number = services.length + 1;
+    // }
+    //todo: здесь сразу отвязывается старое время
+    // console.log(updateData);
+    this.serviceModel.findByIdAndUpdate(dto.id, { status: false }).exec();
     // проверка id записи
     return;
   }

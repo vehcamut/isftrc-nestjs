@@ -111,6 +111,7 @@ export class RemoveServiceDto {
 }
 
 export class ServiceDto {
+  canBeRemoved?: boolean;
   type: ServiceTypeWithIdDto;
   status: boolean;
   course: string;
@@ -153,7 +154,7 @@ export class AddAppointmentToServiceDto {
 
   @IsNotEmpty()
   @IsString()
-  serviceId: string;
+  serviceId?: string;
 }
 
 export class CloseServiceDto {
@@ -164,4 +165,9 @@ export class CloseServiceDto {
   @IsNotEmpty()
   @IsString()
   result: string;
+}
+export class OpenServiceDto {
+  @IsNotEmpty()
+  @IsString()
+  id: string;
 }

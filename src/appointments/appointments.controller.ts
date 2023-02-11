@@ -39,6 +39,7 @@ import {
   AddAppointmentResultDto,
   RemoveAppointmentDto,
   GetFreeAppointmetnsDto,
+  GetPatientAppointmetnsDto,
 } from 'src/common/dtos';
 import { AppointmentsService } from './appointments.service';
 import { IPatient } from 'src/common/interfaces';
@@ -57,6 +58,25 @@ export class AppointmentsController {
     @Res({ passthrough: true }) res: Response,
   ): Promise<AppointmentWithIdDto[]> {
     const response = await this.appointmentsService.get(
+      dto,
+      request.user?._id,
+      request.user?.roles,
+    );
+    res.setHeader('X-Total-Count', response.count);
+    // console.log(response.data);
+    return response.data;
+  }
+
+  @Get('getForPatient')
+  @Public()
+  //@Roles('registrator')
+  @HttpCode(HttpStatus.OK)
+  async getForPatient(
+    @Query() dto: GetPatientAppointmetnsDto,
+    @Req() request: Request | any,
+    @Res({ passthrough: true }) res: Response,
+  ): Promise<AppointmentWithIdDto[]> {
+    const response = await this.appointmentsService.getForPatient(
       dto,
       request.user?._id,
       request.user?.roles,

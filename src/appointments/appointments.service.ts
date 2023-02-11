@@ -41,6 +41,7 @@ import {
   AppointmentWithIdDto,
   RemoveAppointmentDto,
   GetFreeAppointmetnsDto,
+  GetPatientAppointmetnsDto,
 } from 'src/common/dtos';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -184,6 +185,129 @@ export class AppointmentsService {
       // console.log(result);
       return { data: result, count };
     } else return { data, count };
+  }
+  async getForPatient(
+    dto: GetPatientAppointmetnsDto,
+    id: string,
+    roles: string[],
+  ): Promise<any> {
+    if (!mongoose.Types.ObjectId.isValid(dto.patientId))
+      throw new BadRequestException('пациент не найден');
+    const patient = await this.patientModel.findById(dto.patientId).exec();
+    if (!patient) throw new BadRequestException('_id: not found');
+    //todo: активность пауиента???
+    // if (!patient.isActive || !patient.roles.includes('specialist'))
+    //   throw new BadRequestException('bad specialist');
+    // const date = new Date(dto.date.toDateString());
+    const findCond = {
+      $and: [
+        dto.begDate
+          ? {
+              begDate: { $gte: dto.begDate },
+            }
+          : {},
+        dto.endDate
+          ? {
+              endDate: { $lte: dto.endDate },
+            }
+          : {},
+        {
+          service: { $ne: null },
+        },
+      ],
+    };
+    const query: any = this.appointmentModel.find(findCond);
+    // const count = await this.appointmentModel.find(findCond).count().exec();
+    query
+      .sort({ begDate: 1 })
+      .select('_id begDate endDate service specialist')
+      .populate([
+        {
+          path: 'service',
+          model: 'Service',
+          select: {
+            type: 1,
+            isActive: 1,
+            status: 1,
+            course: 1,
+            result: 1,
+            number: 1,
+            note: 1,
+            patient: 1,
+          },
+          populate: [
+            {
+              path: 'course',
+              model: 'Course',
+              select: {
+                number: 1,
+                status: 1,
+              },
+            },
+            {
+              path: 'type',
+              model: 'ServiceType',
+              select: {
+                name: 1,
+                time: 1,
+              },
+            },
+            {
+              path: 'patient',
+              model: 'Patient',
+              select: {
+                name: 1,
+                surname: 1,
+                patronymic: 1,
+                number: 1,
+              },
+            },
+          ],
+          // transform(doc, id) {
+          //   doc.canBeRemoved = doc.course.status;
+          //   console.log('!!!', doc);
+          //   return doc;
+          // },
+        },
+        {
+          path: 'specialist',
+          model: 'User',
+          select: {
+            isActive: 1,
+            name: 1,
+            surname: 1,
+            patronymic: 1,
+          },
+          transform: (doc, id) => {
+            return {
+              _id: id,
+              name: `${doc.surname} ${doc.name[0]}.${doc.patronymic[0]}.`,
+            };
+          },
+        },
+      ]);
+    const result: any = [];
+    const appointments = await query.exec();
+    appointments.forEach((appointment) => {
+      // console.log(appointment.service.patient._id, '!!!', patient._id);
+      if (appointment.service.patient._id.toString() === dto.patientId) {
+        const canBeRemoved = appointment.service.course.status;
+        // let canBeRemoved = true;
+        // if (appointment.service.course.status == false) canBeRemoved = false;
+        // console.log(canBeRemoved);
+        const service = JSON.parse(JSON.stringify(appointment.service));
+        // const service.toH
+        // result.push(appointment);
+        result.push({
+          _id: appointment._id,
+          begDate: appointment.begDate,
+          endDate: appointment.endDate,
+          specialist: appointment.specialist,
+          service: { ...service, canBeRemoved },
+        });
+      }
+    });
+    return { data: result, count: result.length };
   }
   async getForRecord(
     dto: GetFreeAppointmetnsDto,
