@@ -154,6 +154,10 @@ export class ServicesService {
           model: 'ServiceType',
         },
         {
+          path: 'course',
+          model: 'Course',
+        },
+        {
           path: 'patient',
           model: 'Patient',
         },
@@ -172,10 +176,14 @@ export class ServicesService {
           },
         },
       ]);
-    console.log(service);
+    const canBeRemoved = service.appointment
+      ? service.course.status
+      : undefined;
     if (!service) throw new BadRequestException('id услуги не найден');
-
-    return service;
+    return {
+      ...JSON.parse(JSON.stringify(service)),
+      canBeRemoved,
+    };
   }
 
   async getService(
@@ -405,7 +413,7 @@ export class ServicesService {
       // throw new BadRequestException('услуга уже записана');
     }
 
-    if (dto.serviceId) {
+    if (dto.appointmentId) {
       // проверка id записи
       if (!mongoose.Types.ObjectId.isValid(dto.appointmentId))
         throw new BadRequestException('запись не найдена');
@@ -437,6 +445,12 @@ export class ServicesService {
         throw new BadRequestException(
           'Данное время не подходит по длительности',
         );
+    } else {
+      this.serviceModel
+        .findByIdAndUpdate(service._id, {
+          appointment: null,
+        })
+        .exec();
     }
     return undefined;
   }
@@ -462,6 +476,10 @@ export class ServicesService {
           path: 'appointment',
           model: 'Appointment',
         },
+        {
+          path: 'course',
+          model: 'Course',
+        },
       ])
       .exec();
     if (!service) throw new BadRequestException('услуга не найдена');
@@ -474,6 +492,7 @@ export class ServicesService {
       throw new BadRequestException('не возможно закрыть услугу в будущем');
 
     if (service.status) throw new BadRequestException('услуга уже закрыта');
+    // console.log('!!!!', service.course.status);
     if (!service.course.status)
       throw new BadRequestException('нельзя закрыть услугу из закрытого курса');
     // // const updateData: any = {
@@ -574,6 +593,10 @@ export class ServicesService {
         {
           path: 'appointment',
           model: 'Appointment',
+        },
+        {
+          path: 'course',
+          model: 'Course',
         },
       ])
       .exec();

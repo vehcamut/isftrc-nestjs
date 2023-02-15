@@ -657,6 +657,7 @@ export class AppointmentsService {
               surname: 1,
               patronymic: 1,
               number: 1,
+              isActive: 1,
             },
           },
         ],
@@ -680,7 +681,10 @@ export class AppointmentsService {
     ]);
     const appointment = await query.exec();
     if (!appointment) throw new BadRequestException('запись не найдена');
-    const service = JSON.parse(JSON.stringify(appointment.service));
+    // console.log(appointment.service);
+    const service = appointment.service
+      ? JSON.parse(JSON.stringify(appointment.service))
+      : undefined;
     const canBeRemoved = appointment.service
       ? appointment.service.course.status
       : undefined;
@@ -689,7 +693,7 @@ export class AppointmentsService {
       begDate: appointment.begDate,
       endDate: appointment.endDate,
       specialist: appointment.specialist,
-      service: { ...service, canBeRemoved },
+      service: service ? { ...service, canBeRemoved } : undefined,
     };
     // appointments.forEach((appointment) => {
     //   // console.log(appointment.service.patient._id, '!!!', patient._id);

@@ -216,12 +216,18 @@ export class PaymentsService {
       .find({ course: course._id })
       .exec();
     let sum = 0;
-    sum += services.reduce(
-      (sum, curentServ) => sum - curentServ.type.price,
+
+    const minus = services.reduce(
+      (sum, curentServ) => sum + curentServ.type.price,
       sum,
     );
-    sum += payments.reduce((sum, curentServ) => sum + curentServ.amount, sum);
 
+    const plus = payments.reduce(
+      (sum, curentServ) => sum + curentServ.amount,
+      sum,
+    );
+
+    sum = plus - minus;
     return sum;
   }
 

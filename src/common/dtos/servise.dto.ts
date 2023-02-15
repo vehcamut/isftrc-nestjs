@@ -148,13 +148,14 @@ export class GetServiseByIdDto {
 }
 
 export class AddAppointmentToServiceDto {
-  @IsNotEmpty()
+  // @IsNotEmpty()
+  @IsOptional()
   @IsString()
-  appointmentId: string;
+  appointmentId?: string;
 
   @IsNotEmpty()
   @IsString()
-  serviceId?: string;
+  serviceId: string;
 }
 
 export class CloseServiceDto {
