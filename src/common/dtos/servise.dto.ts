@@ -171,3 +171,13 @@ export class OpenServiceDto {
   @IsString()
   id: string;
 }
+
+export class ChangeNoteDto {
+  @IsNotEmpty()
+  @IsString()
+  id: string;
+
+  @IsOptional()
+  @IsString()
+  note?: string;
+}

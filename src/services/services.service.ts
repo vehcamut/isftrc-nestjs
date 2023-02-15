@@ -35,6 +35,7 @@ import {
   GetTypesDto,
   CloseServiceDto,
   OpenServiceDto,
+  ChangeNoteDto,
 } from 'src/common/dtos';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
@@ -464,13 +465,17 @@ export class ServicesService {
       ])
       .exec();
     if (!service) throw new BadRequestException('услуга не найдена');
-    // if (service.status) throw new BadRequestException('услуга уже закрыта');
+
     if (!service.appointment)
       throw new BadRequestException(
         'не возможно закрыть услугу, для которой не назначена дата',
       );
     if (service.appointment.begDate > new Date())
       throw new BadRequestException('не возможно закрыть услугу в будущем');
+
+    if (service.status) throw new BadRequestException('услуга уже закрыта');
+    if (!service.course.status)
+      throw new BadRequestException('нельзя закрыть услугу из закрытого курса');
     // // const updateData: any = {
     //   result: dto.result,
     // };
@@ -545,6 +550,66 @@ export class ServicesService {
     //todo: здесь сразу отвязывается старое время
     // console.log(updateData);
     this.serviceModel.findByIdAndUpdate(dto.id, { status: false }).exec();
+    // проверка id записи
+    return;
+  }
+
+  async changeNote(
+    dto: ChangeNoteDto,
+    id: string,
+    roles: string[],
+  ): Promise<object> {
+    //todo проверка что уже закрыта
+    //todo врач может закрывать только в тот же день, только свои услуги
+    // проверка id услуги
+    if (!mongoose.Types.ObjectId.isValid(dto.id))
+      throw new BadRequestException('услуга не найдена');
+    const service: any = await this.serviceModel
+      .findById(dto.id)
+      .populate([
+        // {
+        //   path: 'type',
+        //   model: 'ServiceType',
+        // },
+        {
+          path: 'appointment',
+          model: 'Appointment',
+        },
+      ])
+      .exec();
+    if (!service) throw new BadRequestException('услуга не найдена');
+    if (service.status) throw new BadRequestException('услуга уже закрыта');
+    if (!service.course.status)
+      throw new BadRequestException(
+        'нельзя изменить услугу из закрытого курса',
+      );
+    // if (service.status) throw new BadRequestException('услуга уже закрыта');
+    // if (!service.appointment)
+    //   throw new BadRequestException(
+    //     'не возможно закрыть услугу, для которой не назначена дата',
+    //   );
+    // if (service.appointment.begDate > new Date())
+    //   throw new BadRequestException('не возможно закрыть услугу в будущем');
+    // // const updateData: any = {
+    //   result: dto.result,
+    // };
+    // if (!service.status) {
+    //   const courseId = service.course;
+    //   const typeId = service.type;
+    //   const services = await this.serviceModel
+    //     .find({
+    //       status: true,
+    //       course: courseId,
+    //       type: typeId,
+    //     })
+    //     .exec();
+    //   // services.find()
+    //   updateData.status = true;
+    //   // updateData.number = services.length + 1;
+    // }
+    //todo: здесь сразу отвязывается старое время
+    // console.log(updateData);
+    this.serviceModel.findByIdAndUpdate(dto.id, { note: dto.note }).exec();
     // проверка id записи
     return;
   }

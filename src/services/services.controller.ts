@@ -35,6 +35,7 @@ import {
   GetTypesDto,
   CloseServiceDto,
   OpenServiceDto,
+  ChangeNoteDto,
 } from 'src/common/dtos';
 import { ServicesService } from './services.service';
 
@@ -205,6 +206,18 @@ export class ServicesController {
     @Body() dto: OpenServiceDto,
   ) {
     return this.servicesService.openService(
+      dto,
+      request.user?._id,
+      request.user?.roles,
+    );
+  }
+
+  @Post('changeNote')
+  @Public()
+  //@Roles('registrator')
+  @HttpCode(HttpStatus.CREATED)
+  async changeNote(@Req() request: Request | any, @Body() dto: ChangeNoteDto) {
+    return this.servicesService.changeNote(
       dto,
       request.user?._id,
       request.user?.roles,
