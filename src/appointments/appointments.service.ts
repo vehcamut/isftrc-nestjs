@@ -67,13 +67,14 @@ export class AppointmentsService {
     roles: string[],
   ): Promise<any> {
     if (!mongoose.Types.ObjectId.isValid(dto.specialistId))
-      throw new BadRequestException('_id: not found');
+      throw new BadRequestException('некорректный id специалиста');
     const candidate = await this.specialistModel
       .findById(dto.specialistId)
       .exec();
-    if (!candidate) throw new BadRequestException('_id: not found');
-    if (!candidate.isActive || !candidate.roles.includes('specialist'))
-      throw new BadRequestException('bad specialist');
+    if (!candidate) throw new BadRequestException('специалист не найден');
+    // !candidate.isActive ||
+    if (!candidate.roles.includes('specialist'))
+      throw new BadRequestException('специалист не найден');
     // const date = new Date(dto.date.toDateString());
 
     // const beg = new Date(date).setMonth(date.getMonth() - 1);
@@ -322,8 +323,11 @@ export class AppointmentsService {
       .findById(dto.specialistId)
       .exec();
     if (!candidate) throw new BadRequestException('специалист не найден');
-    if (!candidate.isActive || !candidate.roles.includes('specialist'))
+    if (!candidate.roles.includes('specialist'))
       throw new BadRequestException('специалист не найден');
+    if (!candidate.isActive)
+      throw new BadRequestException('специалист деактивирован');
+
     // проверка id пациента
     if (!mongoose.Types.ObjectId.isValid(dto.patientId))
       throw new BadRequestException('пациент не найден');
@@ -460,7 +464,7 @@ export class AppointmentsService {
         currentService.type.time.getMinutes()) *
       60 *
       1000;
-    console.log('!!!!!!!!', time);
+    // console.log('!!!!!!!!', time);
     appointments.forEach((appointment) => {
       const duration =
         appointment.endDate.getTime() - appointment.begDate.getTime();
@@ -486,13 +490,15 @@ export class AppointmentsService {
     roles: string[],
   ): Promise<AddAppointmentResultDto> {
     if (!mongoose.Types.ObjectId.isValid(dto.specialist))
-      throw new BadRequestException('специалист не найден');
+      throw new BadRequestException('некорректный id специалиста');
     const candidate = await this.specialistModel
       .findById(dto.specialist)
       .exec();
-    if (!candidate) throw new BadRequestException('_id: not found');
-    if (!candidate.isActive || !candidate.roles.includes('specialist'))
+    if (!candidate) throw new BadRequestException('специалист не найден');
+    if (!candidate.roles.includes('specialist'))
       throw new BadRequestException('специалист не найден');
+    if (!candidate.isActive)
+      throw new BadRequestException('специалист деактивирован');
 
     const hours = dto.time.getHours();
     const minutes = dto.time.getMinutes();
@@ -592,11 +598,26 @@ export class AppointmentsService {
     roles: string[],
   ): Promise<any> {
     if (!mongoose.Types.ObjectId.isValid(dto._id))
-      throw new BadRequestException('запись не найдена');
-    const candidate = await this.appointmentModel.findById(dto._id).exec();
-    if (!candidate) throw new BadRequestException('запись не найдена');
-    if (candidate.service) {
-      this.serviceModel.findByIdAndUpdate(candidate.service._id, {
+      throw new BadRequestException('некорректный id записи');
+    const appointment = await this.appointmentModel
+      .findById(dto._id)
+      .populate<{ specialist: User }>([
+        {
+          path: 'specialist',
+          model: 'User',
+        },
+      ]);
+    // const candidate = await this.specialistModel
+    //   .findById(dto.specialist)
+    //   .exec();
+    // if (!candidate) throw new BadRequestException('специалист не найден');
+    if (!appointment.specialist.roles.includes('specialist'))
+      throw new BadRequestException('специалист не найден');
+    if (!appointment.specialist.isActive)
+      throw new BadRequestException('специалист деактивирован');
+
+    if (appointment.service) {
+      this.serviceModel.findByIdAndUpdate(appointment.service._id, {
         $unset: { appointment: 1 },
       });
     }
@@ -673,6 +694,7 @@ export class AppointmentsService {
         },
         transform: (doc, id) => {
           return {
+            isActive: doc.isActive,
             _id: id,
             name: `${doc.surname} ${doc.name[0]}.${doc.patronymic[0]}.`,
           };

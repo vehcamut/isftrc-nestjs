@@ -142,18 +142,18 @@ export class RepresentativesController {
     );
   }
 
-  // @Patch('changeStatus')
-  // @Public()
-  // //@Roles('registrator')
-  // @HttpCode(HttpStatus.OK)
-  // async changeStatus(
-  //   @Req() request: Request | any,
-  //   @Body() dto: PatientChangeStatusDto,
-  // ) {
-  //   return this.patientsService.changeStatus(
-  //     dto,
-  //     request.user?._id,
-  //     request.user?.roles,
-  //   );
-  // }
+  @Patch('changeStatus')
+  @Public()
+  //@Roles('registrator')
+  @HttpCode(HttpStatus.OK)
+  async changeStatus(
+    @Req() request: Request | any,
+    @Body() dto: PatientChangeStatusDto,
+  ) {
+    return this.representativesService.changeStatus(
+      dto,
+      request.user?._id,
+      request.user?.roles,
+    );
+  }
 }
