@@ -216,14 +216,14 @@ export class SpecialistsService {
     roles: string[],
   ): Promise<object> {
     if (!mongoose.Types.ObjectId.isValid(dto._id))
-      throw new BadRequestException('_id: not found');
+      throw new BadRequestException('некорректный id специалиста');
     const candidate = await this.specialistModel.findById(dto._id).exec();
-    // .select(
-    //   'number name surname patronymic dateOfBirth gender address isActive note representatives _id',
-    // )
-    // .exec();
-    if (!candidate) throw new BadRequestException('_id: not found');
-    console.log(dto);
+    if (!candidate) throw new BadRequestException('специалист не найден');
+    if (!candidate.roles.includes('specialist'))
+      throw new BadRequestException('специалист не найден');
+    if (!candidate.isActive)
+      throw new BadRequestException('специалист деактивирован');
+
     if (dto.hash) dto.hash = hashDataSHA512(dto.hash);
     this.specialistModel.findByIdAndUpdate(dto._id, dto).exec();
     return;

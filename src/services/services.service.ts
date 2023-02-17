@@ -12,7 +12,9 @@ import {
   SpecialistType,
   SpecialistTypeDocument,
   Appointment,
+  Course,
   AppointmentDocument,
+  User,
 } from 'src/common/schemas';
 import {
   AdvertisingSourceDto,
@@ -419,8 +421,16 @@ export class ServicesService {
         throw new BadRequestException('запись не найдена');
       const appointment = await this.appointmentModel
         .findById(dto.appointmentId)
+        .populate<{ specialist: User }>([
+          {
+            path: 'specialist',
+            model: 'User',
+          },
+        ])
         .exec();
       if (!appointment) throw new BadRequestException('запись не найдена');
+      if (!appointment.specialist.isActive)
+        throw new BadRequestException('специалист деактивирован');
       if (appointment.service)
         throw new BadRequestException('данное время уже занято');
       const time =
@@ -465,9 +475,9 @@ export class ServicesService {
     // проверка id услуги
     if (!mongoose.Types.ObjectId.isValid(dto.id))
       throw new BadRequestException('услуга не найдена');
-    const service: any = await this.serviceModel
+    const service = await this.serviceModel
       .findById(dto.id)
-      .populate([
+      .populate<{ appointment: Appointment; course: Course }>([
         // {
         //   path: 'type',
         //   model: 'ServiceType',
@@ -475,6 +485,10 @@ export class ServicesService {
         {
           path: 'appointment',
           model: 'Appointment',
+          // populate: {
+          //   path: 'appointment',
+          //   model: 'Appointment',
+          // },
         },
         {
           path: 'course',
@@ -482,6 +496,7 @@ export class ServicesService {
         },
       ])
       .exec();
+
     if (!service) throw new BadRequestException('услуга не найдена');
 
     if (!service.appointment)
