@@ -13,6 +13,7 @@ import { Tokens } from '../common/interfaces';
 import { JwtService } from '@nestjs/jwt';
 import { createHmac } from 'crypto';
 import { Response } from 'express';
+import { hashDataSHA512 } from 'src/common/common';
 @Injectable()
 export class AuthService {
   constructor(
@@ -55,10 +56,16 @@ export class AuthService {
     const login: string = dto.login;
     const candidate = await this.userModel.findOne({ login });
     if (!candidate) throw new ForbiddenException('Access Denied');
+    console.log(hashDataSHA512('admin'));
     if (!candidate.isActive) throw new ForbiddenException('Access Denied');
-
-    const passwordMatches = await bcrypt.compare(dto.password, candidate.hash);
-    if (!passwordMatches) throw new ForbiddenException('Access Denied');
+    console.log(candidate);
+    const pass = hashDataSHA512(dto.password);
+    // console.log(pass);
+    // console.log(candidate.hash);
+    // const passwordMatches = await bcrypt.compare(dto.password, candidate.hash);
+    // if (!passwordMatches) throw new ForbiddenException('Access Denied');
+    // const passwordMatches = await bcrypt.compare(dto.password, candidate.hash);
+    if (pass !== candidate.hash) throw new ForbiddenException('Access Denied');
 
     const tokens = await this.getTokens(
       candidate.id,

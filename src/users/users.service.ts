@@ -48,7 +48,7 @@ export class UsersService {
         },
       ])
       .select(
-        'types advertisingSources surname name patronymic phoneNumbers dateOfBirth emails login isActive',
+        'types advertisingSources surname name patronymic phoneNumbers dateOfBirth emails login isActive address gender',
       )
       .exec();
     console.log(id, user);
