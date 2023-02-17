@@ -64,6 +64,7 @@ export class AuthController {
   }
 
   @Post('logout')
+  @UseGuards(AtGuard)
   //@Roles('admin')
   @HttpCode(HttpStatus.OK)
   logout(

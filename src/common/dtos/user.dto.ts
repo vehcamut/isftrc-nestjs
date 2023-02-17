@@ -87,11 +87,17 @@ export class AddUserDto extends UserDto {
 }
 
 export class UpdateUserDto extends UserDto {
-  @IsNotEmpty({ message: '_id: поле пароль не должено быть пустым' })
+  @IsNotEmpty({ message: '_id: поле id не должено быть пустым' })
   @IsString()
   _id: string;
 
   @IsOptional()
   @IsString()
   hash: string;
+}
+
+export class GetProfileDto {
+  @IsNotEmpty({ message: 'id: поле id не должено быть пустым' })
+  @IsString()
+  id: string;
 }

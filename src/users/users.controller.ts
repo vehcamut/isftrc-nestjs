@@ -15,13 +15,48 @@ import { Public, Roles } from 'src/common/decorators';
 //import { GetUsersDto } from './';
 import { UsersService } from './users.service';
 import { ApiOkResponse } from '@nestjs/swagger';
-import { AddUserDto, GetUsersDto, UserDto } from 'src/common/dtos';
-import { Put } from '@nestjs/common/decorators';
+import {
+  AddUserDto,
+  GetProfileDto,
+  GetUsersDto,
+  RepresentativeWithIdDto,
+  SpecialistDto,
+  UserDto,
+  representativeDto,
+} from 'src/common/dtos';
+import { Put, UseGuards } from '@nestjs/common/decorators';
 import { User } from 'src/common/schemas';
+import { AtGuard } from 'src/common/guards';
 
 @Controller('users')
 export class UsersController {
   constructor(private userService: UsersService) {}
+
+  @Get('getProfile')
+  @UseGuards(AtGuard)
+  //@ApiOkResponse({ type: User })
+  // @Public()
+  //@Roles('registrator')
+  @HttpCode(HttpStatus.OK)
+  async getProfile(
+    // @Query() dto: GetProfileDto,
+    @Res({ passthrough: true }) res: Response,
+    @Req() request: Request | any,
+    //@Body() dto: SpecialistTypesQueryDto,
+  ): Promise<UserDto | SpecialistDto | representativeDto> {
+    // console.log(request);
+    // const response = await this.userService.getProfile(dto);
+    // res.setHeader('X-Total-Count', response.count);
+    // //res.set('X-Total-Count', '100');
+    // console.log(dto);
+
+    // return response.data;
+    return this.userService.getProfile(
+      // dto,
+      request.user?.sub,
+      request.user?.roles,
+    );
+  }
 
   @Get('get')
   //@ApiOkResponse({ type: User })

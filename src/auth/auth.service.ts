@@ -42,9 +42,10 @@ export class AuthService {
     newUser.save();
 
     const tokens = await this.getTokens(
-      newUser.id,
-      newUser.login,
-      newUser.roles,
+      user.id,
+      user.login,
+      `${user.surname} ${user.name[0]}.${user.patronymic[0]}.`,
+      user.roles,
     );
     await this.updateRtHash(newUser.id, tokens.refresh_token);
     return tokens;
@@ -54,6 +55,7 @@ export class AuthService {
     const login: string = dto.login;
     const candidate = await this.userModel.findOne({ login });
     if (!candidate) throw new ForbiddenException('Access Denied');
+    if (!candidate.isActive) throw new ForbiddenException('Access Denied');
 
     const passwordMatches = await bcrypt.compare(dto.password, candidate.hash);
     if (!passwordMatches) throw new ForbiddenException('Access Denied');
@@ -61,6 +63,7 @@ export class AuthService {
     const tokens = await this.getTokens(
       candidate.id,
       candidate.login,
+      `${candidate.surname} ${candidate.name[0]}.${candidate.patronymic[0]}.`,
       candidate.roles,
     );
     //await this.updateRtHash(candidate.id, tokens.refresh_token);
@@ -90,7 +93,12 @@ export class AuthService {
 
     if (!user) throw new UnauthorizedException('Access Denied');
 
-    const tokens = await this.getTokens(user.id, user.login, user.roles);
+    const tokens = await this.getTokens(
+      user.id,
+      user.login,
+      `${user.surname} ${user.name[0]}.${user.patronymic[0]}.`,
+      user.roles,
+    );
     const newHash = this.hashDataSHA512(tokens.refresh_token.split('.')[2]);
     await this.userModel
       .findOneAndUpdate(
@@ -132,6 +140,7 @@ export class AuthService {
   async getTokens(
     userId: number,
     login: string,
+    name: string,
     roles: string[],
   ): Promise<Tokens> {
     const [at, rt] = await Promise.all([
@@ -139,6 +148,7 @@ export class AuthService {
         {
           sub: userId,
           roles,
+          name,
           login,
         },
         {
