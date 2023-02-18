@@ -28,6 +28,7 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model, SortOrder, Types } from 'mongoose';
 import { hashDataSHA512 } from 'src/common/common';
+import { type } from 'os';
 
 @Injectable()
 export class SpecialistsService {
@@ -40,6 +41,11 @@ export class SpecialistsService {
     private sericeTypeModel: Model<ServiceTypeDocument>,
   ) {}
   async get(dto: GetSpecialistsDto): Promise<any> {
+    const types = await this.specialistTypeModel
+      .find({ name: { $regex: `${dto.filter}`, $options: 'i' } })
+      .transform((d) => d.map((t) => t._id))
+      .exec();
+    console.log(types);
     // let patientId;
     // if (dto.patientId) {
     //   if (!mongoose.Types.ObjectId.isValid(dto.patientId))
@@ -67,6 +73,14 @@ export class SpecialistsService {
             { emails: { $regex: `${dto.filter}`, $options: 'i' } },
             { address: { $regex: `${dto.filter}`, $options: 'i' } },
             { login: { $regex: `${dto.filter}`, $options: 'i' } },
+            { types: { $in: types } },
+            // {
+            //   types: {
+            //     $elemMatch: {
+            //       'types.name': { $regex: `${dto.filter}` },
+            //     },
+            //   },
+            // },
           ],
         },
         { roles: { $in: ['specialist'] } },
@@ -94,7 +108,14 @@ export class SpecialistsService {
       .limit(dto.limit)
       .select(
         'name surname patronymic dateOfBirth phoneNumbers emails gender address isActive types _id login',
-      );
+      )
+      .populate([
+        {
+          path: 'types',
+          model: 'SpecialistType',
+          select: 'name',
+        },
+      ]);
     const data = await query.exec();
     return { data, count };
   }

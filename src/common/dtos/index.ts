@@ -15,3 +15,4 @@ export * from './appointment.dto';
 export * from './servise.dto';
 export * from './course.dto';
 export * from './payment.dto';
+export * from './admin.dto';

@@ -15,6 +15,7 @@ import { SpecialistTypeModule } from './specialistType/specialistType.module';
 import { SpecialistsModule } from './specialists/specialists.module';
 import { AppointmentsModule } from './appointments/appointments.module';
 import { ServicesModule } from './services/services.module';
+import { AdminsModule } from './admins/admins.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { ServicesModule } from './services/services.module';
       isGlobal: true,
     }),
     MongooseModule.forRoot(process.env.DATABASE_URI),
+    AdminsModule,
     AuthModule,
     AdvertisingSourceModule,
     RepresentativesModule,
