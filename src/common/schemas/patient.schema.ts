@@ -50,7 +50,7 @@ export class Patient implements IPatient {
   })
   address: string;
 
-  @Prop({ required: true, default: false })
+  @Prop({ required: true, default: true })
   @ApiProperty({
     example: true,
     description: 'Статус / Status',

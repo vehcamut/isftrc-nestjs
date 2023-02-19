@@ -57,25 +57,37 @@ export class PatientsService {
     @InjectModel(Payment.name)
     private paymentModel: Model<PaymentDocument>,
   ) {}
-  async get(dto: GetPatientsDto): Promise<any> {
+  async get(dto: GetPatientsDto, id: string, roles: string[]): Promise<any> {
+    const isRepresentative = roles.find((r) => r === 'representative');
     let reparr = [];
-    if (dto.representativeId) {
+
+    if (isRepresentative) {
+      const representative = await this.representativesModel
+        .findById(id)
+        .exec();
+      if (!representative || !representative.isActive)
+        throw new BadRequestException('представитель не найден');
+      reparr = representative.patients;
+    } else if (dto.representativeId) {
       if (!mongoose.Types.ObjectId.isValid(dto.representativeId))
-        throw new BadRequestException('_id: not found');
+        throw new BadRequestException('некорректный id представителя');
       const candidate = await this.representativesModel
         .findById(dto.representativeId)
         .select('-_id patients')
         .populate('patients', '_id', this.patientModel)
         .exec();
-      if (!candidate) throw new BadRequestException('_id: not found');
+      if (!candidate) throw new BadRequestException('представитель не найден');
       reparr = candidate.patients;
     }
-    console.log(reparr);
     const findCond = {
       $and: [
-        {
-          _id: { $nin: reparr },
-        },
+        isRepresentative
+          ? {
+              _id: { $in: reparr },
+            }
+          : {
+              _id: { $nin: reparr },
+            },
         {
           $or: [
             { name: { $regex: `${dto.filter}`, $options: 'i' } },
@@ -100,7 +112,6 @@ export class PatientsService {
     };
     const query = this.patientModel.find(findCond);
     const count = await this.patientModel.find(findCond).count().exec();
-    console.log(count);
     if (dto.sort)
       query.sort({
         [dto.sort]: dto.order as SortOrder,
@@ -116,41 +127,82 @@ export class PatientsService {
     return { data, count };
   }
 
-  async getById(dto: GetPatientsByIdDto): Promise<any> {
-    //TODO проверка на принадлежность пациента
+  async getById(
+    dto: GetPatientsByIdDto,
+    id: string,
+    roles: string[],
+  ): Promise<any> {
+    const isRepresentative = roles.find((r) => r === 'representative');
     if (!mongoose.Types.ObjectId.isValid(dto.id))
-      throw new BadRequestException('_id: not found');
-    const candidate = await this.patientModel
+      throw new BadRequestException('некорректный id пациента');
+    let note = 'note ';
+    if (isRepresentative) {
+      const representative = await this.representativesModel
+        .findById(id)
+        .exec();
+      if (!representative || !representative.isActive)
+        throw new BadRequestException('представитель не найден');
+      console.log(representative);
+      if (!representative.patients.find((p) => p._id.toString() === dto.id))
+        throw new BadRequestException('пациент не найден');
+      note = '';
+    }
+
+    const patient = await this.patientModel
       .findById(dto.id)
       .select(
-        'number name surname patronymic dateOfBirth gender address isActive note representatives _id',
+        `number name surname patronymic dateOfBirth gender address isActive ${note}representatives _id`,
       )
       .exec();
-    if (!candidate) throw new BadRequestException('_id: not found');
+    if (!patient) throw new BadRequestException('пациент не найден');
 
-    return candidate;
+    return patient;
   }
 
   async getPatientRepresentatives(
     dto: GetPatientRepresentativesDto,
+    id: string,
+    roles: string[],
   ): Promise<any> {
-    let patientId;
-    if (dto.id) {
-      if (!mongoose.Types.ObjectId.isValid(dto.id))
-        throw new BadRequestException('_id: not found');
-      const candidate = await this.patientModel.findById(dto.id).exec();
-      if (!candidate) throw new BadRequestException('_id: not found');
-      patientId = dto.id;
+    const isRepresentative = roles.find((r) => r === 'representative');
+
+    if (!mongoose.Types.ObjectId.isValid(dto.id))
+      throw new BadRequestException('некорректный id пациента');
+
+    if (isRepresentative) {
+      const representative = await this.representativesModel
+        .findById(id)
+        .exec();
+      if (!representative || !representative.isActive)
+        throw new BadRequestException('представитель не найден');
+      if (!representative.patients.find((p) => p._id.toString() === dto.id))
+        throw new BadRequestException('пациент не найден');
     }
+    const patient = await this.patientModel.findById(dto.id).exec();
+    if (!patient) throw new BadRequestException('пациент не найден');
+    // patientId = dto.id;
+    // let patientId;
+    // if (dto.id) {
+    //   if (!mongoose.Types.ObjectId.isValid(dto.id))
+    //     throw new BadRequestException('_id: not found');
+    //   const candidate = await this.patientModel.findById(dto.id).exec();
+    //   if (!candidate) throw new BadRequestException('_id: not found');
+    //   patientId = dto.id;
+    // }
     const findCond = {
       $and: [
-        patientId
-          ? {
-              patients: {
-                $elemMatch: { $in: [patientId] },
-              },
-            }
-          : {},
+        {
+          patients: {
+            $elemMatch: { $in: [dto.id] },
+          },
+        },
+        // patientId
+        //   ? {
+        //       patients: {
+        //         $elemMatch: { $in: [patientId] },
+        //       },
+        //     }
+        //   : {},
         {
           $or: [
             { name: { $regex: `${dto.filter}`, $options: 'i' } },
@@ -191,60 +243,32 @@ export class PatientsService {
       );
     const data = await query.exec();
     return { data, count };
-
-    //TODO проверка на принадлежность пациента
   }
 
-  // async removeRepresentative(
-  //   dto: AddPatientToRepresentative,
-  //   id: string,
-  //   roles: string[],
-  // ): Promise<object> {
-  //   if (
-  //     !mongoose.Types.ObjectId.isValid(dto.patientId) ||
-  //     !mongoose.Types.ObjectId.isValid(dto.representativeId)
-  //   )
-  //     throw new BadRequestException('_id: not found');
-  //   const candidate = await this.patientModel.findById(dto.patientId).exec();
-  //   if (!candidate) throw new BadRequestException('_id: not found');
-  //   await this.representativesModel
-  //     .findByIdAndUpdate(dto.representativeId, {
-  //       $pull: { patients: new mongoose.Types.ObjectId(dto.patientId) },
-  //     })
-  //     .exec();
-  //   return;
-  // }
-
   async add(dto: PatientBaseDto, id: string, roles: string[]): Promise<object> {
+    const isAdmin = roles.find((r) => r === 'admin');
     // создание нулевого курса (вне курсов который)
-    // const course = this.courseModel.create({
-    //   number: 0,
-    //   status: true,
-    // });
-    // const newCourse = new this.courseModel(course);
-    // newCourse.save();
     const newCourse = new this.courseModel({
       number: 0,
       status: true,
     });
     newCourse.save();
-    console.log(newCourse);
     const count = await this.patientModel.find().count().exec();
-    console.log(dto);
-    //TODO: Сделать проверку представителей
-    // const user = await this.patientModel.create({
-    //   ...dto,
-    //   number: count + 1,
-    //   courses: newCourse._id,
-    // });
-    // const newPatient = new this.patientModel(user);
-    // newPatient.save();
+    if (!isAdmin) {
+      const representative = await this.representativesModel
+        .findById(id)
+        .exec();
+      if (!representative || !representative.isActive)
+        throw new BadRequestException('представитель не найден');
+      delete dto.note;
+    }
     const newPatient = new this.patientModel({
       ...dto,
       number: count + 1,
       courses: newCourse._id,
     });
     newPatient.save();
+
     // добавление услуг по умолчанию
     const types = await this.serviceTypeModel
       .find({
@@ -257,9 +281,7 @@ export class PatientsService {
           },
         ],
       })
-      // .select('defaultAmountPatient _id isActive ')
       .exec();
-    console.log(types);
     types.forEach((type) => {
       console.log(newCourse._id, type._id, newPatient._id);
       for (let i = 0; i < type.defaultAmountPatient; i++) {
@@ -269,15 +291,17 @@ export class PatientsService {
           note: 'Данная услуга добавлена автоматически для нового пациента',
           patient: newPatient._id,
         };
-        // const service = this.serviceModel.create(srv);
-        // const newService = new this.serviceModel(service);
-        // console.log(srv);
-        // newService.save();
         const newService = new this.serviceModel(srv);
         newService.save();
       }
     });
-    console.log(newPatient._id);
+    if (!isAdmin) {
+      await this.representativesModel
+        .findByIdAndUpdate(id, {
+          $addToSet: { patients: newPatient._id },
+        })
+        .exec();
+    }
     return newPatient._id;
   }
 
@@ -286,18 +310,25 @@ export class PatientsService {
     id: string,
     roles: string[],
   ): Promise<object> {
+    const isAdmin = roles.find((r) => r === 'admin');
+
     if (!mongoose.Types.ObjectId.isValid(dto._id))
       throw new BadRequestException('пациент не найден');
     const candidate = await this.patientModel.findById(dto._id).exec();
-    // .select(
-    //   'number name surname patronymic dateOfBirth gender address isActive note representatives _id',
-    // )
-    // .exec();
     if (!candidate) throw new BadRequestException('пациент не найден');
     if (!candidate.isActive)
       throw new BadRequestException('пациент деактивирован');
     delete dto.number;
-    console.log(dto);
+    if (!isAdmin) {
+      const representative = await this.representativesModel
+        .findById(id)
+        .exec();
+      if (!representative || !representative.isActive)
+        throw new BadRequestException('представитель не найден');
+      if (!representative.patients.find((p) => p._id.toString() === dto._id))
+        throw new BadRequestException('пациент не найден');
+      delete dto.note;
+    }
     this.patientModel.findByIdAndUpdate(dto._id, dto).exec();
     return;
   }
@@ -324,14 +355,28 @@ export class PatientsService {
     id: string,
     roles: string[],
   ): Promise<PatientCoursesInfo> {
+    const isRepresentative = roles.find((r) => r === 'representative');
+
     let canBeClose = true;
     console.log(dto);
     if (!mongoose.Types.ObjectId.isValid(dto.patient))
-      throw new BadRequestException('Пациент не найден');
+      throw new BadRequestException('некорректный id пациента');
     const patient = await this.patientModel.findById(dto.patient).exec();
     if (!patient) throw new BadRequestException('Пациент не найден');
-    // курсы пациента
 
+    if (isRepresentative) {
+      const representative = await this.representativesModel
+        .findById(id)
+        .exec();
+      if (!representative || !representative.isActive)
+        throw new BadRequestException('представитель не найден');
+      console.log(representative);
+      if (
+        !representative.patients.find((p) => p._id.toString() === dto.patient)
+      )
+        throw new BadRequestException('пациент не найден');
+    }
+    // курсы пациента
     const courses = await this.courseModel
       .find({
         _id: {

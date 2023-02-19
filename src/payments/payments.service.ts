@@ -159,6 +159,8 @@ export class PaymentsService {
           payer.roles.findIndex((r) => r === 'representative') == -1
         )
           throw new BadRequestException('представитель не найден');
+        if (!payer.isActive)
+          throw new BadRequestException('представитель деактивирован');
         // console.log(payer.patients);
         // if (!payer.patients.find(patient._id))
         //   throw new BadRequestException(
