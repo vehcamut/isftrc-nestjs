@@ -15,6 +15,8 @@ import {
   ServiceTypeSchema,
   SpecialistType,
   SpecialistTypeSchema,
+  UserSchema,
+  User,
 } from 'src/common/schemas';
 import { Connection } from 'mongoose';
 
@@ -27,6 +29,7 @@ import { Connection } from 'mongoose';
       { name: SpecialistType.name, schema: SpecialistTypeSchema },
       { name: Service.name, schema: ServiceSchema },
       { name: Appointment.name, schema: AppointmentSchema },
+      { name: User.name, schema: UserSchema },
     ]),
     // MongooseModule.forFeatureAsync([
     //   {

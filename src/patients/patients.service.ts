@@ -142,7 +142,6 @@ export class PatientsService {
         .exec();
       if (!representative || !representative.isActive)
         throw new BadRequestException('представитель не найден');
-      console.log(representative);
       if (!representative.patients.find((p) => p._id.toString() === dto.id))
         throw new BadRequestException('пациент не найден');
       note = '';

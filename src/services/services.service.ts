@@ -15,6 +15,7 @@ import {
   Course,
   AppointmentDocument,
   User,
+  UserDocument,
 } from 'src/common/schemas';
 import {
   AdvertisingSourceDto,
@@ -56,6 +57,8 @@ export class ServicesService {
     private serviceModel: Model<ServiceDocument>,
     @InjectModel(Appointment.name)
     private appointmentModel: Model<AppointmentDocument>,
+    @InjectModel(User.name)
+    private representativeModel: Model<UserDocument>,
   ) {}
   async get(dto: GetServiceDto): Promise<any> {
     const findCond = {
@@ -144,9 +147,10 @@ export class ServicesService {
     id: string,
     roles: string[],
   ): Promise<any> {
+    const isRepresentative = roles.find((r) => r === 'representative');
     //todo проверка на принадлежность пациента
     if (!mongoose.Types.ObjectId.isValid(dto.id))
-      throw new BadRequestException('id услуги не найден');
+      throw new BadRequestException('некоррентный id услуги');
 
     const service: any = await this.serviceModel
       .findOne({ _id: dto.id })
@@ -178,83 +182,117 @@ export class ServicesService {
           },
         },
       ]);
+    if (!service) throw new BadRequestException('услуга не найдена');
+    if (isRepresentative) {
+      const representative = await this.representativeModel.findById(id).exec();
+      if (!representative || !representative.isActive)
+        throw new BadRequestException('представитель не найден');
+      if (
+        !representative.patients.find(
+          (p) => p._id.toString() === service.patient._id.toString(),
+        )
+      )
+        throw new BadRequestException('пациент не найден');
+    }
+
     const canBeRemoved = service.appointment
       ? service.course.status
       : undefined;
-    if (!service) throw new BadRequestException('id услуги не найден');
+
+    const serv = JSON.parse(JSON.stringify(service));
+
+    if (isRepresentative) {
+      delete serv.note;
+    }
+
     return {
-      ...JSON.parse(JSON.stringify(service)),
+      ...serv,
+      // ...JSON.parse(JSON.stringify(service)),
       canBeRemoved,
     };
   }
 
-  async getService(
-    dto: GetServiseByIdDto,
-    id: string,
-    roles: string[],
-  ): Promise<any> {
-    //todo проверка на принадлежность пациента
-    if (!mongoose.Types.ObjectId.isValid(dto.id))
-      throw new BadRequestException('id услуги не найден');
+  // async getService(
+  //   dto: GetServiseByIdDto,
+  //   id: string,
+  //   roles: string[],
+  // ): Promise<any> {
+  //   //todo проверка на принадлежность пациента
+  //   const isRepresentative = roles.find((r) => r === 'representative');
 
-    const service: any = await this.serviceModel
-      .findOne({ _id: dto.id })
-      .select('_id status course type result note patient appointment')
-      .populate([
-        {
-          path: 'type',
-          model: 'ServiceType',
-          select: { name: 1, isActive: 1, price: 1, time: 1, _id: 1 },
-        },
-        {
-          path: 'course',
-          model: 'Course',
-          select: { status: 1 },
-        },
-        {
-          path: 'patient',
-          model: 'Patient',
-          select: { name: 1, surname: 1, patronymic: 1, isActive: 1 },
-        },
-        {
-          path: 'appointment',
-          model: 'Appointment',
-          select: {
-            begDate: 1,
-            // name: 1,
-            specialist: 1,
-          },
-          populate: {
-            path: 'specialist',
-            model: 'User',
-            select: {
-              name: 1,
-              surname: 1,
-              patronymic: 1,
-              isActive: 1,
-            },
-          },
-        },
-      ]);
-    console.log(service);
-    if (!service) throw new BadRequestException('id услуги не найден');
+  //   if (!mongoose.Types.ObjectId.isValid(dto.id))
+  //     throw new BadRequestException('некоррентный id услуги');
 
-    return {
-      canBeRemoved: service.course.status,
-      id: service._id,
-      type: service.type.name,
-      status: service.status,
-      course: service.course._id,
-      result: service.result,
-      note: service.note,
-      number: service.number,
-      date: service?.appointment?.begDate,
-      specialist: service?.appointment
-        ? `${service?.appointment?.specialist.surname} ${service?.appointment?.specialist.name} ${service?.appointment?.specialist.patronymic}`
-        : undefined,
-      patient: `${service.patient.surname} ${service.patient.name} ${service.patient.patronymic}`,
-    };
-  }
+  //   const service: any = await this.serviceModel
+  //     .findOne({ _id: dto.id })
+  //     .select('_id status course type result note patient appointment')
+  //     .populate([
+  //       {
+  //         path: 'type',
+  //         model: 'ServiceType',
+  //         select: { name: 1, isActive: 1, price: 1, time: 1, _id: 1 },
+  //       },
+  //       {
+  //         path: 'course',
+  //         model: 'Course',
+  //         select: { status: 1 },
+  //       },
+  //       {
+  //         path: 'patient',
+  //         model: 'Patient',
+  //         select: { name: 1, surname: 1, patronymic: 1, isActive: 1 },
+  //       },
+  //       {
+  //         path: 'appointment',
+  //         model: 'Appointment',
+  //         select: {
+  //           begDate: 1,
+  //           // name: 1,
+  //           specialist: 1,
+  //         },
+  //         populate: {
+  //           path: 'specialist',
+  //           model: 'User',
+  //           select: {
+  //             name: 1,
+  //             surname: 1,
+  //             patronymic: 1,
+  //             isActive: 1,
+  //           },
+  //         },
+  //       },
+  //     ]);
+
+  //   if (!service) throw new BadRequestException('услуга не найдена');
+
+  //   if (isRepresentative) {
+  //     const representative = await this.representativeModel.findById(id).exec();
+  //     if (!representative || !representative.isActive)
+  //       throw new BadRequestException('представитель не найден');
+  //     if (
+  //       !representative.patients.find(
+  //         (p) => p._id.toString() === service.patient._id.toString(),
+  //       )
+  //     )
+  //       throw new BadRequestException('пациент не найден');
+  //   }
+
+  //   return {
+  //     canBeRemoved: service.course.status,
+  //     id: service._id,
+  //     type: service.type.name,
+  //     status: service.status,
+  //     course: service.course._id,
+  //     result: service.result,
+  //     note: isRepresentative ? undefined : service.note,
+  //     number: service.number,
+  //     date: service?.appointment?.begDate,
+  //     specialist: service?.appointment
+  //       ? `${service?.appointment?.specialist.surname} ${service?.appointment?.specialist.name} ${service?.appointment?.specialist.patronymic}`
+  //       : undefined,
+  //     patient: `${service.patient.surname} ${service.patient.name} ${service.patient.patronymic}`,
+  //   };
+  // }
 
   async addGroup(
     dto: ServiceGroupDto,

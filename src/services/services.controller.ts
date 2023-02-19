@@ -11,9 +11,16 @@ import {
   Query,
   Res,
 } from '@nestjs/common';
-import { Body, Patch, Post, Put, Req } from '@nestjs/common/decorators';
+import {
+  Body,
+  Patch,
+  Post,
+  Put,
+  Req,
+  UseGuards,
+} from '@nestjs/common/decorators';
 import { Response } from 'express';
-import { Public } from 'src/common/decorators';
+import { Public, Roles } from 'src/common/decorators';
 import {
   GetAdvertisingSourceDto,
   GetPatientsByIdDto,
@@ -38,14 +45,15 @@ import {
   ChangeNoteDto,
 } from 'src/common/dtos';
 import { ServicesService } from './services.service';
+import { AtGuard } from 'src/common/guards';
 
 @Controller('services')
 export class ServicesController {
   constructor(private readonly servicesService: ServicesService) {}
 
   @Get('getGroupsWithTypes')
-  @Public()
-  //@Roles('registrator')
+  @UseGuards(AtGuard)
+  @Roles('admin')
   @HttpCode(HttpStatus.OK)
   async get(
     @Query() dto: GetServiceDto,
@@ -56,8 +64,8 @@ export class ServicesController {
   }
 
   @Get('getGroups')
-  @Public()
-  //@Roles('registrator')
+  @UseGuards(AtGuard)
+  @Roles('admin')
   @HttpCode(HttpStatus.OK)
   async getGroups(
     @Query() dto: GetServiceDto,
@@ -68,8 +76,8 @@ export class ServicesController {
   }
 
   @Get('getTypes')
-  @Public()
-  //@Roles('registrator')
+  @UseGuards(AtGuard)
+  @Roles('admin')
   @HttpCode(HttpStatus.OK)
   async getTypes(
     @Query() dto: GetTypesDto,
@@ -80,20 +88,20 @@ export class ServicesController {
   }
 
   @Post('addGroup')
-  @Public()
-  //@Roles('registrator')
+  @UseGuards(AtGuard)
+  @Roles('admin')
   @HttpCode(HttpStatus.CREATED)
   async addGroup(@Req() request: Request | any, @Body() dto: ServiceGroupDto) {
     return this.servicesService.addGroup(
       dto,
-      request.user?._id,
+      request.user?.sub,
       request.user?.roles,
     );
   }
 
   @Put('updateGroup')
-  @Public()
-  //@Roles('registrator')
+  @UseGuards(AtGuard)
+  @Roles('admin')
   @HttpCode(HttpStatus.OK)
   async updateGroup(
     @Req() request: Request | any,
@@ -101,26 +109,26 @@ export class ServicesController {
   ) {
     return this.servicesService.updateGroup(
       dto,
-      request.user?._id,
+      request.user?.sub,
       request.user?.roles,
     );
   }
 
   @Post('addType')
-  @Public()
-  //@Roles('registrator')
+  @UseGuards(AtGuard)
+  @Roles('admin')
   @HttpCode(HttpStatus.CREATED)
   async addType(@Req() request: Request | any, @Body() dto: ServiceTypeDto) {
     return this.servicesService.addType(
       dto,
-      request.user?._id,
+      request.user?.sub,
       request.user?.roles,
     );
   }
 
   @Put('updateType')
-  @Public()
-  //@Roles('registrator')
+  @UseGuards(AtGuard)
+  @Roles('admin')
   @HttpCode(HttpStatus.OK)
   async updateType(
     @Req() request: Request | any,
@@ -128,48 +136,51 @@ export class ServicesController {
   ) {
     return this.servicesService.updateType(
       dto,
-      request.user?._id,
+      request.user?.sub,
       request.user?.roles,
     );
   }
 
-  @Get('getService')
-  @Public()
-  //@Roles('registrator')
-  @HttpCode(HttpStatus.OK)
-  async getService(
-    @Req() request: Request | any,
-    @Query() dto: GetServiseByIdDto,
-    @Res({ passthrough: true }) res: Response,
-  ): Promise<ServiceInfoDto> {
-    const response = await this.servicesService.getService(
-      dto,
-      request.user?._id,
-      request.user?.roles,
-    );
-    return response;
-  }
+  // @Get('getService')
+  // @UseGuards(AtGuard)
+  // @Roles('admin', 'specialist', 'representative')
+  // @HttpCode(HttpStatus.OK)
+  // async getService(
+  //   @Req() request: Request | any,
+  //   @Query() dto: GetServiseByIdDto,
+  //   @Res({ passthrough: true }) res: Response,
+  // ): Promise<ServiceInfoDto> {
+  //   const response = await this.servicesService.getService(
+  //     dto,
+  //     request.user?.sub,
+  //     request.user?.roles,
+  //   );
+  //   return response;
+  // }
 
   @Get('getAllInfoService')
-  @Public()
-  //@Roles('registrator')
+  @UseGuards(AtGuard)
+  @Roles('admin', 'specialist', 'representative')
   @HttpCode(HttpStatus.OK)
   async getAllInfoService(
     @Req() request: Request | any,
     @Query() dto: GetServiseByIdDto,
     @Res({ passthrough: true }) res: Response,
   ): Promise<any> {
+    const currentTime = new Date().getTime();
+    // eslint-disable-next-line no-empty
+    while (currentTime + 2500 >= new Date().getTime()) {}
     const response = await this.servicesService.getAllInfoService(
       dto,
-      request.user?._id,
+      request.user?.sub,
       request.user?.roles,
     );
     return response;
   }
 
   @Post('setAppointment')
-  @Public()
-  //@Roles('registrator')
+  @UseGuards(AtGuard)
+  @Roles('admin', 'specialist', 'representative')
   @HttpCode(HttpStatus.CREATED)
   async setAppointment(
     @Req() request: Request | any,
@@ -177,14 +188,14 @@ export class ServicesController {
   ) {
     return this.servicesService.setAppointment(
       dto,
-      request.user?._id,
+      request.user?.sub,
       request.user?.roles,
     );
   }
 
   @Post('closeService')
-  @Public()
-  //@Roles('registrator')
+  @UseGuards(AtGuard)
+  @Roles('admin', 'specialist')
   @HttpCode(HttpStatus.CREATED)
   async closeService(
     @Req() request: Request | any,
@@ -192,14 +203,14 @@ export class ServicesController {
   ) {
     return this.servicesService.closeService(
       dto,
-      request.user?._id,
+      request.user?.sub,
       request.user?.roles,
     );
   }
 
   @Post('openService')
-  @Public()
-  //@Roles('registrator')
+  @UseGuards(AtGuard)
+  @Roles('admin', 'specialist')
   @HttpCode(HttpStatus.CREATED)
   async openService(
     @Req() request: Request | any,
@@ -207,19 +218,19 @@ export class ServicesController {
   ) {
     return this.servicesService.openService(
       dto,
-      request.user?._id,
+      request.user?.sub,
       request.user?.roles,
     );
   }
 
   @Post('changeNote')
-  @Public()
-  //@Roles('registrator')
+  @UseGuards(AtGuard)
+  @Roles('admin', 'specialist')
   @HttpCode(HttpStatus.CREATED)
   async changeNote(@Req() request: Request | any, @Body() dto: ChangeNoteDto) {
     return this.servicesService.changeNote(
       dto,
-      request.user?._id,
+      request.user?.sub,
       request.user?.roles,
     );
   }
