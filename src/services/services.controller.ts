@@ -180,7 +180,7 @@ export class ServicesController {
 
   @Post('setAppointment')
   @UseGuards(AtGuard)
-  @Roles('admin', 'specialist', 'representative')
+  @Roles('admin', 'representative')
   @HttpCode(HttpStatus.CREATED)
   async setAppointment(
     @Req() request: Request | any,

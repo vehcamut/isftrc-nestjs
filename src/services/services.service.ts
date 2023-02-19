@@ -427,9 +427,10 @@ export class ServicesService {
     id: string,
     roles: string[],
   ): Promise<object> {
+    const isRepresentative = roles.find((r) => r === 'representative');
     // проверка id услуги
     if (!mongoose.Types.ObjectId.isValid(dto.serviceId))
-      throw new BadRequestException('услуга не найдена');
+      throw new BadRequestException('некоррентный id услуги');
     const service: any = await this.serviceModel
       .findById(dto.serviceId)
       .populate([
@@ -437,9 +438,37 @@ export class ServicesService {
           path: 'type',
           model: 'ServiceType',
         },
+        {
+          path: 'appointment',
+          model: 'Appointment',
+        },
       ])
       .exec();
     if (!service) throw new BadRequestException('услуга не найдена');
+    if (isRepresentative) {
+      const representative = await this.representativeModel.findById(id).exec();
+      if (!representative || !representative.isActive)
+        throw new BadRequestException('представитель не найден');
+      if (
+        !representative.patients.find(
+          (p) => p._id.toString() === service.patient._id.toString(),
+        )
+      )
+        throw new BadRequestException('пациент не найден');
+      if (service.appointment) {
+        const now = new Date();
+        const nowDate = new Date(
+          now.getFullYear(),
+          now.getMonth(),
+          now.getDate(),
+        ).valueOf();
+        const appDate = new Date(service.appointment.begDate)
+          .setHours(0, 0, 0, 0)
+          .valueOf();
+        if (appDate <= nowDate)
+          throw new BadRequestException('запись уже нельзя изменить');
+      }
+    }
     //todo: здесь сразу отвязывается старое время
     if (service.appointment) {
       const currentAppointment = await this.appointmentModel
