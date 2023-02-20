@@ -56,9 +56,9 @@ export class AuthService {
     const login: string = dto.login;
     const candidate = await this.userModel.findOne({ login });
     if (!candidate) throw new ForbiddenException('Access Denied');
-    console.log(hashDataSHA512('admin'));
+    // console.log(hashDataSHA512('admin'));
     if (!candidate.isActive) throw new ForbiddenException('Access Denied');
-    console.log(candidate);
+    // console.log(candidate);
     const pass = hashDataSHA512(dto.password);
     // console.log(pass);
     // console.log(candidate.hash);
@@ -160,8 +160,8 @@ export class AuthService {
         },
         {
           secret: process.env.jwtAccessSecret,
-          expiresIn: '5s',
-          //???expiresIn: '15m',
+          // expiresIn: '5s',
+          expiresIn: '15m',
         },
       ),
       this.jwtService.signAsync(

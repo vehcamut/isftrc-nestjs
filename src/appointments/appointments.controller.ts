@@ -88,7 +88,7 @@ export class AppointmentsController {
   ): Promise<AppointmentWithIdDto[]> {
     const currentTime = new Date().getTime();
     // eslint-disable-next-line no-empty
-    while (currentTime + 2500 >= new Date().getTime()) {}
+    // while (currentTime + 2500 >= new Date().getTime()) {}
     const response = await this.appointmentsService.getById(
       dto,
       request.user?.sub,
