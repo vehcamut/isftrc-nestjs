@@ -11,9 +11,16 @@ import {
   Query,
   Res,
 } from '@nestjs/common';
-import { Body, Patch, Post, Put, Req } from '@nestjs/common/decorators';
+import {
+  Body,
+  Patch,
+  Post,
+  Put,
+  Req,
+  UseGuards,
+} from '@nestjs/common/decorators';
 import { Response } from 'express';
-import { Public } from 'src/common/decorators';
+import { Public, Roles } from 'src/common/decorators';
 import {
   GetAdvertisingSourceDto,
   GetPatientsByIdDto,
@@ -24,6 +31,7 @@ import {
   PatientWithIdDto,
 } from 'src/common/dtos';
 import { AdvertisingSourceService } from './advertisingSource.service';
+import { AtGuard } from 'src/common/guards';
 
 @Controller('advertisingSource')
 export class AdvertisingSourceController {
@@ -45,8 +53,8 @@ export class AdvertisingSourceController {
   }
 
   @Post('add')
-  @Public()
-  //@Roles('registrator')
+  @UseGuards(AtGuard)
+  @Roles('admin')
   @HttpCode(HttpStatus.CREATED)
   async add(@Req() request: Request | any, @Body() dto: AdvertisingSourceDto) {
     return this.advertisingSourceService.add(
@@ -57,8 +65,8 @@ export class AdvertisingSourceController {
   }
 
   @Put('update')
-  @Public()
-  //@Roles('registrator')
+  @UseGuards(AtGuard)
+  @Roles('admin')
   @HttpCode(HttpStatus.OK)
   async update(
     @Req() request: Request | any,
@@ -70,19 +78,4 @@ export class AdvertisingSourceController {
       request.user?.roles,
     );
   }
-
-  // @Patch('changeStatus')
-  // @Public()
-  // //@Roles('registrator')
-  // @HttpCode(HttpStatus.OK)
-  // async changeStatus(
-  //   @Req() request: Request | any,
-  //   @Body() dto: PatientChangeStatusDto,
-  // ) {
-  //   return this.advertisingSourceService.changeStatus(
-  //     dto,
-  //     request.user?._id,
-  //     request.user?.roles,
-  //   );
-  // }
 }

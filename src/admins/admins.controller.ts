@@ -9,9 +9,16 @@ import {
   Query,
   Res,
 } from '@nestjs/common';
-import { Body, Patch, Post, Put, Req } from '@nestjs/common/decorators';
+import {
+  Body,
+  Patch,
+  Post,
+  Put,
+  Req,
+  UseGuards,
+} from '@nestjs/common/decorators';
 import { Response } from 'express';
-import { Public } from 'src/common/decorators';
+import { Public, Roles } from 'src/common/decorators';
 import {
   AddAdminDto,
   AddRepresentativeDto,
@@ -31,14 +38,15 @@ import {
 } from 'src/common/dtos';
 import { AdminsService } from './admins.service';
 import { IPatient } from 'src/common/interfaces';
+import { AtGuard } from 'src/common/guards';
 
 @Controller('admins')
 export class AdminsController {
   constructor(private readonly adminsService: AdminsService) {}
 
   @Get('get')
-  @Public()
-  //@Roles('admin')
+  @UseGuards(AtGuard)
+  @Roles('admin')
   @HttpCode(HttpStatus.OK)
   async get(
     @Req() request: Request | any,
@@ -55,8 +63,8 @@ export class AdminsController {
   }
 
   @Get('getById')
-  @Public()
-  //@Roles('admin')
+  @UseGuards(AtGuard)
+  @Roles('admin')
   @HttpCode(HttpStatus.OK)
   async getById(
     @Req() request: Request | any,
@@ -71,16 +79,16 @@ export class AdminsController {
   }
 
   @Post('add')
-  @Public()
-  //@Roles('admin')
+  @UseGuards(AtGuard)
+  @Roles('admin')
   @HttpCode(HttpStatus.CREATED)
   async add(@Req() request: Request | any, @Body() dto: AddAdminDto) {
     return this.adminsService.add(dto, request.user?._id, request.user?.roles);
   }
 
   @Put('update')
-  @Public()
-  //@Roles('admin')
+  @UseGuards(AtGuard)
+  @Roles('admin')
   @HttpCode(HttpStatus.OK)
   async update(@Req() request: Request | any, @Body() dto: AdminWithIdDto) {
     return this.adminsService.update(
@@ -91,8 +99,8 @@ export class AdminsController {
   }
 
   @Patch('changeStatus')
-  @Public()
-  //@Roles('admin')
+  @UseGuards(AtGuard)
+  @Roles('admin')
   @HttpCode(HttpStatus.OK)
   async changeStatus(
     @Req() request: Request | any,

@@ -21,21 +21,7 @@ export class AddressController {
   @Public()
   //@Roles('registrator')
   @HttpCode(HttpStatus.OK)
-  async get(
-    @Query() dto: addressGetDto,
-    //  @Res({ passthrough: true }) res: Response,
-  ): Promise<{ value: string }[]> {
-    //const response = await this.patientsService.get(dto);
-    //res.setHeader('X-Total-Count', response.count);
-    //return response.data;
+  async get(@Query() dto: addressGetDto): Promise<{ value: string }[]> {
     return this.addressService.getAddresses(dto);
   }
-
-  // @Post()
-  // @Public()
-  // //@Roles('registrator')
-  // @HttpCode(HttpStatus.CREATED)
-  // async getAddresses(@Body() dto: addressGetDto) {
-  //   return this.addressService.getAddresses(dto);
-  // }
 }

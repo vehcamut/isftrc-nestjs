@@ -537,6 +537,7 @@ export class ServicesService {
     id: string,
     roles: string[],
   ): Promise<object> {
+    const isSpecialist = roles.find((r) => r === 'specialist');
     //todo проверка что уже закрыта
     //todo врач может закрывать только в тот же день, только свои услуги
     // проверка id услуги
@@ -574,28 +575,25 @@ export class ServicesService {
       throw new BadRequestException('не возможно закрыть услугу в будущем');
 
     if (service.status) throw new BadRequestException('услуга уже закрыта');
-    // console.log('!!!!', service.course.status);
     if (!service.course.status)
       throw new BadRequestException('нельзя закрыть услугу из закрытого курса');
-    // // const updateData: any = {
-    //   result: dto.result,
-    // };
-    // if (!service.status) {
-    //   const courseId = service.course;
-    //   const typeId = service.type;
-    //   const services = await this.serviceModel
-    //     .find({
-    //       status: true,
-    //       course: courseId,
-    //       type: typeId,
-    //     })
-    //     .exec();
-    //   // services.find()
-    //   updateData.status = true;
-    //   // updateData.number = services.length + 1;
-    // }
-    //todo: здесь сразу отвязывается старое время
-    // console.log(updateData);
+
+    if (isSpecialist) {
+      if (service.appointment.specialist.toString() !== id)
+        throw new BadRequestException('услуга не найдена');
+      const now = new Date();
+      const nowDate = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate(),
+      ).valueOf();
+      const appDate = new Date(service.appointment.begDate)
+        .setHours(0, 0, 0, 0)
+        .valueOf();
+      if (appDate < nowDate)
+        throw new BadRequestException('запись уже нельзя открыть');
+    }
+
     this.serviceModel
       .findByIdAndUpdate(dto.id, { status: true, result: dto.result })
       .exec();
@@ -608,6 +606,7 @@ export class ServicesService {
     id: string,
     roles: string[],
   ): Promise<object> {
+    const isSpecialist = roles.find((r) => r === 'specialist');
     //todo врач может открывать только в тот же день, только свои услуги
     // проверка id услуги
     if (!mongoose.Types.ObjectId.isValid(dto.id))
@@ -629,6 +628,21 @@ export class ServicesService {
     if (!service.status) throw new BadRequestException('услуга уже открыта');
     if (!service.course.status)
       throw new BadRequestException('нельзя открыть услугу из закрытого курса');
+    if (isSpecialist) {
+      if (service.appointment.specialist.toString() !== id)
+        throw new BadRequestException('услуга не найдена');
+      const now = new Date();
+      const nowDate = new Date(
+        now.getFullYear(),
+        now.getMonth(),
+        now.getDate(),
+      ).valueOf();
+      const appDate = new Date(service.appointment.begDate)
+        .setHours(0, 0, 0, 0)
+        .valueOf();
+      if (appDate < nowDate)
+        throw new BadRequestException('запись уже нельзя открыть');
+    }
     // if (service.appointment.endDate > new Date())
     //   throw new BadRequestException('не возможно закрыть услугу в будущем');
     // // const updateData: any = {
@@ -660,6 +674,7 @@ export class ServicesService {
     id: string,
     roles: string[],
   ): Promise<object> {
+    const isSpecialist = roles.find((r) => r === 'specialist');
     //todo проверка что уже закрыта
     //todo врач может закрывать только в тот же день, только свои услуги
     // проверка id услуги
@@ -688,6 +703,21 @@ export class ServicesService {
       throw new BadRequestException(
         'нельзя изменить услугу из закрытого курса',
       );
+    if (isSpecialist) {
+      if (service.appointment.specialist.toString() !== id)
+        throw new BadRequestException('услуга не найдена');
+      // const now = new Date();
+      // const nowDate = new Date(
+      //   now.getFullYear(),
+      //   now.getMonth(),
+      //   now.getDate(),
+      // ).valueOf();
+      // const appDate = new Date(service.appointment.begDate)
+      //   .setHours(0, 0, 0, 0)
+      //   .valueOf();
+      // if (appDate < nowDate)
+      //   throw new BadRequestException('запись уже нельзя открыть');
+    }
     // if (service.status) throw new BadRequestException('услуга уже закрыта');
     // if (!service.appointment)
     //   throw new BadRequestException(
