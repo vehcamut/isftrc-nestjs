@@ -43,7 +43,7 @@ export class PatientsController {
 
   @Get('get')
   @UseGuards(AtGuard)
-  @Roles('admin', 'representative', 'spesialist')
+  @Roles('admin', 'representative', 'specialist')
   @HttpCode(HttpStatus.OK)
   async get(
     @Req() request: Request | any,
