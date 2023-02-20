@@ -236,6 +236,10 @@ export class SpecialistsService {
     id: string,
     roles: string[],
   ): Promise<object> {
+    const isSpec = roles.find((r) => r === 'specialist');
+    if (isSpec) {
+      if (id !== dto._id) throw new BadRequestException('специалист не найден');
+    }
     if (!mongoose.Types.ObjectId.isValid(dto._id))
       throw new BadRequestException('некорректный id специалиста');
     const candidate = await this.specialistModel.findById(dto._id).exec();
@@ -244,7 +248,6 @@ export class SpecialistsService {
       throw new BadRequestException('специалист не найден');
     if (!candidate.isActive)
       throw new BadRequestException('специалист деактивирован');
-
     if (dto.hash) dto.hash = hashDataSHA512(dto.hash);
     this.specialistModel.findByIdAndUpdate(dto._id, dto).exec();
     return;
@@ -266,83 +269,4 @@ export class SpecialistsService {
     this.specialistModel.findByIdAndUpdate(dto._id, dto).exec();
     return;
   }
-
-  // async getPatientsById(dto: GetRepresentativesByIdDto): Promise<any> {
-  //   //TODO проверка на принадлежность пациента
-  //   if (!mongoose.Types.ObjectId.isValid(dto.id))
-  //     throw new BadRequestException('_id: not found');
-  //   const candidate = await this.specialistModel
-  //     .findById(dto.id)
-  //     .select('-_id patients')
-  //     .populate(
-  //       'patients',
-  //       'number name surname patronymic dateOfBirth gender address isActive note _id',
-  //       this.patientModel,
-  //       dto.isActive !== undefined
-  //         ? {
-  //             isActive: dto.isActive,
-  //           }
-  //         : {},
-  //     )
-  //     .exec();
-  //   if (!candidate) throw new BadRequestException('_id: not found');
-  //   console.log(candidate);
-  //   // candidate.advertisingSources.forEach(async function (value, index) {
-  //   //   const id = this[index];
-  //   //   const cand = await this.advertisingSourceModel
-  //   //     .findById(id)
-  //   //     .select('name _id isActive')
-  //   //     .exec();
-
-  //   //   if (cand && cand.isActive) {
-  //   //     this[index] = { _id: cand._id, name: cand.name };
-  //   //   }
-  //   // }, candidate.advertisingSources);
-
-  //   return candidate?.patients;
-  // }
-
-  // async addPatient(
-  //   dto: AddPatientToRepresentative,
-  //   id: string,
-  //   roles: string[],
-  // ): Promise<object> {
-  //   if (
-  //     !mongoose.Types.ObjectId.isValid(dto.patientId) ||
-  //     !mongoose.Types.ObjectId.isValid(dto.representativeId)
-  //   )
-  //     throw new BadRequestException('_id: not found');
-  //   const candidate = await this.patientModel.findById(dto.patientId).exec();
-  //   if (!candidate) throw new BadRequestException('_id: not found');
-  //   const count = await this.representativesModel
-  //     .findByIdAndUpdate(dto.representativeId, {
-  //       $addToSet: { patients: new mongoose.Types.ObjectId(dto.patientId) },
-  //     })
-  //     .exec();
-  //   return;
-  // }
-
-  // async removePatient(
-  //   dto: AddPatientToRepresentative,
-  //   id: string,
-  //   roles: string[],
-  // ): Promise<object> {
-  //   if (
-  //     !mongoose.Types.ObjectId.isValid(dto.patientId) ||
-  //     !mongoose.Types.ObjectId.isValid(dto.representativeId)
-  //   )
-  //     throw new BadRequestException('_id: not found');
-  //   const candidate = await this.patientModel.findById(dto.patientId).exec();
-  //   if (!candidate) throw new BadRequestException('_id: not found');
-  //   await this.representativesModel
-  //     .findByIdAndUpdate(dto.representativeId, {
-  //       $pull: { patients: new mongoose.Types.ObjectId(dto.patientId) },
-  //     })
-  //     .exec();
-  //   return;
-  // }
-
-  // async hashData(data: string) {
-  //   return await bcrypt.hash(data, 12);
-  // }
 }

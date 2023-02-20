@@ -178,6 +178,11 @@ export class RepresentativesService {
     id: string,
     roles: string[],
   ): Promise<object> {
+    const isRepres = roles.find((r) => r === 'representative');
+    if (isRepres) {
+      if (id !== dto._id)
+        throw new BadRequestException('представитель не найден');
+    }
     if (!mongoose.Types.ObjectId.isValid(dto._id))
       throw new BadRequestException('не корректный id представителя');
     const representative = await this.representativesModel

@@ -66,19 +66,22 @@ export class AppointmentsService {
     id: string,
     roles: string[],
   ): Promise<any> {
+    const isSpec = roles.find((r) => r === 'specialist');
     if (!mongoose.Types.ObjectId.isValid(dto.specialistId))
       throw new BadRequestException('некорректный id специалиста');
     const candidate = await this.specialistModel
       .findById(dto.specialistId)
       .exec();
     if (!candidate) throw new BadRequestException('специалист не найден');
-    // !candidate.isActive ||
+
     if (!candidate.roles.includes('specialist'))
       throw new BadRequestException('специалист не найден');
-    // const date = new Date(dto.date.toDateString());
 
-    // const beg = new Date(date).setMonth(date.getMonth() - 1);
-    // const end = new Date(date).setMonth(date.getMonth() + 1);
+    if (isSpec) {
+      if (id != dto.specialistId)
+        throw new BadRequestException('специалист не найден');
+    }
+
     const findCond = {
       $and: [
         dto.begDate
@@ -193,14 +196,23 @@ export class AppointmentsService {
     id: string,
     roles: string[],
   ): Promise<any> {
+    const isSpec = roles.find((r) => r === 'specialist');
+    const isRepres = roles.find((r) => r === 'representative');
     if (!mongoose.Types.ObjectId.isValid(dto.patientId))
-      throw new BadRequestException('пациент не найден');
+      throw new BadRequestException('некорректный id пациента');
     const patient = await this.patientModel.findById(dto.patientId).exec();
-    if (!patient) throw new BadRequestException('_id: not found');
-    //todo: активность пауиента???
-    // if (!patient.isActive || !patient.roles.includes('specialist'))
-    //   throw new BadRequestException('bad specialist');
-    // const date = new Date(dto.date.toDateString());
+    if (!patient) throw new BadRequestException('пациент не найден');
+    if (isRepres) {
+      const representative = await this.specialistModel.findById(id).exec();
+      if (!representative || !representative.isActive)
+        throw new BadRequestException('представитель не найден');
+      if (
+        !representative.patients.find(
+          (p) => p._id.toString() === patient._id.toString(),
+        )
+      )
+        throw new BadRequestException('пациент не найден');
+    }
     const findCond = {
       $and: [
         dto.begDate
@@ -630,13 +642,11 @@ export class AppointmentsService {
     id: string,
     roles: string[],
   ): Promise<any> {
-    //TODO если врач то провреить что он есть
-    //TODO если предстватиель то провреить что пациент его
+    //TODO: Может ли впач видеть чужие услуги
+    const isSpec = roles.find((r) => r === 'specialist');
+    const isRepres = roles.find((r) => r === 'representative');
     if (!mongoose.Types.ObjectId.isValid(dto.id))
       throw new BadRequestException('запись не найдена');
-    // const patient = await this.patientModel.findById(dto.patientId).exec();
-    // if (!patient) throw new BadRequestException('_id: not found');
-    //todo: активность пауиента???
     const query: any = this.appointmentModel.findById(dto.id);
     // const count = await this.appointmentModel.find(findCond).count().exec();
     query.select('_id begDate endDate service specialist').populate([
@@ -703,13 +713,27 @@ export class AppointmentsService {
     ]);
     const appointment = await query.exec();
     if (!appointment) throw new BadRequestException('запись не найдена');
-    // console.log(appointment.service);
+
+    if (isRepres) {
+      const representative = await this.specialistModel.findById(id).exec();
+      if (!representative || !representative.isActive)
+        throw new BadRequestException('представитель не найден');
+      if (
+        !representative.patients.find(
+          (p) =>
+            p._id.toString() === appointment.service.patient._id.toString(),
+        )
+      )
+        throw new BadRequestException('запись не найдена');
+    }
+
     const service = appointment.service
       ? JSON.parse(JSON.stringify(appointment.service))
       : undefined;
     const canBeRemoved = appointment.service
       ? appointment.service.course.status
       : undefined;
+    if (isRepres && service) delete service.note;
     return {
       _id: appointment._id,
       begDate: appointment.begDate,
@@ -717,265 +741,5 @@ export class AppointmentsService {
       specialist: appointment.specialist,
       service: service ? { ...service, canBeRemoved } : undefined,
     };
-    // appointments.forEach((appointment) => {
-    //   // console.log(appointment.service.patient._id, '!!!', patient._id);
-    //   if (appointment.service.patient._id.toString() === dto.patientId) {
-    //     const canBeRemoved = appointment.service.course.status;
-    //     // let canBeRemoved = true;
-    //     // if (appointment.service.course.status == false) canBeRemoved = false;
-    //     // console.log(canBeRemoved);
-    //     const service = JSON.parse(JSON.stringify(appointment.service));
-    //     // const service.toH
-    //     // result.push(appointment);
-    //     result.push();
-    //   }
-    // });
   }
-  // async get(dto: GetSpecialistsDto): Promise<any> {
-  //   // let patientId;
-  //   // if (dto.patientId) {
-  //   //   if (!mongoose.Types.ObjectId.isValid(dto.patientId))
-  //   //     throw new BadRequestException('_id: not found');
-  //   //   const candidate = await this.patientModel.findById(dto.patientId).exec();
-  //   //   if (!candidate) throw new BadRequestException('_id: not found');
-  //   //   patientId = dto.patientId;
-  //   // }
-  //   // console.log('PP', patientId);
-  //   const findCond = {
-  //     $and: [
-  //       // patientId
-  //       //   ? {
-  //       //       patients: {
-  //       //         $not: { $elemMatch: { $in: [patientId] } },
-  //       //       },
-  //       //     }
-  //       //   : {},
-  //       {
-  //         $or: [
-  //           { name: { $regex: `${dto.filter}`, $options: 'i' } },
-  //           { surname: { $regex: `${dto.filter}`, $options: 'i' } },
-  //           { patronymic: { $regex: `${dto.filter}`, $options: 'i' } },
-  //           { phoneNumbers: { $regex: `${dto.filter}`, $options: 'i' } },
-  //           { emails: { $regex: `${dto.filter}`, $options: 'i' } },
-  //           { address: { $regex: `${dto.filter}`, $options: 'i' } },
-  //           { login: { $regex: `${dto.filter}`, $options: 'i' } },
-  //         ],
-  //       },
-  //       { roles: { $in: ['specialist'] } },
-  //       dto.gender
-  //         ? {
-  //             gender: dto.gender,
-  //           }
-  //         : {},
-  //       dto.isActive !== undefined
-  //         ? {
-  //             isActive: dto.isActive,
-  //           }
-  //         : {},
-  //     ],
-  //   };
-  //   const query = this.specialistModel.find(findCond);
-  //   const count = await this.specialistModel.find(findCond).count().exec();
-  //   if (dto.sort)
-  //     query.sort({
-  //       [dto.sort]: dto.order as SortOrder,
-  //     });
-
-  //   query
-  //     .skip(dto.page * dto.limit)
-  //     .limit(dto.limit)
-  //     .select(
-  //       'name surname patronymic dateOfBirth phoneNumbers emails gender address isActive types _id login',
-  //     );
-  //   const data = await query.exec();
-  //   return { data, count };
-  // }
-
-  // async getById(dto: GetSpecialistsByIdDto): Promise<any> {
-  //   const candidate = await this.specialistModel
-  //     .findById(dto.id)
-  //     .select(
-  //       'name surname patronymic dateOfBirth gender address isActive phoneNumbers emails login _id types',
-  //     )
-  //     .populate('types', 'name _id', this.specialistTypeModel, {
-  //       isActive: true,
-  //     })
-  //     .exec();
-  //   if (!candidate) throw new BadRequestException('_id: not found');
-  //   console.log(candidate);
-  //   // candidate.advertisingSources.forEach(async function (value, index) {
-  //   //   const id = this[index];
-  //   //   const cand = await this.advertisingSourceModel
-  //   //     .findById(id)
-  //   //     .select('name _id isActive')
-  //   //     .exec();
-
-  //   //   if (cand && cand.isActive) {
-  //   //     this[index] = { _id: cand._id, name: cand.name };
-  //   //   }
-  //   // }, candidate.advertisingSources);
-
-  //   return candidate;
-  // }
-
-  // async add(
-  //   dto: AddSpecialistDto,
-  //   id: string,
-  //   roles: string[],
-  // ): Promise<object> {
-  //   const count = await this.specialistModel
-  //     .findOne({ login: dto.login })
-  //     .exec();
-  //   if (count) throw new BadRequestException('Логин должен быть уникальным');
-  //   let hashedPassword: string;
-
-  //   if (dto.hash) hashedPassword = hashDataSHA512(dto.hash);
-  //   else hashedPassword = hashDataSHA512(dto.login);
-  //   // const hashedPassword = await this.hashData(dto.login);
-  //   const types: Types.ObjectId[] = [];
-
-  //   for (let i = 0; i < dto.types.length; i++) {
-  //     // console.log(dto.types[i]);
-  //     try {
-  //       types.push(new Types.ObjectId(dto.types[i]));
-  //       //dto.advertisingSources[i] = new Types.ObjectId(dto.advertisingSources[i]);
-  //     } catch (e) {
-  //       // console.log(e);
-  //       throw new BadRequestException(
-  //         `types: include unknown type ${dto.types[i]}`,
-  //       );
-  //     }
-
-  //     const candidate = await this.specialistTypeModel.findById(types[i]);
-  //     if (!candidate)
-  //       throw new BadRequestException(
-  //         `types: include unknown type ${dto.types[i]}`,
-  //       );
-  //   }
-
-  //   const user = await this.specialistModel.create({
-  //     ...dto,
-  //     hash: hashedPassword,
-  //     types,
-  //     roles: ['specialist'],
-  //   });
-  //   const newSpecialist = new this.specialistModel(user);
-  //   newSpecialist.save();
-  //   return newSpecialist._id;
-  // }
-
-  // async update(
-  //   dto: SpecialistWithIdDto,
-  //   id: string,
-  //   roles: string[],
-  // ): Promise<object> {
-  //   if (!mongoose.Types.ObjectId.isValid(dto._id))
-  //     throw new BadRequestException('_id: not found');
-  //   const candidate = await this.specialistModel.findById(dto._id).exec();
-  //   // .select(
-  //   //   'number name surname patronymic dateOfBirth gender address isActive note representatives _id',
-  //   // )
-  //   // .exec();
-  //   if (!candidate) throw new BadRequestException('_id: not found');
-  //   console.log(dto);
-  //   if (dto.hash) dto.hash = hashDataSHA512(dto.hash);
-  //   this.specialistModel.findByIdAndUpdate(dto._id, dto).exec();
-  //   return;
-  // }
-
-  // async changeStatus(
-  //   dto: SpecialistChangeStatusDto,
-  //   id: string,
-  //   roles: string[],
-  // ): Promise<object> {
-  //   if (!mongoose.Types.ObjectId.isValid(dto._id))
-  //     throw new BadRequestException('_id: not found');
-  //   const candidate = await this.specialistModel.findById(dto._id).exec();
-  //   // .select(
-  //   //   'number name surname patronymic dateOfBirth gender address isActive note representatives _id',
-  //   // )
-  //   // .exec();
-  //   if (!candidate) throw new BadRequestException('_id: not found');
-  //   this.specialistModel.findByIdAndUpdate(dto._id, dto).exec();
-  //   return;
-  // }
-
-  // async getPatientsById(dto: GetRepresentativesByIdDto): Promise<any> {
-  //   //TODO проверка на принадлежность пациента
-  //   if (!mongoose.Types.ObjectId.isValid(dto.id))
-  //     throw new BadRequestException('_id: not found');
-  //   const candidate = await this.specialistModel
-  //     .findById(dto.id)
-  //     .select('-_id patients')
-  //     .populate(
-  //       'patients',
-  //       'number name surname patronymic dateOfBirth gender address isActive note _id',
-  //       this.patientModel,
-  //       dto.isActive !== undefined
-  //         ? {
-  //             isActive: dto.isActive,
-  //           }
-  //         : {},
-  //     )
-  //     .exec();
-  //   if (!candidate) throw new BadRequestException('_id: not found');
-  //   console.log(candidate);
-  //   // candidate.advertisingSources.forEach(async function (value, index) {
-  //   //   const id = this[index];
-  //   //   const cand = await this.advertisingSourceModel
-  //   //     .findById(id)
-  //   //     .select('name _id isActive')
-  //   //     .exec();
-
-  //   //   if (cand && cand.isActive) {
-  //   //     this[index] = { _id: cand._id, name: cand.name };
-  //   //   }
-  //   // }, candidate.advertisingSources);
-
-  //   return candidate?.patients;
-  // }
-
-  // async addPatient(
-  //   dto: AddPatientToRepresentative,
-  //   id: string,
-  //   roles: string[],
-  // ): Promise<object> {
-  //   if (
-  //     !mongoose.Types.ObjectId.isValid(dto.patientId) ||
-  //     !mongoose.Types.ObjectId.isValid(dto.representativeId)
-  //   )
-  //     throw new BadRequestException('_id: not found');
-  //   const candidate = await this.patientModel.findById(dto.patientId).exec();
-  //   if (!candidate) throw new BadRequestException('_id: not found');
-  //   const count = await this.representativesModel
-  //     .findByIdAndUpdate(dto.representativeId, {
-  //       $addToSet: { patients: new mongoose.Types.ObjectId(dto.patientId) },
-  //     })
-  //     .exec();
-  //   return;
-  // }
-
-  // async removePatient(
-  //   dto: AddPatientToRepresentative,
-  //   id: string,
-  //   roles: string[],
-  // ): Promise<object> {
-  //   if (
-  //     !mongoose.Types.ObjectId.isValid(dto.patientId) ||
-  //     !mongoose.Types.ObjectId.isValid(dto.representativeId)
-  //   )
-  //     throw new BadRequestException('_id: not found');
-  //   const candidate = await this.patientModel.findById(dto.patientId).exec();
-  //   if (!candidate) throw new BadRequestException('_id: not found');
-  //   await this.representativesModel
-  //     .findByIdAndUpdate(dto.representativeId, {
-  //       $pull: { patients: new mongoose.Types.ObjectId(dto.patientId) },
-  //     })
-  //     .exec();
-  //   return;
-  // }
-
-  // async hashData(data: string) {
-  //   return await bcrypt.hash(data, 12);
-  // }
 }

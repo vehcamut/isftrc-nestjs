@@ -47,7 +47,7 @@ export class PatientBaseDto {
 
   @IsBoolean()
   @IsOptional()
-  isActive?: boolean = false;
+  isActive?: boolean = true;
 
   @IsArray()
   @IsOptional()

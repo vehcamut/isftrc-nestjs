@@ -9,9 +9,16 @@ import {
   Query,
   Res,
 } from '@nestjs/common';
-import { Body, Patch, Post, Put, Req } from '@nestjs/common/decorators';
+import {
+  Body,
+  Patch,
+  Post,
+  Put,
+  Req,
+  UseGuards,
+} from '@nestjs/common/decorators';
 import { Response } from 'express';
-import { Public } from 'src/common/decorators';
+import { Public, Roles } from 'src/common/decorators';
 import {
   AddRepresentativeDto,
   GetPatientsByIdDto,
@@ -27,6 +34,7 @@ import {
 } from 'src/common/dtos';
 import { RepresentativesService } from './representatives.service';
 import { IPatient } from 'src/common/interfaces';
+import { AtGuard } from 'src/common/guards';
 
 @Controller('representatives')
 export class RepresentativesController {
@@ -34,9 +42,12 @@ export class RepresentativesController {
     private readonly representativesService: RepresentativesService,
   ) {}
 
+  // @UseGuards(AtGuard)
+  // @Roles('admin', 'representative', 'specialist')
+
   @Get('get')
-  @Public()
-  //@Roles('registrator')
+  @UseGuards(AtGuard)
+  @Roles('admin')
   @HttpCode(HttpStatus.OK)
   async get(
     @Query() dto: GetRepresentativesDto,
@@ -48,8 +59,8 @@ export class RepresentativesController {
   }
 
   @Get('getById')
-  @Public()
-  //@Roles('registrator')
+  @UseGuards(AtGuard)
+  @Roles('admin')
   @HttpCode(HttpStatus.OK)
   async getById(
     @Query() dto: GetRepresentativesByIdDto,
@@ -68,19 +79,20 @@ export class RepresentativesController {
 
   @Post('add')
   @Public()
-  //@Roles('registrator')
+  // @UseGuards(AtGuard)
+  // @Roles('admin')
   @HttpCode(HttpStatus.CREATED)
   async add(@Req() request: Request | any, @Body() dto: AddRepresentativeDto) {
     return this.representativesService.add(
       dto,
-      request.user?._id,
+      request.user?.sub,
       request.user?.roles,
     );
   }
 
   @Put('update')
-  @Public()
-  //@Roles('registrator')
+  @UseGuards(AtGuard)
+  @Roles('admin', 'representative')
   @HttpCode(HttpStatus.OK)
   async update(
     @Req() request: Request | any,
@@ -88,14 +100,14 @@ export class RepresentativesController {
   ) {
     return this.representativesService.update(
       dto,
-      request.user?._id,
+      request.user?.sub,
       request.user?.roles,
     );
   }
 
   @Get('patients')
-  @Public()
-  //@Roles('registrator')
+  @UseGuards(AtGuard)
+  @Roles('admin')
   @HttpCode(HttpStatus.OK)
   async getPatientsById(
     @Query() dto: GetRepresentativesByIdDto,
@@ -113,8 +125,8 @@ export class RepresentativesController {
   }
 
   @Post('addPatient')
-  @Public()
-  //@Roles('registrator')
+  @UseGuards(AtGuard)
+  @Roles('admin')
   @HttpCode(HttpStatus.CREATED)
   async addPatient(
     @Req() request: Request | any,
@@ -122,14 +134,14 @@ export class RepresentativesController {
   ) {
     return this.representativesService.addPatient(
       dto,
-      request.user?._id,
+      request.user?.sub,
       request.user?.roles,
     );
   }
 
   @Post('removePatient')
-  @Public()
-  //@Roles('registrator')
+  @UseGuards(AtGuard)
+  @Roles('admin')
   @HttpCode(HttpStatus.CREATED)
   async removePatient(
     @Req() request: Request | any,
@@ -137,14 +149,14 @@ export class RepresentativesController {
   ) {
     return this.representativesService.removePatient(
       dto,
-      request.user?._id,
+      request.user?.sub,
       request.user?.roles,
     );
   }
 
   @Patch('changeStatus')
-  @Public()
-  //@Roles('registrator')
+  @UseGuards(AtGuard)
+  @Roles('admin')
   @HttpCode(HttpStatus.OK)
   async changeStatus(
     @Req() request: Request | any,
@@ -152,7 +164,7 @@ export class RepresentativesController {
   ) {
     return this.representativesService.changeStatus(
       dto,
-      request.user?._id,
+      request.user?.sub,
       request.user?.roles,
     );
   }

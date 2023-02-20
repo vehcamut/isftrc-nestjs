@@ -9,9 +9,16 @@ import {
   Query,
   Res,
 } from '@nestjs/common';
-import { Body, Patch, Post, Put, Req } from '@nestjs/common/decorators';
+import {
+  Body,
+  Patch,
+  Post,
+  Put,
+  Req,
+  UseGuards,
+} from '@nestjs/common/decorators';
 import { Response } from 'express';
-import { Public } from 'src/common/decorators';
+import { Public, Roles } from 'src/common/decorators';
 import {
   GetSpecialistsByIdDto,
   AddSpecialistDto,
@@ -23,14 +30,18 @@ import {
 } from 'src/common/dtos';
 import { SpecialistsService } from './specialists.service';
 import { IPatient } from 'src/common/interfaces';
+import { AtGuard } from 'src/common/guards';
 
 @Controller('specialists')
 export class SpecialistsController {
   constructor(private readonly specialistsService: SpecialistsService) {}
 
+  // @UseGuards(AtGuard)
+  // @Roles('admin', 'representative', 'specialist')
+
   @Get('get')
-  @Public()
-  //@Roles('registrator')
+  @UseGuards(AtGuard)
+  @Roles('admin')
   @HttpCode(HttpStatus.OK)
   async get(
     @Query() dto: GetSpecialistsDto,
@@ -42,8 +53,8 @@ export class SpecialistsController {
   }
 
   @Get('getSpecific')
-  @Public()
-  //@Roles('registrator')
+  @UseGuards(AtGuard)
+  @Roles('admin', 'representative')
   @HttpCode(HttpStatus.OK)
   async getSpecificSpecialists(
     @Query() dto: GetSpecificSpecialists,
@@ -53,8 +64,8 @@ export class SpecialistsController {
   }
 
   @Get('getById')
-  @Public()
-  //@Roles('registrator')
+  @UseGuards(AtGuard)
+  @Roles('admin')
   @HttpCode(HttpStatus.OK)
   async getById(
     @Query() dto: GetSpecialistsByIdDto,
@@ -72,20 +83,20 @@ export class SpecialistsController {
   }
 
   @Post('add')
-  @Public()
-  //@Roles('registrator')
+  @UseGuards(AtGuard)
+  @Roles('admin')
   @HttpCode(HttpStatus.CREATED)
   async add(@Req() request: Request | any, @Body() dto: AddSpecialistDto) {
     return this.specialistsService.add(
       dto,
-      request.user?._id,
+      request.user?.sub,
       request.user?.roles,
     );
   }
 
   @Put('update')
-  @Public()
-  //@Roles('registrator')
+  @UseGuards(AtGuard)
+  @Roles('admin', 'specialist')
   @HttpCode(HttpStatus.OK)
   async update(
     @Req() request: Request | any,
@@ -93,62 +104,14 @@ export class SpecialistsController {
   ) {
     return this.specialistsService.update(
       dto,
-      request.user?._id,
+      request.user?.sub,
       request.user?.roles,
     );
   }
 
-  // @Get('patients')
-  // @Public()
-  // //@Roles('registrator')
-  // @HttpCode(HttpStatus.OK)
-  // async getPatientsById(
-  //   @Query() dto: GetRepresentativesByIdDto,
-  //   @Res({ passthrough: true }) res: Response,
-  // ): Promise<IPatient[]> {
-  //   // const date = Date.now();
-  //   // let currentDate = null;
-  //   // do {
-  //   //   currentDate = Date.now();
-  //   // } while (currentDate - date < 4000);
-  //   return await this.specialistsService.getPatientsById(dto);
-  //   //const response = await this.patientsService.getById(dto);
-  //   //res.setHeader('X-Total-Count', response.count);
-  //   //return response.data;
-  // }
-
-  // @Post('addPatient')
-  // @Public()
-  // //@Roles('registrator')
-  // @HttpCode(HttpStatus.CREATED)
-  // async addPatient(
-  //   @Req() request: Request | any,
-  //   @Body() dto: AddPatientToRepresentative,
-  // ) {
-  //   return this.specialistsService.addPatient(
-  //     dto,
-  //     request.user?._id,
-  //     request.user?.roles,
-  //   );
-  // }
-
-  // @Post('removePatient')
-  // @Public()
-  // //@Roles('registrator')
-  // @HttpCode(HttpStatus.CREATED)
-  // async removePatient(
-  //   @Req() request: Request | any,
-  //   @Body() dto: AddPatientToRepresentative,
-  // ) {
-  //   return this.specialistsService.removePatient(
-  //     dto,
-  //     request.user?._id,
-  //     request.user?.roles,
-  //   );
-  // }
-
   @Patch('changeStatus')
-  @Public()
+  @UseGuards(AtGuard)
+  @Roles('admin')
   @HttpCode(HttpStatus.OK)
   async changeStatus(
     @Req() request: Request | any,
@@ -156,7 +119,7 @@ export class SpecialistsController {
   ) {
     return this.specialistsService.changeStatus(
       dto,
-      request.user?._id,
+      request.user?.sub,
       request.user?.roles,
     );
   }

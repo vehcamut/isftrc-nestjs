@@ -261,6 +261,7 @@ export class PatientsService {
         throw new BadRequestException('представитель не найден');
       delete dto.note;
     }
+    console.log('dto', dto);
     const newPatient = new this.patientModel({
       ...dto,
       number: count + 1,
@@ -301,6 +302,7 @@ export class PatientsService {
         })
         .exec();
     }
+    console.log(newPatient);
     return newPatient._id;
   }
 
@@ -354,6 +356,7 @@ export class PatientsService {
     id: string,
     roles: string[],
   ): Promise<PatientCoursesInfo> {
+    //TODO: Может ли впач видеть оплаты
     const isRepresentative = roles.find((r) => r === 'representative');
 
     let canBeClose = true;
