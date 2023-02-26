@@ -6,6 +6,7 @@ import * as cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
 
 const whitelist = [
+  'http://192.168.1.49:3000',
   'http://localhost:3000',
   'http://localhost:3001',
   'http://localhost:8080',
@@ -45,6 +46,8 @@ async function bootstrap() {
 
   const PORT = process.env.PORT;
 
-  await app.listen(PORT, () => console.log(`Server started on port ${PORT}`));
+  await app.listen(PORT, '0.0.0.0', () =>
+    console.log(`Server started on port ${PORT}`),
+  );
 }
 bootstrap();

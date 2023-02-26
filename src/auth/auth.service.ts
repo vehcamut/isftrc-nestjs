@@ -74,7 +74,7 @@ export class AuthService {
       candidate.roles,
     );
     //await this.updateRtHash(candidate.id, tokens.refresh_token);
-    const hash = this.hashDataSHA512(tokens.refresh_token.split('.')[2]);
+    const hash = hashDataSHA512(tokens.refresh_token.split('.')[2]);
 
     await this.userModel
       .findByIdAndUpdate(candidate.id, {
@@ -91,7 +91,7 @@ export class AuthService {
   }
 
   async refreshTokens(userId: number, rt: string): Promise<Tokens> {
-    const hash = this.hashDataSHA512(rt.split('.')[2]);
+    const hash = hashDataSHA512(rt.split('.')[2]);
 
     const user = await this.userModel
       .findById(userId)
@@ -106,7 +106,7 @@ export class AuthService {
       `${user.surname} ${user.name[0]}.${user.patronymic[0]}.`,
       user.roles,
     );
-    const newHash = this.hashDataSHA512(tokens.refresh_token.split('.')[2]);
+    const newHash = hashDataSHA512(tokens.refresh_token.split('.')[2]);
     await this.userModel
       .findOneAndUpdate(
         { _id: userId, 'rt.hash': hash },
@@ -121,7 +121,7 @@ export class AuthService {
   }
 
   async updateRtHash(userId: number, rt: string) {
-    const hash = this.hashDataSHA512(rt.split('.')[2]);
+    const hash = hashDataSHA512(rt.split('.')[2]);
 
     await this.userModel
       .findByIdAndUpdate(userId, {
@@ -136,14 +136,14 @@ export class AuthService {
     return await bcrypt.hash(data, 12);
   }
 
-  hashDataSHA512(data: string) {
-    return createHmac(
-      'sha512',
-      'sdfoj3n9f8nfpdsifo3ipfobids98fb328fbpdsfbisdf932ifpd-134@3423!',
-    )
-      .update(data)
-      .digest('hex');
-  }
+  // hashDataSHA512(data: string) {
+  //   return createHmac(
+  //     'sha512',
+  //     'sdfoj3n9f8nfpdsifo3ipfobids98fb328fbpdsfbisdf932ifpd-134@3423!',
+  //   )
+  //     .update(data)
+  //     .digest('hex');
+  // }
   async getTokens(
     userId: number,
     login: string,

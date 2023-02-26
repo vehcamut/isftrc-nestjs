@@ -164,6 +164,7 @@ export class PatientsService {
     roles: string[],
   ): Promise<any> {
     const isRepresentative = roles.find((r) => r === 'representative');
+    const isAdmin = roles.find((r) => r === 'admin');
 
     if (!mongoose.Types.ObjectId.isValid(dto.id))
       throw new BadRequestException('некорректный id пациента');
@@ -210,7 +211,9 @@ export class PatientsService {
             { phoneNumbers: { $regex: `${dto.filter}`, $options: 'i' } },
             { emails: { $regex: `${dto.filter}`, $options: 'i' } },
             { address: { $regex: `${dto.filter}`, $options: 'i' } },
-            { login: { $regex: `${dto.filter}`, $options: 'i' } },
+            isAdmin
+              ? { login: { $regex: `${dto.filter}`, $options: 'i' } }
+              : {},
           ],
         },
         { roles: { $in: ['representative'] } },
@@ -238,7 +241,9 @@ export class PatientsService {
       .skip(dto.page * dto.limit)
       .limit(dto.limit)
       .select(
-        'name surname patronymic dateOfBirth phoneNumbers emails gender address isActive advertisingSources _id login',
+        `name surname patronymic dateOfBirth phoneNumbers emails gender address isActive advertisingSources _id${
+          isAdmin ? ' login' : ''
+        }`,
       );
     const data = await query.exec();
     return { data, count };
