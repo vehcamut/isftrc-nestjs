@@ -16,12 +16,17 @@ import { SpecialistsModule } from './specialists/specialists.module';
 import { AppointmentsModule } from './appointments/appointments.module';
 import { ServicesModule } from './services/services.module';
 import { AdminsModule } from './admins/admins.module';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       envFilePath: '.env',
       isGlobal: true,
+    }),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'build'),
     }),
     MongooseModule.forRoot(process.env.DATABASE_URI),
     AdminsModule,
