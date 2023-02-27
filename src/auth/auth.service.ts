@@ -184,6 +184,7 @@ export class AuthService {
 
   setCookie(res: Response, tokens: Tokens) {
     res.cookie('refreshToken', tokens.refresh_token, {
+      domain: 'vercel.app',
       httpOnly: true,
       sameSite: 'none',
       secure: true,
@@ -192,6 +193,7 @@ export class AuthService {
     res.cookie('accessToken', tokens.access_token, {
       //httpOnly: true,
       // sameSite: true,
+      domain: 'vercel.app',
       sameSite: 'none',
       secure: true,
       maxAge: 30 * 24 * 60 * 60 * 1000,
