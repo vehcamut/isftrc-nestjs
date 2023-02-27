@@ -15,6 +15,7 @@ const whitelist = [
   'http://bubnovsky30.hopto.org',
   'http://bubnovsky30admin.hopto.org',
   'https://isftrc-nestjs.vercel.app',
+  'https://isftrc-react-redux.vercel.app',
 ];
 
 async function bootstrap() {
