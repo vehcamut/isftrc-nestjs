@@ -13,7 +13,7 @@ import { Tokens } from '../common/interfaces';
 import { JwtService } from '@nestjs/jwt';
 import { createHmac } from 'crypto';
 import { Response } from 'express';
-import { hashDataSHA512 } from 'src/common/common';
+import { hashDataSHA512 } from '../common/common';
 @Injectable()
 export class AuthService {
   constructor(

@@ -27,7 +27,7 @@ import {
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model, SortOrder, Types } from 'mongoose';
-import { hashDataSHA512 } from 'src/common/common';
+import { hashDataSHA512 } from '../common/common';
 import { type } from 'os';
 
 @Injectable()
