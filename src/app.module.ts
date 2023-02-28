@@ -30,6 +30,7 @@ import { join } from 'path';
     }),
     MongooseModule.forRoot(process.env.DATABASE_URI),
     AdminsModule,
+
     AuthModule,
     AdvertisingSourceModule,
     RepresentativesModule,
