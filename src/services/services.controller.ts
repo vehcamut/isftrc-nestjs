@@ -20,7 +20,7 @@ import {
   UseGuards,
 } from '@nestjs/common/decorators';
 import { Response } from 'express';
-import { Public, Roles } from 'src/common/decorators';
+import { Public, Roles } from '../common/decorators';
 import {
   GetAdvertisingSourceDto,
   GetPatientsByIdDto,
@@ -43,9 +43,9 @@ import {
   CloseServiceDto,
   OpenServiceDto,
   ChangeNoteDto,
-} from 'src/common/dtos';
+} from '../common/dtos';
 import { ServicesService } from './services.service';
-import { AtGuard } from 'src/common/guards';
+import { AtGuard } from '../common/guards';
 
 @Controller('services')
 export class ServicesController {

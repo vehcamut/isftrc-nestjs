@@ -7,7 +7,7 @@ import {
   UserDocument,
   AdvertisingSource,
   AdvertisingSourceDocument,
-} from 'src/common/schemas';
+} from '../common/schemas';
 import * as bcrypt from 'bcrypt';
 import {
   AddAdminDto,
@@ -25,7 +25,7 @@ import {
   PatientChangeStatusDto,
   PatientWithIdDto,
   RepresentativeWithIdDto,
-} from 'src/common/dtos';
+} from '../common/dtos';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model, SortOrder, Types } from 'mongoose';

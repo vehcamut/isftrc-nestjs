@@ -9,8 +9,8 @@ import {
 } from '@nestjs/common';
 import { Body, Post, Req } from '@nestjs/common/decorators';
 import { Response } from 'express';
-import { Public } from 'src/common/decorators';
-import { addressGetDto, GetRequestDto, PatientBaseDto } from 'src/common/dtos';
+import { Public } from '../common/decorators';
+import { addressGetDto, GetRequestDto, PatientBaseDto } from '../common/dtos';
 import { AddressService } from './address.service';
 
 @Controller('address')

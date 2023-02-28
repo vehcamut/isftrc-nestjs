@@ -2,10 +2,7 @@ import { Module } from '@nestjs/common';
 import { AdvertisingSourceService } from './advertisingSource.service';
 import { AdvertisingSourceController } from './advertisingSource.controller';
 import { getConnectionToken, MongooseModule } from '@nestjs/mongoose';
-import {
-  AdvertisingSource,
-  AdvertisingSourcesSchema,
-} from 'src/common/schemas';
+import { AdvertisingSource, AdvertisingSourcesSchema } from '../common/schemas';
 import { Connection } from 'mongoose';
 
 @Module({

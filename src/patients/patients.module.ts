@@ -17,7 +17,7 @@ import {
   ServiceTypeSchema,
   PaymentSchema,
   Payment,
-} from 'src/common/schemas';
+} from '../common/schemas';
 import { Connection } from 'mongoose';
 
 @Module({

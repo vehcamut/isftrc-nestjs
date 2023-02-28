@@ -1,5 +1,5 @@
 import { AppointmentWithIdDto } from './appointment.dto';
-import { SpecialistTypeDto, SpecialistTypeWithIdDto } from 'src/common/dtos';
+import { SpecialistTypeDto, SpecialistTypeWithIdDto } from '../dtos';
 import { GetRequestDto } from './getRequest.dto';
 import { Transform } from 'class-transformer';
 import {

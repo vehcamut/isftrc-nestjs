@@ -18,7 +18,7 @@ import {
   UseGuards,
 } from '@nestjs/common/decorators';
 import { Response } from 'express';
-import { Public, Roles } from 'src/common/decorators';
+import { Public, Roles } from '../common/decorators';
 import {
   AddRepresentativeDto,
   GetPatientsByIdDto,
@@ -31,10 +31,10 @@ import {
   PatientWithIdDto,
   RepresentativeWithIdDto,
   representativeDto,
-} from 'src/common/dtos';
+} from '../common/dtos';
 import { RepresentativesService } from './representatives.service';
-import { IPatient } from 'src/common/interfaces';
-import { AtGuard } from 'src/common/guards';
+import { IPatient } from '../common/interfaces';
+import { AtGuard } from '../common/guards';
 
 @Controller('representatives')
 export class RepresentativesController {

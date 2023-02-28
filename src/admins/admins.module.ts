@@ -9,7 +9,7 @@ import {
   PatientSchema,
   AdvertisingSource,
   AdvertisingSourcesSchema,
-} from 'src/common/schemas';
+} from '../common/schemas';
 import { Connection } from 'mongoose';
 
 @Module({

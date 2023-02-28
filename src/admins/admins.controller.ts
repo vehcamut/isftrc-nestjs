@@ -18,7 +18,7 @@ import {
   UseGuards,
 } from '@nestjs/common/decorators';
 import { Response } from 'express';
-import { Public, Roles } from 'src/common/decorators';
+import { Public, Roles } from '../common/decorators';
 import {
   AddAdminDto,
   AddRepresentativeDto,
@@ -35,10 +35,10 @@ import {
   PatientWithIdDto,
   RepresentativeWithIdDto,
   representativeDto,
-} from 'src/common/dtos';
+} from '../common/dtos';
 import { AdminsService } from './admins.service';
-import { IPatient } from 'src/common/interfaces';
-import { AtGuard } from 'src/common/guards';
+import { IPatient } from '../common/interfaces';
+import { AtGuard } from '../common/guards';
 
 @Controller('admins')
 export class AdminsController {

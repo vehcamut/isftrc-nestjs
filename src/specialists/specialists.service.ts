@@ -16,14 +16,14 @@ import {
   SpecialistType,
   ServiceType,
   ServiceTypeDocument,
-} from 'src/common/schemas';
+} from '../common/schemas';
 import * as bcrypt from 'bcrypt';
 import {
   GetSpecificSpecialists,
   SpecialistToSelectDto,
   SpecialistWithIdDto,
   SpecialistChangeStatusDto,
-} from 'src/common/dtos';
+} from '../common/dtos';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model, SortOrder, Types } from 'mongoose';

@@ -16,7 +16,7 @@ import {
   AppointmentDocument,
   User,
   UserDocument,
-} from 'src/common/schemas';
+} from '../common/schemas';
 import {
   AdvertisingSourceDto,
   AdvertisingSourceWithIdDto,
@@ -39,7 +39,7 @@ import {
   CloseServiceDto,
   OpenServiceDto,
   ChangeNoteDto,
-} from 'src/common/dtos';
+} from '../common/dtos';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model, SortOrder, Types } from 'mongoose';
@@ -444,6 +444,7 @@ export class ServicesService {
         },
       ])
       .exec();
+    // console.log('!!!', service);
     if (!service) throw new BadRequestException('услуга не найдена');
     if (isRepresentative) {
       const representative = await this.representativeModel.findById(id).exec();
@@ -507,6 +508,7 @@ export class ServicesService {
       const duration =
         appointment.endDate.getTime() - appointment.begDate.getTime();
       if (duration == time) {
+        // console.log('!!!WORK');
         this.serviceModel
           .findByIdAndUpdate(service._id, {
             appointment: new Types.ObjectId(appointment._id),

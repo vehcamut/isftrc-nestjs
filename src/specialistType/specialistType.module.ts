@@ -5,10 +5,7 @@ import {
 import { Module } from '@nestjs/common';
 import { SpecialistTypeController } from './specialistType.controller';
 import { getConnectionToken, MongooseModule } from '@nestjs/mongoose';
-import {
-  AdvertisingSource,
-  AdvertisingSourcesSchema,
-} from 'src/common/schemas';
+import { AdvertisingSource, AdvertisingSourcesSchema } from '../common/schemas';
 import { Connection } from 'mongoose';
 import { SpecialistTypeService } from './specialistType.service';
 

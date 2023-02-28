@@ -11,7 +11,7 @@ import {
   Req,
   Res,
 } from '@nestjs/common';
-import { Public, Roles } from 'src/common/decorators';
+import { Public, Roles } from '../common/decorators';
 //import { GetUsersDto } from './';
 import { UsersService } from './users.service';
 import { ApiOkResponse } from '@nestjs/swagger';
@@ -23,10 +23,10 @@ import {
   SpecialistDto,
   UserDto,
   representativeDto,
-} from 'src/common/dtos';
+} from '../common/dtos';
 import { Put, UseGuards } from '@nestjs/common/decorators';
-import { User } from 'src/common/schemas';
-import { AtGuard } from 'src/common/guards';
+import { User } from '../common/schemas';
+import { AtGuard } from '../common/guards';
 
 @Controller('users')
 export class UsersController {

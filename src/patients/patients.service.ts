@@ -16,7 +16,7 @@ import {
   ServiceTypeDocument,
   User,
   UserDocument,
-} from 'src/common/schemas';
+} from '../common/schemas';
 import {
   AddServiceDto,
   RemoveServiceDto,
@@ -34,7 +34,7 @@ import {
   CourseDto,
   CourseWithId,
   PatientCoursesInfo,
-} from 'src/common/dtos';
+} from '../common/dtos';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model, SortOrder } from 'mongoose';

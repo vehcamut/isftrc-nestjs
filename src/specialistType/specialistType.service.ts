@@ -5,7 +5,7 @@ import {
   AdvertisingSourceDocument,
   SpecialistType,
   SpecialistTypeDocument,
-} from 'src/common/schemas';
+} from '../common/schemas';
 import {
   AdvertisingSourceDto,
   AdvertisingSourceWithIdDto,
@@ -18,7 +18,7 @@ import {
   PatientWithIdDto,
   SpecialistTypeDto,
   SpecialistTypeWithIdDto,
-} from 'src/common/dtos';
+} from '../common/dtos';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model, SortOrder } from 'mongoose';

@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { AddressService } from './address.service';
 import { AddressController } from './address.controller';
 import { getConnectionToken, MongooseModule } from '@nestjs/mongoose';
-import { Patient, PatientSchema } from 'src/common/schemas';
+import { Patient, PatientSchema } from '../common/schemas';
 import { Connection } from 'mongoose';
 import { HttpModule } from '@nestjs/axios';
 

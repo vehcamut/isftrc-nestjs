@@ -21,7 +21,7 @@ import {
   SpecialistTypeSchema,
   User,
   UserSchema,
-} from 'src/common/schemas';
+} from '../common/schemas';
 import { Connection } from 'mongoose';
 
 @Module({

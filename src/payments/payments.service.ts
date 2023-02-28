@@ -10,13 +10,13 @@ import {
   User,
   PaymentDocument,
   Payment,
-} from 'src/common/schemas';
+} from '../common/schemas';
 import {
   GetServiseByIdDto,
   PaymentDto,
   GetAdvanceDto,
   RemoveServiceDto,
-} from 'src/common/dtos';
+} from '../common/dtos';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model, SortOrder, Types } from 'mongoose';

@@ -13,7 +13,7 @@ import {
 } from '@nestjs/common';
 import { Body, Patch, Post, Put, Req } from '@nestjs/common/decorators';
 import { Response } from 'express';
-import { Public } from 'src/common/decorators';
+import { Public } from '../common/decorators';
 import {
   GetAdvertisingSourceDto,
   GetPatientsByIdDto,
@@ -25,7 +25,7 @@ import {
   PatientWithIdDto,
   SpecialistTypeDto,
   SpecialistTypeWithIdDto,
-} from 'src/common/dtos';
+} from '../common/dtos';
 import { SpecialistTypeService } from './specialistType.service';
 
 @Controller('specialistType')

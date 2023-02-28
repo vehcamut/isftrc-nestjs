@@ -18,7 +18,7 @@ import {
   UseGuards,
 } from '@nestjs/common/decorators';
 import { Response } from 'express';
-import { Public, Roles } from 'src/common/decorators';
+import { Public, Roles } from '../common/decorators';
 import {
   GetSpecialistsByIdDto,
   AddSpecialistDto,
@@ -27,10 +27,10 @@ import {
   SpecialistWithIdDto,
   GetSpecialistsDto,
   SpecialistChangeStatusDto,
-} from 'src/common/dtos';
+} from '../common/dtos';
 import { SpecialistsService } from './specialists.service';
-import { IPatient } from 'src/common/interfaces';
-import { AtGuard } from 'src/common/guards';
+import { IPatient } from '../common/interfaces';
+import { AtGuard } from '../common/guards';
 
 @Controller('specialists')
 export class SpecialistsController {

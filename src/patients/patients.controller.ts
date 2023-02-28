@@ -18,7 +18,7 @@ import {
   UseGuards,
 } from '@nestjs/common/decorators';
 import { Response } from 'express';
-import { Public, Roles } from 'src/common/decorators';
+import { Public, Roles } from '../common/decorators';
 import {
   AddServiceDto,
   CourseWithServicesDto,
@@ -33,9 +33,9 @@ import {
   RemoveServiceDto,
   getCoursesDto,
   patientCourseDto,
-} from 'src/common/dtos';
+} from '../common/dtos';
 import { PatientsService } from './patients.service';
-import { AtGuard } from 'src/common/guards';
+import { AtGuard } from '../common/guards';
 
 @Controller('patients')
 export class PatientsController {

@@ -1,6 +1,6 @@
 import { BadRequestException } from '@nestjs/common/exceptions';
-import { Patient, PatientDocument } from 'src/common/schemas';
-import { addressGetDto, GetRequestDto, PatientBaseDto } from 'src/common/dtos';
+import { Patient, PatientDocument } from '../common/schemas';
+import { addressGetDto, GetRequestDto, PatientBaseDto } from '../common/dtos';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, SortOrder } from 'mongoose';

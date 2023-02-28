@@ -15,7 +15,7 @@ import {
   AdvertisingSourcesSchema,
   ServiceType,
   ServiceTypeSchema,
-} from 'src/common/schemas';
+} from '../common/schemas';
 import { Connection } from 'mongoose';
 
 @Module({

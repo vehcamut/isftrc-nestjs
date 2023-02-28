@@ -13,7 +13,7 @@ import {
   AdvertisingSource,
   AdvertisingSourcesSchema,
   ServiceSchema,
-} from 'src/common/schemas';
+} from '../common/schemas';
 import { Connection } from 'mongoose';
 
 @Module({

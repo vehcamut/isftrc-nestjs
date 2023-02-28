@@ -8,16 +8,16 @@ import {
 } from '@nestjs/common';
 import { Body, Delete, Post, Req, UseGuards } from '@nestjs/common/decorators';
 import { Response } from 'express';
-import { Roles } from 'src/common/decorators';
+import { Roles } from '../common/decorators';
 import {
   GetAdvanceDto,
   GetServiseByIdDto,
   PaymentDto,
   RemoveServiceDto,
   PaymentInfoDto,
-} from 'src/common/dtos';
+} from '../common/dtos';
 import { PaymentsService } from './payments.service';
-import { AtGuard } from 'src/common/guards';
+import { AtGuard } from '../common/guards';
 
 @Controller('payments')
 export class PaymentsController {
