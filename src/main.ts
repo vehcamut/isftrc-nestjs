@@ -6,16 +6,9 @@ import * as cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
 
 const whitelist = [
-  'http://192.168.1.49:3333',
-  'http://192.168.1.49:3000',
   'http://localhost:3000',
-  'http://localhost:3001',
-  'http://localhost:8080',
   'http://localhost',
-  'http://bubnovsky30.hopto.org',
-  'http://bubnovsky30admin.hopto.org',
-  'https://isftrc-nestjs.vercel.app',
-  'https://isftrc-react-redux.vercel.app',
+  'https://isftrc.vercel.app',
 ];
 
 async function bootstrap() {
