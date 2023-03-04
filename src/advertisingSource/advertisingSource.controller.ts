@@ -41,7 +41,6 @@ export class AdvertisingSourceController {
 
   @Get('get')
   @Public()
-  //@Roles('registrator')
   @HttpCode(HttpStatus.OK)
   async get(
     @Query() dto: GetAdvertisingSourceDto,

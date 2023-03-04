@@ -28,27 +28,6 @@ import {
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-  // @Public()
-  // @Post('local/signup')
-  // @HttpCode(HttpStatus.CREATED)
-  // async signupLocal(
-  //   @Body() dto: AuthDto,
-  //   @Res({ passthrough: true }) response: Response,
-  // ): Promise<Tokens> {
-  //   const tokens = await this.authService.signupLocal(dto);
-  //   this.authService.setCookie(response, tokens);
-  //   return tokens;
-  // }
-
-  // @Post('test')
-  // @HttpCode(HttpStatus.OK)
-  // async signindLocal() {
-  //   //return
-  //   //console.log(request.headers['user-agent']);
-  //   //const tokens = await this.authService.test(dto);
-  //   //this.authService.setCookie(response, tokens);
-  // }
-
   @Public()
   @Post('local/signin')
   @HttpCode(HttpStatus.OK)

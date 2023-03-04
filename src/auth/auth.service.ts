@@ -19,52 +19,14 @@ export class AuthService {
   constructor(
     @InjectModel(User.name) private userModel: Model<UserDocument>,
     private jwtService: JwtService,
-  ) {
-    //this.userModel.watch().on('change', (data) => console.log(data));
-  }
-
-  async test(dto: AuthDto) {
-    console.log('aboba');
-    //throw new Error('Method not implemented.');
-  }
-
-  async signupLocal(dto: AuthDto): Promise<Tokens> {
-    const login: string = dto.login;
-
-    const candidate = await this.userModel.findOne({ login });
-    if (candidate) throw new UnauthorizedException('Polizovat yge est');
-    const hashedPassword = await this.hashData(dto.password);
-    //Убрать пароль? password
-    const user = await this.userModel.create({
-      ...dto,
-      hash: hashedPassword,
-    });
-    const newUser = new this.userModel(user);
-    newUser.save();
-
-    const tokens = await this.getTokens(
-      user.id,
-      user.login,
-      `${user.surname} ${user.name[0]}.${user.patronymic[0]}.`,
-      user.roles,
-    );
-    await this.updateRtHash(newUser.id, tokens.refresh_token);
-    return tokens;
-  }
+  ) {}
 
   async signinLocal(dto: AuthDto): Promise<Tokens> {
     const login: string = dto.login;
     const candidate = await this.userModel.findOne({ login });
     if (!candidate) throw new ForbiddenException('Access Denied');
-    // console.log(hashDataSHA512('admin'));
     if (!candidate.isActive) throw new ForbiddenException('Access Denied');
-    // console.log(candidate);
     const pass = hashDataSHA512(dto.password);
-    // console.log(pass);
-    // console.log(candidate.hash);
-    // const passwordMatches = await bcrypt.compare(dto.password, candidate.hash);
-    // if (!passwordMatches) throw new ForbiddenException('Access Denied');
-    // const passwordMatches = await bcrypt.compare(dto.password, candidate.hash);
     if (pass !== candidate.hash) throw new ForbiddenException('Access Denied');
 
     const tokens = await this.getTokens(
@@ -73,7 +35,7 @@ export class AuthService {
       `${candidate.surname} ${candidate.name[0]}.${candidate.patronymic[0]}.`,
       candidate.roles,
     );
-    //await this.updateRtHash(candidate.id, tokens.refresh_token);
+
     const hash = hashDataSHA512(tokens.refresh_token.split('.')[2]);
 
     await this.userModel
@@ -132,18 +94,6 @@ export class AuthService {
       .exec();
   }
 
-  async hashData(data: string) {
-    return await bcrypt.hash(data, 12);
-  }
-
-  // hashDataSHA512(data: string) {
-  //   return createHmac(
-  //     'sha512',
-  //     'sdfoj3n9f8nfpdsifo3ipfobids98fb328fbpdsfbisdf932ifpd-134@3423!',
-  //   )
-  //     .update(data)
-  //     .digest('hex');
-  // }
   async getTokens(
     userId: number,
     login: string,
@@ -160,7 +110,6 @@ export class AuthService {
         },
         {
           secret: process.env.jwtAccessSecret,
-          // expiresIn: '5s',
           expiresIn: '15m',
         },
       ),
@@ -184,22 +133,14 @@ export class AuthService {
 
   setCookie(res: Response, tokens: Tokens) {
     res.cookie('refreshToken', tokens.refresh_token, {
-      // domain: 'vercel.app',
       sameSite: true,
       httpOnly: true,
-      // sameSite: 'none',
-      // secure: true,
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
     res.cookie('accessToken', tokens.access_token, {
-      //httpOnly: true,
       sameSite: true,
-      // domain: 'vercel.app',
-      // sameSite: 'none',
-      // secure: true,
       maxAge: 30 * 24 * 60 * 60 * 1000,
     });
-    console.log('SET');
   }
 
   clearCookie(res: Response) {

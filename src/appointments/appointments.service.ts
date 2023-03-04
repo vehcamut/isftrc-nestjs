@@ -68,18 +68,18 @@ export class AppointmentsService {
   ): Promise<any> {
     const isSpec = roles.find((r) => r === 'specialist');
     if (!mongoose.Types.ObjectId.isValid(dto.specialistId))
-      throw new BadRequestException('некорректный id специалиста');
+      throw new BadRequestException('Некорректный id специалиста');
     const candidate = await this.specialistModel
       .findById(dto.specialistId)
       .exec();
-    if (!candidate) throw new BadRequestException('специалист не найден');
+    if (!candidate) throw new BadRequestException('Специалист не найден');
 
     if (!candidate.roles.includes('specialist'))
-      throw new BadRequestException('специалист не найден');
+      throw new BadRequestException('Специалист не найден');
 
     if (isSpec) {
       if (id != dto.specialistId)
-        throw new BadRequestException('специалист не найден');
+        throw new BadRequestException('Специалист не найден');
     }
 
     const findCond = {
@@ -180,14 +180,13 @@ export class AppointmentsService {
       const time = new Date(dto.time.setHours(dto.time.getHours()));
       const numTime =
         (dto.time.getHours() * 60 + dto.time.getMinutes()) * 60 * 1000;
-      // console.log(numTime);
+
       data.forEach((appointment) => {
         const duration =
           appointment.endDate.getTime() - appointment.begDate.getTime();
-        console.log(duration - numTime);
         if (duration == numTime) result.push(appointment);
       });
-      // console.log(result);
+
       return { data: result, count };
     } else return { data, count };
   }
@@ -199,19 +198,19 @@ export class AppointmentsService {
     const isSpec = roles.find((r) => r === 'specialist');
     const isRepres = roles.find((r) => r === 'representative');
     if (!mongoose.Types.ObjectId.isValid(dto.patientId))
-      throw new BadRequestException('некорректный id пациента');
+      throw new BadRequestException('Некорректный id пациента');
     const patient = await this.patientModel.findById(dto.patientId).exec();
-    if (!patient) throw new BadRequestException('пациент не найден');
+    if (!patient) throw new BadRequestException('Пациент не найден');
     if (isRepres) {
       const representative = await this.specialistModel.findById(id).exec();
       if (!representative || !representative.isActive)
-        throw new BadRequestException('представитель не найден');
+        throw new BadRequestException('Представитель не найден');
       if (
         !representative.patients.find(
           (p) => p._id.toString() === patient._id.toString(),
         )
       )
-        throw new BadRequestException('пациент не найден');
+        throw new BadRequestException('Пациент не найден');
     }
     const findCond = {
       $and: [
@@ -330,25 +329,25 @@ export class AppointmentsService {
   ): Promise<any> {
     // проверка id специалиста
     if (!mongoose.Types.ObjectId.isValid(dto.specialistId))
-      throw new BadRequestException('специалист не найден');
+      throw new BadRequestException('Специалист не найден');
     const candidate = await this.specialistModel
       .findById(dto.specialistId)
       .exec();
-    if (!candidate) throw new BadRequestException('специалист не найден');
+    if (!candidate) throw new BadRequestException('Специалист не найден');
     if (!candidate.roles.includes('specialist'))
-      throw new BadRequestException('специалист не найден');
+      throw new BadRequestException('Специалист не найден');
     if (!candidate.isActive)
-      throw new BadRequestException('специалист деактивирован');
+      throw new BadRequestException('Специалист деактивирован');
 
     // проверка id пациента
     if (!mongoose.Types.ObjectId.isValid(dto.patientId))
-      throw new BadRequestException('пациент не найден');
+      throw new BadRequestException('Пациент не найден');
     const patient = await this.patientModel.findById(dto.patientId).exec();
-    if (!patient) throw new BadRequestException('пациент не найден');
-    if (!patient.isActive) throw new BadRequestException('пациент не найден');
+    if (!patient) throw new BadRequestException('Пациент не найден');
+    if (!patient.isActive) throw new BadRequestException('Пациент не найден');
     // проверка id записи
     if (!mongoose.Types.ObjectId.isValid(dto.serviceId))
-      throw new BadRequestException('услуга не найдена');
+      throw new BadRequestException('Услуга не найдена');
     const currentService: any = await this.serviceModel
       .findById(dto.serviceId)
       .populate([
@@ -358,7 +357,7 @@ export class AppointmentsService {
         },
       ])
       .exec();
-    if (!currentService) throw new BadRequestException('услуга не найденв');
+    if (!currentService) throw new BadRequestException('Услуга не найденв');
     // if (!currentService.isActive) throw new BadRequestException('услуга не найдена');
     // поиск свободных записей у специалиста
     const findCond = {
@@ -451,7 +450,6 @@ export class AppointmentsService {
       ]);
     const appointments = await query.exec();
     //поиск записей пациента
-    //todo проверить несостыковки
     const services = await this.serviceModel
       .find({
         $and: [
@@ -502,15 +500,15 @@ export class AppointmentsService {
     roles: string[],
   ): Promise<AddAppointmentResultDto> {
     if (!mongoose.Types.ObjectId.isValid(dto.specialist))
-      throw new BadRequestException('некорректный id специалиста');
+      throw new BadRequestException('Некорректный id специалиста');
     const candidate = await this.specialistModel
       .findById(dto.specialist)
       .exec();
-    if (!candidate) throw new BadRequestException('специалист не найден');
+    if (!candidate) throw new BadRequestException('Специалист не найден');
     if (!candidate.roles.includes('specialist'))
-      throw new BadRequestException('специалист не найден');
+      throw new BadRequestException('Специалист не найден');
     if (!candidate.isActive)
-      throw new BadRequestException('специалист деактивирован');
+      throw new BadRequestException('Специалист деактивирован');
 
     const hours = dto.time.getHours();
     const minutes = dto.time.getMinutes();
@@ -592,7 +590,6 @@ export class AppointmentsService {
         result.notAdded.push({ begDate, endDate });
         continue;
       }
-      // const appointment = await this.appointmentModel.create(dto);
       const newAppointment = new this.appointmentModel({
         begDate,
         endDate,
@@ -602,7 +599,6 @@ export class AppointmentsService {
       result.amount++;
     }
     return result;
-    //todo: проверка кто добавляет время
   }
   async remove(
     dto: RemoveAppointmentDto,
@@ -610,7 +606,7 @@ export class AppointmentsService {
     roles: string[],
   ): Promise<any> {
     if (!mongoose.Types.ObjectId.isValid(dto._id))
-      throw new BadRequestException('некорректный id записи');
+      throw new BadRequestException('Некорректный id записи');
     const appointment = await this.appointmentModel
       .findById(dto._id)
       .populate<{ specialist: User }>([
@@ -624,9 +620,9 @@ export class AppointmentsService {
     //   .exec();
     // if (!candidate) throw new BadRequestException('специалист не найден');
     if (!appointment.specialist.roles.includes('specialist'))
-      throw new BadRequestException('специалист не найден');
+      throw new BadRequestException('Специалист не найден');
     if (!appointment.specialist.isActive)
-      throw new BadRequestException('специалист деактивирован');
+      throw new BadRequestException('Специалист деактивирован');
 
     if (appointment.service) {
       this.serviceModel.findByIdAndUpdate(appointment.service._id, {
@@ -635,18 +631,16 @@ export class AppointmentsService {
     }
     this.appointmentModel.findByIdAndDelete(dto._id).exec();
     return;
-    //todo: проверка кто добавляет время
   }
   async getById(
     dto: GetAppointmetnsByIdDto,
     id: string,
     roles: string[],
   ): Promise<any> {
-    //TODO: Может ли впач видеть чужие услуги
     const isSpec = roles.find((r) => r === 'specialist');
     const isRepres = roles.find((r) => r === 'representative');
     if (!mongoose.Types.ObjectId.isValid(dto.id))
-      throw new BadRequestException('запись не найдена');
+      throw new BadRequestException('Некорректный id записи');
     const query: any = this.appointmentModel.findById(dto.id);
     // const count = await this.appointmentModel.find(findCond).count().exec();
     query.select('_id begDate endDate service specialist').populate([
@@ -712,19 +706,19 @@ export class AppointmentsService {
       },
     ]);
     const appointment = await query.exec();
-    if (!appointment) throw new BadRequestException('запись не найдена');
+    if (!appointment) throw new BadRequestException('Запись не найдена');
 
     if (isRepres) {
       const representative = await this.specialistModel.findById(id).exec();
       if (!representative || !representative.isActive)
-        throw new BadRequestException('представитель не найден');
+        throw new BadRequestException('Представитель не найден');
       if (
         !representative.patients.find(
           (p) =>
             p._id.toString() === appointment.service.patient._id.toString(),
         )
       )
-        throw new BadRequestException('запись не найдена');
+        throw new BadRequestException('Запись не найдена');
     }
 
     const service = appointment.service

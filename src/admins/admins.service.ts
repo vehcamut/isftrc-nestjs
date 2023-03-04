@@ -86,13 +86,15 @@ export class AdminsService {
     id: string,
     roles: string[],
   ): Promise<any> {
+    if (!mongoose.Types.ObjectId.isValid(dto.id))
+      throw new BadRequestException('Некорректный id администратора');
     const admin = await this.userModel
       .findById(dto.id)
       .select(
         'name surname patronymic dateOfBirth gender address isActive phoneNumbers emails login _id',
       )
       .exec();
-    if (!admin) throw new BadRequestException('администратор не найден');
+    if (!admin) throw new BadRequestException('Администратор не найден');
     return admin;
   }
 
@@ -120,16 +122,15 @@ export class AdminsService {
     roles: string[],
   ): Promise<object> {
     if (!mongoose.Types.ObjectId.isValid(dto._id))
-      throw new BadRequestException('не корректный id администратора');
+      throw new BadRequestException('Некорректный id администратора');
     const admin = await this.userModel.findById(dto._id).exec();
 
-    if (!admin) throw new BadRequestException('администратор не найден');
+    if (!admin) throw new BadRequestException('Администратор не найден');
 
     if (!admin.isActive)
-      throw new BadRequestException('администратор деактивирован');
+      throw new BadRequestException('Администратор деактивирован');
 
     if (dto.hash) dto.hash = hashDataSHA512(dto.hash);
-    console.log('!!!', dto);
     this.userModel.findByIdAndUpdate(dto._id, dto).exec();
     return;
   }
@@ -140,9 +141,9 @@ export class AdminsService {
     roles: string[],
   ): Promise<object> {
     if (!mongoose.Types.ObjectId.isValid(dto._id))
-      throw new BadRequestException('не корректный id администратора');
+      throw new BadRequestException('Некорректный id администратора');
     const admin = await this.userModel.findById(dto._id).exec();
-    if (!admin) throw new BadRequestException('администратор не найден');
+    if (!admin) throw new BadRequestException('Администратор не найден');
     this.userModel.findByIdAndUpdate(dto._id, dto).exec();
     return;
   }

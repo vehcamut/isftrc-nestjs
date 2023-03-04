@@ -36,9 +36,8 @@ export class PaymentsService {
     private serviceModel: Model<ServiceDocument>,
   ) {}
   async add(dto: PaymentDto, id: string, roles: string[]): Promise<object> {
-    // проверка id пациента
     if (!mongoose.Types.ObjectId.isValid(dto.patient))
-      throw new BadRequestException('пациент не найден');
+      throw new BadRequestException('Некорректный id пациента');
     const patient: any = await this.patientModel
       .findById(dto.patient)
       .populate([
@@ -49,7 +48,7 @@ export class PaymentsService {
       ])
       .exec();
     if (!patient || !patient.isActive)
-      throw new BadRequestException('пациент не найден');
+      throw new BadRequestException('Пациент не найден');
 
     const courses = patient.courses;
     const course = courses.find((course) =>
@@ -59,10 +58,10 @@ export class PaymentsService {
     if (dto.groupId) {
       // проверка id группы
       if (!mongoose.Types.ObjectId.isValid(dto.groupId))
-        throw new BadRequestException('группа не найдена');
+        throw new BadRequestException('Группа не найдена');
       const group = await this.serviceGroupModel.findById(dto.groupId).exec();
       if (!group || !group.isActive)
-        throw new BadRequestException('группа не найдена');
+        throw new BadRequestException('Группа не найдена');
     }
 
     if (dto.fromTheAdvance) {
@@ -119,7 +118,7 @@ export class PaymentsService {
       if (dto.payer) {
         // проверка id представителя
         if (!mongoose.Types.ObjectId.isValid(dto.payer))
-          throw new BadRequestException('представитель не найден');
+          throw new BadRequestException('Некорректный id представителя');
         const payer = await this.representativeModel
           .findOne({ _id: dto.payer, patients: patient._id })
           .exec();
@@ -128,9 +127,9 @@ export class PaymentsService {
           !payer.isActive ||
           payer.roles.findIndex((r) => r === 'representative') == -1
         )
-          throw new BadRequestException('представитель не найден');
+          throw new BadRequestException('Представитель не найден');
         if (!payer.isActive)
-          throw new BadRequestException('представитель деактивирован');
+          throw new BadRequestException('Представитель деактивирован');
       }
       const newPayment = new this.paymentModel({
         name: dto.name,
@@ -150,9 +149,8 @@ export class PaymentsService {
     id: string,
     roles: string[],
   ): Promise<number> {
-    // проверка id пациента
     if (!mongoose.Types.ObjectId.isValid(dto.patient))
-      throw new BadRequestException('пациент не найден');
+      throw new BadRequestException('Некорректный id пациента');
     const patient: any = await this.patientModel
       .findById(dto.patient)
       .populate([
@@ -163,7 +161,7 @@ export class PaymentsService {
       ])
       .exec();
     if (!patient || !patient.isActive)
-      throw new BadRequestException('пациент не найден');
+      throw new BadRequestException('Пациент не найден');
 
     const courses = patient.courses;
     const course = courses.find((course) => course.number === 0);
@@ -200,9 +198,8 @@ export class PaymentsService {
     id: string,
     roles: string[],
   ): Promise<any> {
-    // поиск паиента и курсов
     if (!mongoose.Types.ObjectId.isValid(dto.id))
-      throw new BadRequestException('оплата не найдена');
+      throw new BadRequestException('Некорректный id пациента');
     const payment: any = await this.paymentModel
       .findById(dto.id)
       .populate([
@@ -220,13 +217,13 @@ export class PaymentsService {
         },
       ])
       .exec();
-    if (!payment) throw new BadRequestException('оплата не найдена');
+    if (!payment) throw new BadRequestException('Оплата не найдена');
     if (
       !payment.course.status ||
       (payment.relatedPayment && !payment.relatedPayment.course.status)
     )
       throw new BadRequestException(
-        'оплата не может быть удалена, так как курс уже закрыт',
+        'Оплата не может быть удалена, так как курс уже закрыт',
       );
     if (payment.relatedPayment)
       this.paymentModel.findByIdAndRemove(payment.relatedPayment.id).exec();
@@ -240,9 +237,9 @@ export class PaymentsService {
     roles: string[],
   ): Promise<any> {
     const isRepresentative = roles.find((r) => r === 'representative');
-    //todo проверка на принадлежность пациента
+
     if (!mongoose.Types.ObjectId.isValid(dto.id))
-      throw new BadRequestException('некорректный id оплаты');
+      throw new BadRequestException('Некорректный id оплаты');
 
     const payment: any = await this.paymentModel
       .findById({ _id: dto.id })
@@ -271,12 +268,12 @@ export class PaymentsService {
         },
       ]);
 
-    if (!payment) throw new BadRequestException('оплата не найдена');
+    if (!payment) throw new BadRequestException('Оплата не найдена');
 
     if (isRepresentative) {
       const representative = await this.representativeModel.findById(id).exec();
       if (!representative || !representative.isActive)
-        throw new BadRequestException('представитель не найден');
+        throw new BadRequestException('Представитель не найден');
       const patient = await this.patientModel
         .findOne({ courses: { $in: [payment.course._id] } })
         .exec();
@@ -285,7 +282,7 @@ export class PaymentsService {
           (p) => p._id.toString() === patient._id.toString(),
         )
       )
-        throw new BadRequestException('оплата не найдена');
+        throw new BadRequestException('Оплата не найдена');
     }
 
     const canRemove = !(

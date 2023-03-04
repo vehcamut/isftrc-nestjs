@@ -45,25 +45,8 @@ export class SpecialistsService {
       .find({ name: { $regex: `${dto.filter}`, $options: 'i' } })
       .transform((d) => d.map((t) => t._id))
       .exec();
-    console.log(types);
-    // let patientId;
-    // if (dto.patientId) {
-    //   if (!mongoose.Types.ObjectId.isValid(dto.patientId))
-    //     throw new BadRequestException('_id: not found');
-    //   const candidate = await this.patientModel.findById(dto.patientId).exec();
-    //   if (!candidate) throw new BadRequestException('_id: not found');
-    //   patientId = dto.patientId;
-    // }
-    // console.log('PP', patientId);
     const findCond = {
       $and: [
-        // patientId
-        //   ? {
-        //       patients: {
-        //         $not: { $elemMatch: { $in: [patientId] } },
-        //       },
-        //     }
-        //   : {},
         {
           $or: [
             { name: { $regex: `${dto.filter}`, $options: 'i' } },
@@ -74,13 +57,6 @@ export class SpecialistsService {
             { address: { $regex: `${dto.filter}`, $options: 'i' } },
             { login: { $regex: `${dto.filter}`, $options: 'i' } },
             { types: { $in: types } },
-            // {
-            //   types: {
-            //     $elemMatch: {
-            //       'types.name': { $regex: `${dto.filter}` },
-            //     },
-            //   },
-            // },
           ],
         },
         { roles: { $in: ['specialist'] } },
@@ -124,12 +100,9 @@ export class SpecialistsService {
     dto: GetSpecificSpecialists,
   ): Promise<SpecialistToSelectDto[]> {
     if (!mongoose.Types.ObjectId.isValid(dto.type))
-      throw new BadRequestException('тип услуги не найден');
-    // console.log(dto.type);
+      throw new BadRequestException('Некорректный id типа услуги');
     const type = await this.sericeTypeModel.findById(dto.type).exec();
-    // console.log(type);
-    if (!type) throw new BadRequestException('тип услуги не найден');
-    console.log(type.specialistTypes);
+    if (!type) throw new BadRequestException('Тип услуги не найден');
     const findCond = {
       $and: [
         { types: { $elemMatch: { $in: type.specialistTypes } } },
@@ -152,6 +125,8 @@ export class SpecialistsService {
   }
 
   async getById(dto: GetSpecialistsByIdDto): Promise<any> {
+    if (!mongoose.Types.ObjectId.isValid(dto.id))
+      throw new BadRequestException('Некорректный id специалиста');
     const candidate = await this.specialistModel
       .findById(dto.id)
       .select(
@@ -161,20 +136,7 @@ export class SpecialistsService {
         isActive: true,
       })
       .exec();
-    if (!candidate) throw new BadRequestException('_id: not found');
-    console.log(candidate);
-    // candidate.advertisingSources.forEach(async function (value, index) {
-    //   const id = this[index];
-    //   const cand = await this.advertisingSourceModel
-    //     .findById(id)
-    //     .select('name _id isActive')
-    //     .exec();
-
-    //   if (cand && cand.isActive) {
-    //     this[index] = { _id: cand._id, name: cand.name };
-    //   }
-    // }, candidate.advertisingSources);
-
+    if (!candidate) throw new BadRequestException('Специалист не найден');
     return candidate;
   }
 
@@ -191,36 +153,24 @@ export class SpecialistsService {
 
     if (dto.hash) hashedPassword = hashDataSHA512(dto.hash);
     else hashedPassword = hashDataSHA512(dto.login);
-    // const hashedPassword = await this.hashData(dto.login);
     const types: Types.ObjectId[] = [];
 
     for (let i = 0; i < dto.types.length; i++) {
-      // console.log(dto.types[i]);
       try {
         types.push(new Types.ObjectId(dto.types[i]));
-        //dto.advertisingSources[i] = new Types.ObjectId(dto.advertisingSources[i]);
       } catch (e) {
-        // console.log(e);
         throw new BadRequestException(
-          `types: include unknown type ${dto.types[i]}`,
+          `Некорректный id специальности: ${dto.types[i]}`,
         );
       }
 
       const candidate = await this.specialistTypeModel.findById(types[i]);
       if (!candidate)
         throw new BadRequestException(
-          `types: include unknown type ${dto.types[i]}`,
+          `Специальность не найдена: ${dto.types[i]}`,
         );
     }
 
-    // const user = await this.specialistModel.create({
-    //   ...dto,
-    //   hash: hashedPassword,
-    //   types,
-    //   roles: ['specialist'],
-    // });
-    // const newSpecialist = new this.specialistModel(user);
-    // newSpecialist.save();
     const newSpecialist = new this.specialistModel({
       ...dto,
       hash: hashedPassword,
@@ -238,16 +188,16 @@ export class SpecialistsService {
   ): Promise<object> {
     const isSpec = roles.find((r) => r === 'specialist');
     if (isSpec) {
-      if (id !== dto._id) throw new BadRequestException('специалист не найден');
+      if (id !== dto._id) throw new BadRequestException('Специалист не найден');
     }
     if (!mongoose.Types.ObjectId.isValid(dto._id))
-      throw new BadRequestException('некорректный id специалиста');
+      throw new BadRequestException('Некорректный id специалиста');
     const candidate = await this.specialistModel.findById(dto._id).exec();
-    if (!candidate) throw new BadRequestException('специалист не найден');
+    if (!candidate) throw new BadRequestException('Специалист не найден');
     if (!candidate.roles.includes('specialist'))
-      throw new BadRequestException('специалист не найден');
+      throw new BadRequestException('Специалист не найден');
     if (!candidate.isActive)
-      throw new BadRequestException('специалист деактивирован');
+      throw new BadRequestException('Специалист деактивирован');
     if (dto.hash) dto.hash = hashDataSHA512(dto.hash);
     this.specialistModel.findByIdAndUpdate(dto._id, dto).exec();
     return;
@@ -259,13 +209,9 @@ export class SpecialistsService {
     roles: string[],
   ): Promise<object> {
     if (!mongoose.Types.ObjectId.isValid(dto._id))
-      throw new BadRequestException('_id: not found');
+      throw new BadRequestException('Некорректный id специалиста');
     const candidate = await this.specialistModel.findById(dto._id).exec();
-    // .select(
-    //   'number name surname patronymic dateOfBirth gender address isActive note representatives _id',
-    // )
-    // .exec();
-    if (!candidate) throw new BadRequestException('_id: not found');
+    if (!candidate) throw new BadRequestException('Специалист не найден');
     this.specialistModel.findByIdAndUpdate(dto._id, dto).exec();
     return;
   }

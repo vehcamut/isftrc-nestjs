@@ -56,21 +56,6 @@ export class AdvertisingSourceService {
     return { data, count };
   }
 
-  // async getById(dto: GetPatientsByIdDto): Promise<any> {
-  //   //TODO проверка на принадлежность пациента
-  //   if (!mongoose.Types.ObjectId.isValid(dto.id))
-  //     throw new BadRequestException('_id: not found');
-  //   const candidate = await this.patientModel
-  //     .findById(dto.id)
-  //     .select(
-  //       'number name surname patronymic dateOfBirth gender address isActive note representatives _id',
-  //     )
-  //     .exec();
-  //   if (!candidate) throw new BadRequestException('_id: not found');
-
-  //   return candidate;
-  // }
-
   async add(
     dto: AdvertisingSourceDto,
     id: string,
@@ -79,15 +64,12 @@ export class AdvertisingSourceService {
     const count = await this.advertisingSourceModel
       .findOne({ name: dto.name })
       .exec();
-    console.log(count);
-    if (count) throw new BadRequestException('name: must be unique');
-    //console.log(dto);
-    //TODO: Сделать проверку представителей
-    const user = await this.advertisingSourceModel.create({
+
+    if (count) throw new BadRequestException('Название должно быть уникальным');
+    const newAdvSource = new this.advertisingSourceModel({
       ...dto,
     });
-    const newPatient = new this.advertisingSourceModel(user);
-    newPatient.save();
+    newAdvSource.save();
     return;
   }
 
@@ -97,43 +79,17 @@ export class AdvertisingSourceService {
     roles: string[],
   ): Promise<object> {
     if (!mongoose.Types.ObjectId.isValid(dto._id))
-      throw new BadRequestException('_id: not found');
+      throw new BadRequestException('Некорректный id источника рекламы');
     const candidate = await this.advertisingSourceModel
       .findById(dto._id)
       .exec();
-    // .select(
-    //   'number name surname patronymic dateOfBirth gender address isActive note representatives _id',
-    // )
-    // .exec();
-    if (!candidate) throw new BadRequestException('_id: not found');
+    if (!candidate) throw new BadRequestException('Источник рекламы не найден');
     const count = await this.advertisingSourceModel
       .findOne({ name: dto.name })
       .exec();
     if (count && count._id.toString() !== dto._id)
       throw new BadRequestException('Название должно быть уникальным');
-    // delete dto._id;
-    // console.log(dto);
-    // console.log(
-    //   await this.advertisingSourceModel.findByIdAndUpdate(dto._id, dto).exec(),
-    // );
     this.advertisingSourceModel.findByIdAndUpdate(dto._id, dto).exec();
     return;
   }
-
-  // async changeStatus(
-  //   dto: PatientChangeStatusDto,
-  //   id: string,
-  //   roles: string[],
-  // ): Promise<object> {
-  //   if (!mongoose.Types.ObjectId.isValid(dto._id))
-  //     throw new BadRequestException('_id: not found');
-  //   const candidate = await this.patientModel.findById(dto._id).exec();
-  //   // .select(
-  //   //   'number name surname patronymic dateOfBirth gender address isActive note representatives _id',
-  //   // )
-  //   // .exec();
-  //   if (!candidate) throw new BadRequestException('_id: not found');
-  //   this.patientModel.findByIdAndUpdate(dto._id, dto).exec();
-  //   return;
-  // }
 }

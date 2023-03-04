@@ -110,7 +110,6 @@ export class ServicesService {
         defaultAmountPatient: type.defaultAmountPatient,
       });
     });
-    console.log(groupsWithType);
     return groupsWithType;
   }
 
@@ -127,9 +126,9 @@ export class ServicesService {
 
   async getTypes(dto: GetTypesDto): Promise<any> {
     if (!mongoose.Types.ObjectId.isValid(dto.group))
-      throw new BadRequestException('группа услуг не найдена');
+      throw new BadRequestException('Некорретный id группы услуг');
     const group = await this.serviceGroupModel.findById(dto.group).exec();
-    if (!group) throw new BadRequestException('группа услуг не найдена');
+    if (!group) throw new BadRequestException('Группа услуг не найдена');
 
     const types = this.serviceTypeModel
       .find({
@@ -148,9 +147,9 @@ export class ServicesService {
     roles: string[],
   ): Promise<any> {
     const isRepresentative = roles.find((r) => r === 'representative');
-    //todo проверка на принадлежность пациента
+
     if (!mongoose.Types.ObjectId.isValid(dto.id))
-      throw new BadRequestException('некоррентный id услуги');
+      throw new BadRequestException('Некоррентный id услуги');
 
     const service: any = await this.serviceModel
       .findOne({ _id: dto.id })
@@ -182,17 +181,17 @@ export class ServicesService {
           },
         },
       ]);
-    if (!service) throw new BadRequestException('услуга не найдена');
+    if (!service) throw new BadRequestException('Услуга не найдена');
     if (isRepresentative) {
       const representative = await this.representativeModel.findById(id).exec();
       if (!representative || !representative.isActive)
-        throw new BadRequestException('представитель не найден');
+        throw new BadRequestException('Представитель не найден');
       if (
         !representative.patients.find(
           (p) => p._id.toString() === service.patient._id.toString(),
         )
       )
-        throw new BadRequestException('пациент не найден');
+        throw new BadRequestException('Пациент не найден');
     }
 
     const canBeRemoved = service.appointment
@@ -207,92 +206,9 @@ export class ServicesService {
 
     return {
       ...serv,
-      // ...JSON.parse(JSON.stringify(service)),
       canBeRemoved,
     };
   }
-
-  // async getService(
-  //   dto: GetServiseByIdDto,
-  //   id: string,
-  //   roles: string[],
-  // ): Promise<any> {
-  //   //todo проверка на принадлежность пациента
-  //   const isRepresentative = roles.find((r) => r === 'representative');
-
-  //   if (!mongoose.Types.ObjectId.isValid(dto.id))
-  //     throw new BadRequestException('некоррентный id услуги');
-
-  //   const service: any = await this.serviceModel
-  //     .findOne({ _id: dto.id })
-  //     .select('_id status course type result note patient appointment')
-  //     .populate([
-  //       {
-  //         path: 'type',
-  //         model: 'ServiceType',
-  //         select: { name: 1, isActive: 1, price: 1, time: 1, _id: 1 },
-  //       },
-  //       {
-  //         path: 'course',
-  //         model: 'Course',
-  //         select: { status: 1 },
-  //       },
-  //       {
-  //         path: 'patient',
-  //         model: 'Patient',
-  //         select: { name: 1, surname: 1, patronymic: 1, isActive: 1 },
-  //       },
-  //       {
-  //         path: 'appointment',
-  //         model: 'Appointment',
-  //         select: {
-  //           begDate: 1,
-  //           // name: 1,
-  //           specialist: 1,
-  //         },
-  //         populate: {
-  //           path: 'specialist',
-  //           model: 'User',
-  //           select: {
-  //             name: 1,
-  //             surname: 1,
-  //             patronymic: 1,
-  //             isActive: 1,
-  //           },
-  //         },
-  //       },
-  //     ]);
-
-  //   if (!service) throw new BadRequestException('услуга не найдена');
-
-  //   if (isRepresentative) {
-  //     const representative = await this.representativeModel.findById(id).exec();
-  //     if (!representative || !representative.isActive)
-  //       throw new BadRequestException('представитель не найден');
-  //     if (
-  //       !representative.patients.find(
-  //         (p) => p._id.toString() === service.patient._id.toString(),
-  //       )
-  //     )
-  //       throw new BadRequestException('пациент не найден');
-  //   }
-
-  //   return {
-  //     canBeRemoved: service.course.status,
-  //     id: service._id,
-  //     type: service.type.name,
-  //     status: service.status,
-  //     course: service.course._id,
-  //     result: service.result,
-  //     note: isRepresentative ? undefined : service.note,
-  //     number: service.number,
-  //     date: service?.appointment?.begDate,
-  //     specialist: service?.appointment
-  //       ? `${service?.appointment?.specialist.surname} ${service?.appointment?.specialist.name} ${service?.appointment?.specialist.patronymic}`
-  //       : undefined,
-  //     patient: `${service.patient.surname} ${service.patient.name} ${service.patient.patronymic}`,
-  //   };
-  // }
 
   async addGroup(
     dto: ServiceGroupDto,
@@ -303,9 +219,7 @@ export class ServicesService {
       .findOne({ name: dto.name })
       .exec();
     if (cand) throw new BadRequestException('Название должно быть уникальным');
-    //console.log(dto);
-    const group = await this.serviceGroupModel.create(dto);
-    const newGroup = new this.serviceGroupModel(group);
+    const newGroup = new this.serviceGroupModel(dto);
     newGroup.save();
     return;
   }
@@ -319,21 +233,19 @@ export class ServicesService {
     if (cand) throw new BadRequestException('Название должно быть уникальным');
 
     if (!mongoose.Types.ObjectId.isValid(dto.group))
-      throw new BadRequestException('id группы услуг не найден');
+      throw new BadRequestException('Некорректный id группы услуг');
 
     const candidate = await this.serviceGroupModel.findById(dto.group).exec();
-    if (!candidate) throw new BadRequestException('id группы услуг не найден');
+    if (!candidate) throw new BadRequestException('Группа услуг не найдена');
 
     const specialistTypes: Types.ObjectId[] = [];
 
     for (let i = 0; i < dto.specialistTypes.length; i++) {
       try {
         specialistTypes.push(new Types.ObjectId(dto.specialistTypes[i]));
-        //dto.advertisingSources[i] = new Types.ObjectId(dto.advertisingSources[i]);
       } catch (e) {
-        console.log(e);
         throw new BadRequestException(
-          `Неизвестная специальность: ${dto.specialistTypes[i]}`,
+          `Некорректный id специальности: ${dto.specialistTypes[i]}`,
         );
       }
 
@@ -346,11 +258,10 @@ export class ServicesService {
         );
     }
 
-    const type = await this.serviceTypeModel.create({
+    const newType = new this.serviceTypeModel({
       ...dto,
       specialistTypes,
     });
-    const newType = new this.serviceTypeModel(type);
     newType.save();
     return;
   }
@@ -361,9 +272,9 @@ export class ServicesService {
     roles: string[],
   ): Promise<object> {
     if (!mongoose.Types.ObjectId.isValid(dto._id))
-      throw new BadRequestException('_id: not found');
+      throw new BadRequestException('Некорректный id группы услуг');
     const candidate = await this.serviceGroupModel.findById(dto._id).exec();
-    if (!candidate) throw new BadRequestException('_id: not found');
+    if (!candidate) throw new BadRequestException('Группа услуг не найдена');
     const count = await this.serviceGroupModel
       .findOne({ name: dto.name })
       .exec();
@@ -379,9 +290,9 @@ export class ServicesService {
     roles: string[],
   ): Promise<object> {
     if (!mongoose.Types.ObjectId.isValid(dto._id))
-      throw new BadRequestException('id услуги не найден');
+      throw new BadRequestException('Некорректный id типа услуг');
     const candidate = await this.serviceTypeModel.findById(dto._id).exec();
-    if (!candidate) throw new BadRequestException('id услуги не найден');
+    if (!candidate) throw new BadRequestException('Тип услуги не найден');
     const count = await this.serviceTypeModel
       .findOne({ name: dto.name })
       .exec();
@@ -389,21 +300,19 @@ export class ServicesService {
       throw new BadRequestException('Название должно быть уникальным');
 
     if (!mongoose.Types.ObjectId.isValid(dto.group))
-      throw new BadRequestException('id группы услуг не найден');
+      throw new BadRequestException('Некорректный id группы услуг');
 
     const groupCand = await this.serviceGroupModel.findById(dto.group).exec();
-    if (!groupCand) throw new BadRequestException('id группы услуг не найден');
+    if (!groupCand) throw new BadRequestException('Группа услуг не найдена');
 
     const specialistTypes: Types.ObjectId[] = [];
 
     for (let i = 0; i < dto.specialistTypes.length; i++) {
       try {
         specialistTypes.push(new Types.ObjectId(dto.specialistTypes[i]));
-        //dto.advertisingSources[i] = new Types.ObjectId(dto.advertisingSources[i]);
       } catch (e) {
-        console.log(e);
         throw new BadRequestException(
-          `Неизвестная специальность: ${dto.specialistTypes[i]}`,
+          `Некорректный id специальности: ${dto.specialistTypes[i]}`,
         );
       }
 
@@ -428,9 +337,8 @@ export class ServicesService {
     roles: string[],
   ): Promise<object> {
     const isRepresentative = roles.find((r) => r === 'representative');
-    // проверка id услуги
     if (!mongoose.Types.ObjectId.isValid(dto.serviceId))
-      throw new BadRequestException('некоррентный id услуги');
+      throw new BadRequestException('Некоррентный id услуги');
     const service: any = await this.serviceModel
       .findById(dto.serviceId)
       .populate([
@@ -444,18 +352,18 @@ export class ServicesService {
         },
       ])
       .exec();
-    // console.log('!!!', service);
-    if (!service) throw new BadRequestException('услуга не найдена');
+
+    if (!service) throw new BadRequestException('Услуга не найдена');
     if (isRepresentative) {
       const representative = await this.representativeModel.findById(id).exec();
       if (!representative || !representative.isActive)
-        throw new BadRequestException('представитель не найден');
+        throw new BadRequestException('Представитель не найден');
       if (
         !representative.patients.find(
           (p) => p._id.toString() === service.patient._id.toString(),
         )
       )
-        throw new BadRequestException('пациент не найден');
+        throw new BadRequestException('Пациент не найден');
       if (service.appointment) {
         const now = new Date();
         const nowDate = new Date(
@@ -467,10 +375,9 @@ export class ServicesService {
           .setHours(0, 0, 0, 0)
           .valueOf();
         if (appDate <= nowDate)
-          throw new BadRequestException('запись уже нельзя изменить');
+          throw new BadRequestException('Запись уже нельзя изменить');
       }
     }
-    //todo: здесь сразу отвязывается старое время
     if (service.appointment) {
       const currentAppointment = await this.appointmentModel
         .findById(service.appointment)
@@ -480,13 +387,12 @@ export class ServicesService {
           service: null,
         })
         .exec();
-      // throw new BadRequestException('услуга уже записана');
     }
 
     if (dto.appointmentId) {
       // проверка id записи
       if (!mongoose.Types.ObjectId.isValid(dto.appointmentId))
-        throw new BadRequestException('запись не найдена');
+        throw new BadRequestException('Запись не найдена');
       const appointment = await this.appointmentModel
         .findById(dto.appointmentId)
         .populate<{ specialist: User }>([
@@ -496,11 +402,11 @@ export class ServicesService {
           },
         ])
         .exec();
-      if (!appointment) throw new BadRequestException('запись не найдена');
+      if (!appointment) throw new BadRequestException('Запись не найдена');
       if (!appointment.specialist.isActive)
-        throw new BadRequestException('специалист деактивирован');
+        throw new BadRequestException('Специалист деактивирован');
       if (appointment.service)
-        throw new BadRequestException('данное время уже занято');
+        throw new BadRequestException('Данное время уже занято');
       const time =
         (service.type.time.getHours() * 60 + service.type.time.getMinutes()) *
         60 *
@@ -508,7 +414,6 @@ export class ServicesService {
       const duration =
         appointment.endDate.getTime() - appointment.begDate.getTime();
       if (duration == time) {
-        // console.log('!!!WORK');
         this.serviceModel
           .findByIdAndUpdate(service._id, {
             appointment: new Types.ObjectId(appointment._id),
@@ -540,25 +445,14 @@ export class ServicesService {
     roles: string[],
   ): Promise<object> {
     const isSpecialist = roles.find((r) => r === 'specialist');
-    //todo проверка что уже закрыта
-    //todo врач может закрывать только в тот же день, только свои услуги
-    // проверка id услуги
     if (!mongoose.Types.ObjectId.isValid(dto.id))
-      throw new BadRequestException('услуга не найдена');
+      throw new BadRequestException('Некорректный id услуги');
     const service = await this.serviceModel
       .findById(dto.id)
       .populate<{ appointment: Appointment; course: Course }>([
-        // {
-        //   path: 'type',
-        //   model: 'ServiceType',
-        // },
         {
           path: 'appointment',
           model: 'Appointment',
-          // populate: {
-          //   path: 'appointment',
-          //   model: 'Appointment',
-          // },
         },
         {
           path: 'course',
@@ -567,22 +461,22 @@ export class ServicesService {
       ])
       .exec();
 
-    if (!service) throw new BadRequestException('услуга не найдена');
+    if (!service) throw new BadRequestException('Услуга не найдена');
 
     if (!service.appointment)
       throw new BadRequestException(
-        'не возможно закрыть услугу, для которой не назначена дата',
+        'Невозможно закрыть услугу, для которой не назначена дата',
       );
     if (service.appointment.begDate > new Date())
-      throw new BadRequestException('не возможно закрыть услугу в будущем');
+      throw new BadRequestException('Невозможно закрыть услугу в будущем');
 
-    if (service.status) throw new BadRequestException('услуга уже закрыта');
+    if (service.status) throw new BadRequestException('Услуга уже закрыта');
     if (!service.course.status)
-      throw new BadRequestException('нельзя закрыть услугу из закрытого курса');
+      throw new BadRequestException('Нельзя закрыть услугу из закрытого курса');
 
     if (isSpecialist) {
       if (service.appointment.specialist.toString() !== id)
-        throw new BadRequestException('услуга не найдена');
+        throw new BadRequestException('Услуга не найдена');
       const now = new Date();
       const nowDate = new Date(
         now.getFullYear(),
@@ -593,13 +487,12 @@ export class ServicesService {
         .setHours(0, 0, 0, 0)
         .valueOf();
       if (appDate < nowDate)
-        throw new BadRequestException('запись уже нельзя открыть');
+        throw new BadRequestException('Запись уже нельзя открыть');
     }
 
     this.serviceModel
       .findByIdAndUpdate(dto.id, { status: true, result: dto.result })
       .exec();
-    // проверка id записи
     return;
   }
 
@@ -609,10 +502,9 @@ export class ServicesService {
     roles: string[],
   ): Promise<object> {
     const isSpecialist = roles.find((r) => r === 'specialist');
-    //todo врач может открывать только в тот же день, только свои услуги
-    // проверка id услуги
+
     if (!mongoose.Types.ObjectId.isValid(dto.id))
-      throw new BadRequestException('услуга не найдена');
+      throw new BadRequestException('Некорректный id услуги');
     const service: any = await this.serviceModel
       .findById(dto.id)
       .populate([
@@ -626,13 +518,13 @@ export class ServicesService {
         },
       ])
       .exec();
-    if (!service) throw new BadRequestException('услуга не найдена');
-    if (!service.status) throw new BadRequestException('услуга уже открыта');
+    if (!service) throw new BadRequestException('Услуга не найдена');
+    if (!service.status) throw new BadRequestException('Услуга уже открыта');
     if (!service.course.status)
-      throw new BadRequestException('нельзя открыть услугу из закрытого курса');
+      throw new BadRequestException('Нельзя открыть услугу из закрытого курса');
     if (isSpecialist) {
       if (service.appointment.specialist.toString() !== id)
-        throw new BadRequestException('услуга не найдена');
+        throw new BadRequestException('Услуга не найдена');
       const now = new Date();
       const nowDate = new Date(
         now.getFullYear(),
@@ -643,31 +535,9 @@ export class ServicesService {
         .setHours(0, 0, 0, 0)
         .valueOf();
       if (appDate < nowDate)
-        throw new BadRequestException('запись уже нельзя открыть');
+        throw new BadRequestException('Запись уже нельзя открыть');
     }
-    // if (service.appointment.endDate > new Date())
-    //   throw new BadRequestException('не возможно закрыть услугу в будущем');
-    // // const updateData: any = {
-    //   result: dto.result,
-    // };
-    // if (!service.status) {
-    //   const courseId = service.course;
-    //   const typeId = service.type;
-    //   const services = await this.serviceModel
-    //     .find({
-    //       status: true,
-    //       course: courseId,
-    //       type: typeId,
-    //     })
-    //     .exec();
-    //   // services.find()
-    //   updateData.status = true;
-    //   // updateData.number = services.length + 1;
-    // }
-    //todo: здесь сразу отвязывается старое время
-    // console.log(updateData);
     this.serviceModel.findByIdAndUpdate(dto.id, { status: false }).exec();
-    // проверка id записи
     return;
   }
 
@@ -677,18 +547,11 @@ export class ServicesService {
     roles: string[],
   ): Promise<object> {
     const isSpecialist = roles.find((r) => r === 'specialist');
-    //todo проверка что уже закрыта
-    //todo врач может закрывать только в тот же день, только свои услуги
-    // проверка id услуги
     if (!mongoose.Types.ObjectId.isValid(dto.id))
-      throw new BadRequestException('услуга не найдена');
+      throw new BadRequestException('Некорректный id услуги');
     const service: any = await this.serviceModel
       .findById(dto.id)
       .populate([
-        // {
-        //   path: 'type',
-        //   model: 'ServiceType',
-        // },
         {
           path: 'appointment',
           model: 'Appointment',
@@ -699,55 +562,17 @@ export class ServicesService {
         },
       ])
       .exec();
-    if (!service) throw new BadRequestException('услуга не найдена');
-    if (service.status) throw new BadRequestException('услуга уже закрыта');
+    if (!service) throw new BadRequestException('Услуга не найдена');
+    if (service.status) throw new BadRequestException('Услуга уже закрыта');
     if (!service.course.status)
       throw new BadRequestException(
-        'нельзя изменить услугу из закрытого курса',
+        'Нельзя изменить услугу из закрытого курса',
       );
     if (isSpecialist) {
       if (service.appointment.specialist.toString() !== id)
-        throw new BadRequestException('услуга не найдена');
-      // const now = new Date();
-      // const nowDate = new Date(
-      //   now.getFullYear(),
-      //   now.getMonth(),
-      //   now.getDate(),
-      // ).valueOf();
-      // const appDate = new Date(service.appointment.begDate)
-      //   .setHours(0, 0, 0, 0)
-      //   .valueOf();
-      // if (appDate < nowDate)
-      //   throw new BadRequestException('запись уже нельзя открыть');
+        throw new BadRequestException('Услуга не найдена');
     }
-    // if (service.status) throw new BadRequestException('услуга уже закрыта');
-    // if (!service.appointment)
-    //   throw new BadRequestException(
-    //     'не возможно закрыть услугу, для которой не назначена дата',
-    //   );
-    // if (service.appointment.begDate > new Date())
-    //   throw new BadRequestException('не возможно закрыть услугу в будущем');
-    // // const updateData: any = {
-    //   result: dto.result,
-    // };
-    // if (!service.status) {
-    //   const courseId = service.course;
-    //   const typeId = service.type;
-    //   const services = await this.serviceModel
-    //     .find({
-    //       status: true,
-    //       course: courseId,
-    //       type: typeId,
-    //     })
-    //     .exec();
-    //   // services.find()
-    //   updateData.status = true;
-    //   // updateData.number = services.length + 1;
-    // }
-    //todo: здесь сразу отвязывается старое время
-    // console.log(updateData);
     this.serviceModel.findByIdAndUpdate(dto.id, { note: dto.note }).exec();
-    // проверка id записи
     return;
   }
 }
