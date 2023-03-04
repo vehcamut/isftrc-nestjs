@@ -23,7 +23,6 @@ import { AtGuard } from '../common/guards';
 export class PaymentsController {
   constructor(private readonly paymentsService: PaymentsService) {}
 
-  //addPaintment
   @Post('add')
   @UseGuards(AtGuard)
   @Roles('admin')

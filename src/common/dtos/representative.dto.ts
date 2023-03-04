@@ -1,39 +1,35 @@
-import { AdvertisingSource } from './../schemas/advertisingSource.schema';
 import { UserBaseDto } from './user.dto';
 import { Transform, Type } from 'class-transformer';
 import {
   ArrayNotEmpty,
   IsArray,
-  IsBoolean,
   IsDate,
-  IsDateString,
   IsEmail,
   IsEnum,
   IsNotEmpty,
   IsOptional,
   IsPhoneNumber,
   IsString,
-  ValidateNested,
 } from 'class-validator';
 import { toPhoneNumber } from '../helpers';
 import { Gender } from '../interfaces';
 import { AdverstingSourseBaseDto } from './advertisingSource.dto';
 
 export class AddRepresentativeDto {
-  @IsNotEmpty({ message: 'surname: поле фамилия не должено быть пустым' })
+  @IsNotEmpty({ message: 'Поле фамилия не должно быть пустым' })
   @IsString()
   surname: string;
 
-  @IsNotEmpty({ message: 'name: поле имя не должено быть пустым' })
+  @IsNotEmpty({ message: 'Поле имя не должно быть пустым' })
   @IsString()
   name: string;
 
-  @IsNotEmpty({ message: 'patronymic: поле отчество не должено быть пустым' })
+  @IsNotEmpty({ message: 'Поле отчество не должно быть пустым' })
   @IsString()
   patronymic: string;
 
   @IsArray()
-  @ArrayNotEmpty({ message: 'phoneNumbers: должен быть хотя бы один телефон' })
+  @ArrayNotEmpty({ message: 'Должен быть хотя бы один телефон' })
   @IsString({ each: true })
   @IsPhoneNumber('RU', {
     each: true,
@@ -43,7 +39,7 @@ export class AddRepresentativeDto {
   phoneNumbers: string[];
 
   @IsNotEmpty({
-    message: 'dateOfBirth: поле дата рождения не должено быть пустым',
+    message: 'Поле дата рождения не должно быть пустым',
   })
   @IsDate()
   @Type(() => Date)
@@ -51,27 +47,27 @@ export class AddRepresentativeDto {
 
   @IsArray()
   @ArrayNotEmpty({
-    message: 'emails: должен быть хотя бы один адрес электронной почты',
+    message: 'Должен быть хотя бы один адрес электронной почты',
   })
   @IsString({ each: true })
   @IsEmail({}, { each: true })
   emails: string[];
 
-  @IsNotEmpty({ message: 'login: поле логин не должено быть пустым' })
+  @IsNotEmpty({ message: 'Поле логин не должно быть пустым' })
   @IsString()
   login: string;
 
-  @IsNotEmpty({ message: 'gender: поле пол не должено быть пустым' })
+  @IsNotEmpty({ message: 'Поле пол не должно быть пустым' })
   @IsEnum(Gender)
   gender: Gender;
 
-  @IsNotEmpty({ message: 'address: поле адрес не должено быть пустым' })
+  @IsNotEmpty({ message: 'Поле адрес не должно быть пустым' })
   @IsString()
   address: string;
 
   @IsArray()
   @ArrayNotEmpty({
-    message: 'advertisingSources: должен быть хотя бы один источник рекламы',
+    message: 'Должен быть хотя бы один источник рекламы',
   })
   @IsString({ each: true })
   advertisingSources: string[];
@@ -81,7 +77,7 @@ export class AddRepresentativeDto {
   hash?: string;
 }
 export class RepresentativeWithIdDto extends AddRepresentativeDto {
-  @IsNotEmpty({ message: 'surname: поле фамилия не должено быть пустым' })
+  @IsNotEmpty({ message: 'Поле фамилия не должно быть пустым' })
   @IsString()
   _id: string;
 }

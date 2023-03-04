@@ -1,6 +1,4 @@
 import { AppointmentWithIdDto } from './appointment.dto';
-import { SpecialistTypeDto, SpecialistTypeWithIdDto } from '../dtos';
-import { GetRequestDto } from './getRequest.dto';
 import { Transform } from 'class-transformer';
 import {
   IsBoolean,
@@ -11,8 +9,7 @@ import {
   IsNumber,
   IsDate,
 } from 'class-validator';
-import { toBoolean, toDate, trim } from '../helpers';
-import { ToBoolean } from 'class-sanitizer';
+import { toDate, trim } from '../helpers';
 
 export class GetServiceDto {
   @Transform(({ value }) => trim(value))
@@ -22,12 +19,13 @@ export class GetServiceDto {
 }
 
 export class GetTypesDto {
+  @IsNotEmpty({ message: 'Поле id группы не должно быть пустым' })
   @Transform(({ value }) => trim(value))
   @IsString()
   public group: string;
 }
 export class ServiceGroupDto {
-  @IsNotEmpty({ message: 'name: поле имя не должено быть пустым' })
+  @IsNotEmpty({ message: 'Поле имя не должно быть пустым' })
   @IsString()
   name: string;
 
@@ -46,20 +44,19 @@ export class ServiceGroupWithTypesDto extends ServiceGroupWithIdDto {
 }
 
 export class ServiceTypeDto {
-  @IsNotEmpty({ message: 'name: поле имя не должено быть пустым' })
+  @IsNotEmpty({ message: 'Поле имя не должно быть пустым' })
   @IsString()
   name: string;
 
-  @IsNotEmpty({ message: 'price: поле цена не должено быть пустым' })
+  @IsNotEmpty({ message: 'Поле цена не должно быть пустым' })
   @IsNumber()
   price: number;
 
   @IsArray()
-  // @IsOptional()
   @IsString({ each: true })
   specialistTypes: any[] = [];
 
-  @IsNotEmpty({ message: 'group: поле группа не должено быть пустым' })
+  @IsNotEmpty({ message: 'Поле группа не должно быть пустым' })
   @IsString()
   group: string;
 
@@ -67,13 +64,11 @@ export class ServiceTypeDto {
   @IsOptional()
   isActive?: boolean = true;
 
-  @IsNotEmpty({ message: 'time: поле время не должено быть пустым' })
+  @IsNotEmpty({ message: 'Поле время не должно быть пустым' })
   @Transform((value) => toDate(value.value))
-  // @Type(() => Date)
   @IsDate()
   time?: Date;
 
-  // @IsNotEmpty({ message: 'price: поле цена не должено быть пустым' })
   @IsNumber()
   @IsOptional()
   defaultAmountPatient?: number = 0;
@@ -85,7 +80,7 @@ export class ServiceTypeWithIdDto extends ServiceTypeDto {
 }
 
 export class AddServiceDto {
-  @IsNotEmpty({ message: 'type: поле тип услуги не должено быть пустым' })
+  @IsNotEmpty({ message: 'Поле тип услуги не должно быть пустым' })
   @IsString()
   type: string;
 
@@ -96,18 +91,18 @@ export class AddServiceDto {
   @IsString()
   note?: string;
 
-  @IsNotEmpty({ message: 'amount: поле количество не должено быть пустым' })
+  @IsNotEmpty({ message: 'Поле количество не должно быть пустым' })
   @IsNumber()
   amount: number;
 
-  @IsNotEmpty({ message: 'patient: поле пациент не должено быть пустым' })
+  @IsNotEmpty({ message: 'Поле пациент не должно быть пустым' })
   @IsString()
   patient: string;
 }
 
 export class RemoveServiceDto {
+  @IsNotEmpty({ message: 'Поле id не должно быть пустым' })
   id: string;
-  // patient: string;
 }
 
 export class ServiceDto {
@@ -141,6 +136,7 @@ export class ServiceWithIdDto extends ServiceDto {
 }
 
 export class GetServiseByIdDto {
+  @IsNotEmpty({ message: 'Поле id не должно быть пустым' })
   @Transform(({ value }) => trim(value))
   @IsString()
   @IsOptional()
@@ -148,33 +144,32 @@ export class GetServiseByIdDto {
 }
 
 export class AddAppointmentToServiceDto {
-  // @IsNotEmpty()
   @IsOptional()
   @IsString()
   appointmentId?: string;
 
-  @IsNotEmpty()
+  @IsNotEmpty({ message: 'Поле id услуги не должно быть пустым' })
   @IsString()
   serviceId: string;
 }
 
 export class CloseServiceDto {
-  @IsNotEmpty()
+  @IsNotEmpty({ message: 'Поле id услуги не должно быть пустым' })
   @IsString()
   id: string;
 
-  @IsNotEmpty()
+  @IsNotEmpty({ message: 'Поле результат услуги не должно быть пустым' })
   @IsString()
   result: string;
 }
 export class OpenServiceDto {
-  @IsNotEmpty()
+  @IsNotEmpty({ message: 'Поле id услуги не должно быть пустым' })
   @IsString()
   id: string;
 }
 
 export class ChangeNoteDto {
-  @IsNotEmpty()
+  @IsNotEmpty({ message: 'Поле id услуги не должно быть пустым' })
   @IsString()
   id: string;
 

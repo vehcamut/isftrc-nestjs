@@ -1,6 +1,5 @@
 import { AddPatientToRepresentative } from './../common/dtos/patient.dto';
-import { UserBaseDto, AddBaseUserDto } from './../common/dtos/user.dto';
-import { SpecialistDto } from '../common/dtos/specialist.dto';
+import { UserBaseDto } from './../common/dtos/user.dto';
 import {
   Controller,
   Get,
@@ -21,14 +20,9 @@ import { Response } from 'express';
 import { Public, Roles } from '../common/decorators';
 import {
   AddRepresentativeDto,
-  GetPatientsByIdDto,
-  GetPatientsDto,
   GetRepresentativesByIdDto,
   GetRepresentativesDto,
-  GetRequestDto,
-  PatientBaseDto,
   PatientChangeStatusDto,
-  PatientWithIdDto,
   RepresentativeWithIdDto,
   representativeDto,
 } from '../common/dtos';
@@ -41,9 +35,6 @@ export class RepresentativesController {
   constructor(
     private readonly representativesService: RepresentativesService,
   ) {}
-
-  // @UseGuards(AtGuard)
-  // @Roles('admin', 'representative', 'specialist')
 
   @Get('get')
   @UseGuards(AtGuard)
@@ -66,21 +57,11 @@ export class RepresentativesController {
     @Query() dto: GetRepresentativesByIdDto,
     @Res({ passthrough: true }) res: Response,
   ): Promise<representativeDto> {
-    // const date = Date.now();
-    // let currentDate = null;
-    // do {
-    //   currentDate = Date.now();
-    // } while (currentDate - date < 4000);
     return await this.representativesService.getById(dto);
-    //const response = await this.patientsService.getById(dto);
-    //res.setHeader('X-Total-Count', response.count);
-    //return response.data;
   }
 
   @Post('add')
   @Public()
-  // @UseGuards(AtGuard)
-  // @Roles('admin')
   @HttpCode(HttpStatus.CREATED)
   async add(@Req() request: Request | any, @Body() dto: AddRepresentativeDto) {
     return this.representativesService.add(
@@ -113,15 +94,7 @@ export class RepresentativesController {
     @Query() dto: GetRepresentativesByIdDto,
     @Res({ passthrough: true }) res: Response,
   ): Promise<IPatient[]> {
-    // const date = Date.now();
-    // let currentDate = null;
-    // do {
-    //   currentDate = Date.now();
-    // } while (currentDate - date < 4000);
     return await this.representativesService.getPatientsById(dto);
-    //const response = await this.patientsService.getById(dto);
-    //res.setHeader('X-Total-Count', response.count);
-    //return response.data;
   }
 
   @Post('addPatient')

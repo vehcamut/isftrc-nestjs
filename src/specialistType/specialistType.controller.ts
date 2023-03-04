@@ -1,9 +1,4 @@
 import {
-  AdvertisingSourceWithIdDto,
-  AdvertisingSourceDto,
-} from '../common/dtos/advertisingSource.dto';
-import { SpecialistDto } from '../common/dtos/specialist.dto';
-import {
   Controller,
   Get,
   HttpCode,
@@ -11,18 +6,11 @@ import {
   Query,
   Res,
 } from '@nestjs/common';
-import { Body, Patch, Post, Put, Req } from '@nestjs/common/decorators';
+import { Body, Post, Put, Req } from '@nestjs/common/decorators';
 import { Response } from 'express';
 import { Public } from '../common/decorators';
 import {
-  GetAdvertisingSourceDto,
-  GetPatientsByIdDto,
-  GetPatientsDto,
-  GetRequestDto,
   GetSpecialistTypeDto,
-  PatientBaseDto,
-  PatientChangeStatusDto,
-  PatientWithIdDto,
   SpecialistTypeDto,
   SpecialistTypeWithIdDto,
 } from '../common/dtos';
@@ -34,7 +22,6 @@ export class SpecialistTypeController {
 
   @Get('get')
   @Public()
-  //@Roles('registrator')
   @HttpCode(HttpStatus.OK)
   async get(
     @Query() dto: GetSpecialistTypeDto,
@@ -47,7 +34,6 @@ export class SpecialistTypeController {
 
   @Post('add')
   @Public()
-  //@Roles('registrator')
   @HttpCode(HttpStatus.CREATED)
   async add(@Req() request: Request | any, @Body() dto: SpecialistTypeDto) {
     return this.specialistTypeService.add(
@@ -59,7 +45,6 @@ export class SpecialistTypeController {
 
   @Put('update')
   @Public()
-  //@Roles('registrator')
   @HttpCode(HttpStatus.OK)
   async update(
     @Req() request: Request | any,
@@ -71,19 +56,4 @@ export class SpecialistTypeController {
       request.user?.roles,
     );
   }
-
-  // @Patch('changeStatus')
-  // @Public()
-  // //@Roles('registrator')
-  // @HttpCode(HttpStatus.OK)
-  // async changeStatus(
-  //   @Req() request: Request | any,
-  //   @Body() dto: PatientChangeStatusDto,
-  // ) {
-  //   return this.advertisingSourceService.changeStatus(
-  //     dto,
-  //     request.user?._id,
-  //     request.user?.roles,
-  //   );
-  // }
 }

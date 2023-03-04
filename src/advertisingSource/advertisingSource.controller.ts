@@ -2,7 +2,6 @@ import {
   AdvertisingSourceWithIdDto,
   AdvertisingSourceDto,
 } from './../common/dtos/advertisingSource.dto';
-import { SpecialistDto } from '../common/dtos/specialist.dto';
 import {
   Controller,
   Get,
@@ -11,25 +10,10 @@ import {
   Query,
   Res,
 } from '@nestjs/common';
-import {
-  Body,
-  Patch,
-  Post,
-  Put,
-  Req,
-  UseGuards,
-} from '@nestjs/common/decorators';
+import { Body, Post, Put, Req, UseGuards } from '@nestjs/common/decorators';
 import { Response } from 'express';
 import { Public, Roles } from '../common/decorators';
-import {
-  GetAdvertisingSourceDto,
-  GetPatientsByIdDto,
-  GetPatientsDto,
-  GetRequestDto,
-  PatientBaseDto,
-  PatientChangeStatusDto,
-  PatientWithIdDto,
-} from '../common/dtos';
+import { GetAdvertisingSourceDto } from '../common/dtos';
 import { AdvertisingSourceService } from './advertisingSource.service';
 import { AtGuard } from '../common/guards';
 

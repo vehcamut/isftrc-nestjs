@@ -1,5 +1,4 @@
-import { RtStrategy } from './strategies/rt.strategy';
-import { User, UserDocument } from '../common/schemas'; //'./schemas';
+import { User, UserDocument } from '../common/schemas';
 import {
   ForbiddenException,
   Injectable,
@@ -8,10 +7,8 @@ import {
 import { InjectModel } from '@nestjs/mongoose';
 import { AuthDto } from '../common/dtos';
 import { Model } from 'mongoose';
-import * as bcrypt from 'bcrypt';
 import { Tokens } from '../common/interfaces';
 import { JwtService } from '@nestjs/jwt';
-import { createHmac } from 'crypto';
 import { Response } from 'express';
 import { hashDataSHA512 } from '../common/common';
 @Injectable()

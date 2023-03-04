@@ -1,4 +1,3 @@
-import { GetPatientsByIdDto } from '../common/dtos/getPatients.dto';
 import { BadRequestException } from '@nestjs/common/exceptions';
 import {
   AdvertisingSource,
@@ -8,11 +7,6 @@ import {
   AdvertisingSourceDto,
   AdvertisingSourceWithIdDto,
   GetAdvertisingSourceDto,
-  GetPatientsDto,
-  GetRequestDto,
-  PatientBaseDto,
-  PatientChangeStatusDto,
-  PatientWithIdDto,
 } from '../common/dtos';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';

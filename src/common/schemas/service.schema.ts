@@ -13,13 +13,6 @@ export class Service {
   })
   status: boolean;
 
-  // @Prop()
-  // @ApiProperty({
-  //   example: '1',
-  //   description: 'Номер сеанса / Number',
-  // })
-  // number?: number;
-
   @Prop({ required: true, type: SchemaTypes.ObjectId, ref: 'Course' })
   @ApiProperty({
     example: new Types.ObjectId('632b153c077e63515d42348a'),
@@ -64,20 +57,6 @@ export class Service {
     description: 'Встреча / Appointment',
   })
   appointment?: Types.ObjectId;
-  // @Prop({
-  //   type: [SchemaTypes.ObjectId],
-  //   ref: 'User',
-  //   default: [],
-  //   required: true,
-  // })
-  // @ApiProperty({
-  //   example: [
-  //     new Types.ObjectId('632b153c077e63515d42348a'),
-  //     new Types.ObjectId('632b15c163949a53b89addad'),
-  //   ],
-  //   description: 'Рекмоендованные специалисты / Recommended specialists',
-  // })
-  // specialistTypes: Types.ObjectId[];
 }
 
 export const ServiceSchema = SchemaFactory.createForClass(Service);

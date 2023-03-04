@@ -3,7 +3,6 @@ import { Module } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { UsersController } from './users.controller';
 import { User, UserSchema } from '../common/schemas';
-//import { User, UserSchema } from './schemas';
 
 @Module({
   providers: [UsersService],

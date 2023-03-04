@@ -3,11 +3,11 @@ import { Transform } from 'class-transformer';
 import {
   IsBoolean,
   IsEnum,
-  IsNumber,
   IsOptional,
   IsString,
+  IsNotEmpty,
 } from 'class-validator';
-import { toBoolean, toNumber, toSpecificSortOrderType, trim } from '../helpers';
+import { toBoolean } from '../helpers';
 import { Gender } from '../interfaces';
 
 export class GetPatientsDto extends GetRequestDto {
@@ -30,6 +30,9 @@ export class GetPatientsDto extends GetRequestDto {
 }
 
 export class GetPatientRepresentativesDto extends GetRequestDto {
+  @IsNotEmpty({
+    message: 'Поле id не должно быть пустым',
+  })
   @IsString()
   id: string;
 
@@ -42,12 +45,11 @@ export class GetPatientRepresentativesDto extends GetRequestDto {
   @IsOptional()
   isActive?: boolean;
 }
-// export class GetFreePatientsDto extends GetPatientsDto {
-//   @IsString()
-//   representaticeId: string;
-// }
 
 export class GetPatientsByIdDto {
+  @IsNotEmpty({
+    message: 'Поле id не должно быть пустым',
+  })
   @IsString()
   id: string;
 }

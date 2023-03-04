@@ -1,11 +1,11 @@
 import { GetRequestDto } from './getRequest.dto';
-import { IsBoolean, IsNumber } from 'class-validator';
-import { Exclude, Transform } from 'class-transformer';
+import { IsBoolean } from 'class-validator';
+import { Transform } from 'class-transformer';
 import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { toBoolean } from '../helpers';
 
 export class SpecialistTypeDto {
-  @IsNotEmpty({ message: 'name: поле имя не должено быть пустым' })
+  @IsNotEmpty({ message: 'Поле имя не должно быть пустым' })
   @IsString()
   name: string;
 
@@ -18,6 +18,7 @@ export class SpecialistTypeWithIdDto extends SpecialistTypeDto {
   _id: string;
 }
 export class GetSpecialistTypeDto extends GetRequestDto {
+  @IsNotEmpty({ message: 'Поле id не должно быть пустым' })
   @Transform(({ value }) => toBoolean(value))
   @IsBoolean()
   @IsOptional()

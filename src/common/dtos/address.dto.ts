@@ -1,24 +1,6 @@
-import { Transform, Type } from 'class-transformer';
-import {
-  ArrayNotEmpty,
-  IsArray,
-  IsBoolean,
-  IsDate,
-  IsDateString,
-  IsEmail,
-  IsEnum,
-  IsNotEmpty,
-  IsNumber,
-  IsOptional,
-  IsPhoneNumber,
-  IsString,
-  ValidateNested,
-} from 'class-validator';
-import { toPhoneNumber } from '../helpers';
-import { Gender } from '../interfaces';
+import { IsString } from 'class-validator';
 
 export class addressGetDto {
-  //@IsNotEmpty({ message: 'query: поле не должено быть пустым' })
-  @IsString()
+  @IsString({ message: 'Поле адреса не должно быть пустым' })
   query: string;
 }

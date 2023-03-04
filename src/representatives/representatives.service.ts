@@ -1,4 +1,3 @@
-import { GetPatientsByIdDto } from '../common/dtos/getPatients.dto';
 import { BadRequestException } from '@nestjs/common/exceptions';
 import {
   User,
@@ -8,18 +7,12 @@ import {
   AdvertisingSource,
   AdvertisingSourceDocument,
 } from '../common/schemas';
-import * as bcrypt from 'bcrypt';
 import {
-  AddBaseUserDto,
   AddPatientToRepresentative,
   AddRepresentativeDto,
-  GetPatientsDto,
   GetRepresentativesByIdDto,
   GetRepresentativesDto,
-  GetRequestDto,
-  PatientBaseDto,
   PatientChangeStatusDto,
-  PatientWithIdDto,
   RepresentativeWithIdDto,
 } from '../common/dtos';
 import { Injectable } from '@nestjs/common';

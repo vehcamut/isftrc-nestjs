@@ -9,20 +9,12 @@ import {
   Req,
   Res,
   UseGuards,
-  Get,
 } from '@nestjs/common';
 import { AuthDto } from '../common/dtos';
 import { Tokens } from '../common/interfaces';
-import { AuthGuard } from '@nestjs/passport';
-import { Recoverable } from 'repl';
 import { Request, Response } from 'express';
 import { AtGuard, RtGuard } from '../common/guards';
-import {
-  GetCurrenUser,
-  GetCurrenUserId,
-  Public,
-  Roles,
-} from '../common/decorators';
+import { GetCurrenUser, GetCurrenUserId, Public } from '../common/decorators';
 
 @Controller('auth')
 export class AuthController {
@@ -44,7 +36,6 @@ export class AuthController {
 
   @Post('logout')
   @UseGuards(AtGuard)
-  //@Roles('admin')
   @HttpCode(HttpStatus.OK)
   logout(
     @GetCurrenUserId() userId: number,
@@ -67,6 +58,5 @@ export class AuthController {
     const tokens = await this.authService.refreshTokens(userId, refreshTokens);
     this.authService.setCookie(response, tokens);
     return { message: 'success' };
-    //return this.authService.refreshTokens();
   }
 }

@@ -1,10 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ServicesService } from './services.service';
 import { ServicesController } from './services.controller';
-import { getConnectionToken, MongooseModule } from '@nestjs/mongoose';
+import { MongooseModule } from '@nestjs/mongoose';
 import {
-  AdvertisingSource,
-  AdvertisingSourcesSchema,
   Appointment,
   AppointmentSchema,
   Service,
@@ -31,18 +29,6 @@ import { Connection } from 'mongoose';
       { name: Appointment.name, schema: AppointmentSchema },
       { name: User.name, schema: UserSchema },
     ]),
-    // MongooseModule.forFeatureAsync([
-    //   {
-    //     name: Patient.name,
-    //     useFactory: async (connection: Connection) => {
-    //       const schema = PatientSchema;
-    //       const AutoIncrement = require('mongoose-sequence')(connection);
-    //       schema.plugin(AutoIncrement, { inc_field: 'number' });
-    //       return schema;
-    //     },
-    //     inject: [getConnectionToken()],
-    //   },
-    // ]),
   ],
   providers: [ServicesService],
 })

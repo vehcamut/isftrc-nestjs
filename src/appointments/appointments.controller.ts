@@ -1,11 +1,4 @@
 import {
-  GetSpecialistsByIdDto,
-  AddSpecialistDto,
-} from '../common/dtos/specialist.dto';
-import { AddPatientToRepresentative } from '../common/dtos/patient.dto';
-import { UserBaseDto, AddBaseUserDto } from '../common/dtos/user.dto';
-import { SpecialistDto } from '../common/dtos/specialist.dto';
-import {
   Controller,
   Get,
   HttpCode,
@@ -13,37 +6,13 @@ import {
   Query,
   Res,
 } from '@nestjs/common';
-import {
-  Body,
-  Delete,
-  Patch,
-  Post,
-  Put,
-  Req,
-  UseGuards,
-} from '@nestjs/common/decorators';
+import { Body, Delete, Post, Req, UseGuards } from '@nestjs/common/decorators';
 import { Response } from 'express';
-import { Public, Roles } from '../common/decorators';
+import { Roles } from '../common/decorators';
 import {
-  AddRepresentativeDto,
-  GetPatientsByIdDto,
-  GetPatientsDto,
-  GetRepresentativesByIdDto,
-  SpecialistWithIdDto,
-  GetRepresentativesDto,
-  GetRequestDto,
-  PatientBaseDto,
-  PatientChangeStatusDto,
-  PatientWithIdDto,
-  RepresentativeWithIdDto,
-  representativeDto,
-  GetSpecialistsDto,
-  SpecialistChangeStatusDto,
   GetAppointmetnsDto,
-  AppointmentDto,
   AppointmentWithIdDto,
   AddAppointmentDto,
-  AddedAppoitmentInfoDto,
   AddAppointmentResultDto,
   RemoveAppointmentDto,
   GetFreeAppointmetnsDto,
@@ -51,7 +20,6 @@ import {
   GetAppointmetnsByIdDto,
 } from '../common/dtos';
 import { AppointmentsService } from './appointments.service';
-import { IPatient } from '../common/interfaces';
 import { AtGuard } from '../common/guards';
 
 @Controller('appointments')
@@ -73,7 +41,6 @@ export class AppointmentsController {
       request.user?.roles,
     );
     res.setHeader('X-Total-Count', response.count);
-    // console.log(response.data);
     return response.data;
   }
 
@@ -84,18 +51,12 @@ export class AppointmentsController {
   async getById(
     @Query() dto: GetAppointmetnsByIdDto,
     @Req() request: Request | any,
-    @Res({ passthrough: true }) res: Response,
   ): Promise<AppointmentWithIdDto[]> {
-    const currentTime = new Date().getTime();
-    // eslint-disable-next-line no-empty
-    // while (currentTime + 2500 >= new Date().getTime()) {}
     const response = await this.appointmentsService.getById(
       dto,
       request.user?.sub,
       request.user?.roles,
     );
-    // res.setHeader('X-Total-Count', response.count);
-    // console.log(response.data);
     return response;
   }
 
@@ -114,7 +75,6 @@ export class AppointmentsController {
       request.user?.roles,
     );
     res.setHeader('X-Total-Count', response.count);
-    // console.log(response.data);
     return response.data;
   }
 
@@ -133,7 +93,6 @@ export class AppointmentsController {
       request.user?.roles,
     );
     res.setHeader('X-Total-Count', response.count);
-    // console.log(response.data);
     return response.data;
   }
 

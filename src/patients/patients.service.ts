@@ -1,5 +1,3 @@
-import { ServiceTypeWithIdDto } from './../common/dtos/servise.dto';
-import { GetPatientsByIdDto } from './../common/dtos/getPatients.dto';
 import { BadRequestException } from '@nestjs/common/exceptions';
 import {
   Appointment,
@@ -18,14 +16,12 @@ import {
   UserDocument,
 } from '../common/schemas';
 import {
+  GetPatientsByIdDto,
   AddServiceDto,
   RemoveServiceDto,
-  AddPatientToRepresentative,
   GetPatientRepresentativesDto,
   GetPatientsDto,
   CourseWithServicesDto,
-  GetRepresentativesByIdDto,
-  GetRequestDto,
   PatientBaseDto,
   PatientChangeStatusDto,
   PatientWithIdDto,
@@ -328,10 +324,6 @@ export class PatientsService {
     if (!mongoose.Types.ObjectId.isValid(dto._id))
       throw new BadRequestException('_id: not found');
     const candidate = await this.patientModel.findById(dto._id).exec();
-    // .select(
-    //   'number name surname patronymic dateOfBirth gender address isActive note representatives _id',
-    // )
-    // .exec();
     if (!candidate) throw new BadRequestException('_id: not found');
     this.patientModel.findByIdAndUpdate(dto._id, dto).exec();
     return;
@@ -572,22 +564,12 @@ export class PatientsService {
     );
     const lastCourse = res.find((c) => c.number == res.length - 1);
     if (lastCourse.total < 0 || !lastCourse.status) canBeClose = false;
-
-    // console.log(res);
     return {
       courses: res,
       canBeClose,
       canBeOpen: !lastCourse.status && courses.length > 1,
       canBeNew: !lastCourse.status,
     };
-    // 'name specialistTypes group isActive price time',
-
-    // const candidate = await this.representativesModel
-    //   .findById(dto.representativeId)
-    //   .select('-_id patients')
-    //   .populate('patients', '_id', this.patientModel)
-    //   .exec();
-    // reparr = patient.courses;
   }
 
   async newCourse(

@@ -10,12 +10,10 @@ import {
 import { toDate, trim } from '../helpers';
 
 export class PaymentDto {
-  // @IsNotEmpty({ message: 'Название не должно быть пустым' })
   @IsOptional()
   @IsString()
   name?: string;
 
-  // @IsNotEmpty({ message: 'Группа не должна быть пустой' })
   @IsOptional()
   @IsString()
   groupId?: string;
@@ -24,7 +22,7 @@ export class PaymentDto {
   @IsBoolean()
   inCourse: boolean;
 
-  @IsNotEmpty({ message: 'patient: поле пациент не должено быть пустым' })
+  @IsNotEmpty({ message: 'Поле пациент не должно быть пустым' })
   @IsString()
   patient: string;
 
@@ -32,7 +30,7 @@ export class PaymentDto {
   @IsNumber()
   amount: number;
 
-  @IsNotEmpty({ message: 'data: поле дата не должна быть пустой' })
+  @IsNotEmpty({ message: 'Поле дата не должна быть пустой' })
   @Transform((value) => toDate(value.value))
   @IsDate()
   date: Date;
@@ -47,7 +45,9 @@ export class PaymentDto {
 }
 
 export class GetAdvanceDto {
-  @IsNotEmpty()
+  @IsNotEmpty({
+    message: 'Поле id пациента не должно быть пустым',
+  })
   @Transform(({ value }) => trim(value))
   @IsString()
   public patient = '';

@@ -5,7 +5,7 @@ export class AuthDto {
   @IsString()
   login: string;
 
-  @IsNotEmpty()
+  @IsNotEmpty({ message: 'Пароль не должен быть пустым' })
   @IsString()
   password: string;
 }

@@ -1,6 +1,5 @@
 import { Reflector } from '@nestjs/core';
 import { Injectable, CanActivate, ExecutionContext } from '@nestjs/common';
-import { Observable } from 'rxjs';
 
 @Injectable()
 export class RolesGuard implements CanActivate {
@@ -21,6 +20,5 @@ export class RolesGuard implements CanActivate {
     console.log(roless);
     console.log(roless.some((e: string): boolean => rolesf?.includes(e)));
     return roless.some((e: string): boolean => rolesf?.includes(e));
-    //return rolesf.every((e: string): boolean => roless?.includes(e));
   }
 }

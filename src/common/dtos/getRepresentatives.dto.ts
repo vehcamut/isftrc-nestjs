@@ -3,11 +3,11 @@ import { Transform } from 'class-transformer';
 import {
   IsBoolean,
   IsEnum,
-  IsNumber,
+  IsNotEmpty,
   IsOptional,
   IsString,
 } from 'class-validator';
-import { toBoolean, toNumber, toSpecificSortOrderType, trim } from '../helpers';
+import { toBoolean } from '../helpers';
 import { Gender } from '../interfaces';
 
 export class GetRepresentativesDto extends GetRequestDto {
@@ -29,6 +29,9 @@ export class GetRepresentativesDto extends GetRequestDto {
   patientId?: string;
 }
 export class GetRepresentativesByIdDto {
+  @IsNotEmpty({
+    message: 'Поле id не должно быть пустым',
+  })
   @IsString()
   id: string;
 

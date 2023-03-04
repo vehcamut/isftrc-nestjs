@@ -1,8 +1,7 @@
-import { Transform, Type } from 'class-transformer';
 import { IsBoolean, IsNotEmpty, IsOptional, IsString } from 'class-validator';
 
 export class AdvertisingSourceDto {
-  @IsNotEmpty({ message: 'name: поле имя не должено быть пустым' })
+  @IsNotEmpty({ message: 'name: поле имя не должно быть пустым' })
   @IsString()
   name: string;
 

@@ -4,40 +4,38 @@ import {
   IsArray,
   IsBoolean,
   IsDate,
-  IsDateString,
   IsEmail,
   IsEnum,
   IsNotEmpty,
   IsOptional,
   IsPhoneNumber,
   IsString,
-  ValidateNested,
 } from 'class-validator';
 import { toPhoneNumber } from '../helpers';
 import { Gender } from '../interfaces';
 
 export class UserBaseDto {
-  @IsNotEmpty({ message: 'surname: поле фамилия не должено быть пустым' })
+  @IsNotEmpty({ message: 'Поле фамилия не должно быть пустым' })
   @IsString()
   surname: string;
 
-  @IsNotEmpty({ message: 'name: поле имя не должено быть пустым' })
+  @IsNotEmpty({ message: 'Поле имя не должно быть пустым' })
   @IsString()
   name: string;
 
-  @IsNotEmpty({ message: 'patronymic: поле отчество не должено быть пустым' })
+  @IsNotEmpty({ message: 'Поле отчество не должно быть пустым' })
   @IsString()
   patronymic: string;
 
   @IsArray()
-  @ArrayNotEmpty({ message: 'phoneNumbers: должен быть хотя бы один телефон' })
+  @ArrayNotEmpty({ message: 'Должен быть хотя бы один телефон' })
   @IsString({ each: true })
   @IsPhoneNumber('RU', { each: true })
   @Transform(({ value }) => value.map((value: string) => toPhoneNumber(value)))
   phoneNumbers: string[];
 
   @IsNotEmpty({
-    message: 'dateOfBirth: поле дата рождения не должено быть пустым',
+    message: 'Поле дата рождения не должно быть пустым',
   })
   @IsDate()
   @Type(() => Date)
@@ -45,13 +43,13 @@ export class UserBaseDto {
 
   @IsArray()
   @ArrayNotEmpty({
-    message: 'emails: должен быть хотя бы один адрес электронной почты',
+    message: 'Должен быть хотя бы один адрес электронной почты',
   })
   @IsString({ each: true })
   @IsEmail({}, { each: true })
   emails: string[];
 
-  @IsNotEmpty({ message: 'login: поле логин не должено быть пустым' })
+  @IsNotEmpty({ message: 'Поле логин не должно быть пустым' })
   @IsString()
   login: string;
 
@@ -59,35 +57,35 @@ export class UserBaseDto {
   @IsBoolean()
   isActive?: boolean;
 
-  @IsNotEmpty({ message: 'gender: поле пол не должено быть пустым' })
+  @IsNotEmpty({ message: 'Поле пол не должно быть пустым' })
   @IsEnum(Gender)
   gender: Gender;
 
-  @IsNotEmpty({ message: 'address: поле адрес не должено быть пустым' })
+  @IsNotEmpty({ message: 'Поле адрес не должно быть пустым' })
   @IsString()
   address: string;
 }
 
 export class AddBaseUserDto extends UserBaseDto {
   @IsOptional()
-  @IsNotEmpty({ message: 'hash: поле пароль не должено быть пустым' })
+  @IsNotEmpty({ message: 'Поле пароль не должно быть пустым' })
   @IsString()
   hash?: string;
 }
 export class UserDto extends UserBaseDto {
-  @IsNotEmpty({ message: 'roles: поле роль не должено быть пустым' })
+  @IsNotEmpty({ message: 'Поле роль не должно быть пустым' })
   @IsArray()
   @IsString({ each: true })
   roles: string[];
 }
 export class AddUserDto extends UserDto {
-  @IsNotEmpty({ message: 'hash: поле пароль не должено быть пустым' })
+  @IsNotEmpty({ message: 'Поле пароль не должно быть пустым' })
   @IsString()
   hash: string;
 }
 
 export class UpdateUserDto extends UserDto {
-  @IsNotEmpty({ message: '_id: поле id не должено быть пустым' })
+  @IsNotEmpty({ message: 'Поле id не должно быть пустым' })
   @IsString()
   _id: string;
 
@@ -97,7 +95,7 @@ export class UpdateUserDto extends UserDto {
 }
 
 export class GetProfileDto {
-  @IsNotEmpty({ message: 'id: поле id не должено быть пустым' })
+  @IsNotEmpty({ message: 'Поле id не должно быть пустым' })
   @IsString()
   id: string;
 }

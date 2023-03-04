@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { RepresentativesService } from './representatives.service';
 import { RepresentativesController } from './representatives.controller';
-import { getConnectionToken, MongooseModule } from '@nestjs/mongoose';
+import { MongooseModule } from '@nestjs/mongoose';
 import {
   User,
   UserSchema,
@@ -10,7 +10,6 @@ import {
   AdvertisingSource,
   AdvertisingSourcesSchema,
 } from '../common/schemas';
-import { Connection } from 'mongoose';
 
 @Module({
   controllers: [RepresentativesController],
@@ -20,18 +19,6 @@ import { Connection } from 'mongoose';
       { name: AdvertisingSource.name, schema: AdvertisingSourcesSchema },
       { name: Patient.name, schema: PatientSchema },
     ]),
-    // MongooseModule.forFeatureAsync([
-    //   {
-    //     name: Patient.name,
-    //     useFactory: async (connection: Connection) => {
-    //       const schema = PatientSchema;
-    //       const AutoIncrement = require('mongoose-sequence')(connection);
-    //       schema.plugin(AutoIncrement, { inc_field: 'number' });
-    //       return schema;
-    //     },
-    //     inject: [getConnectionToken()],
-    //   },
-    // ]),
   ],
   providers: [RepresentativesService],
 })

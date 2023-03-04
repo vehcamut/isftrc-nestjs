@@ -1,9 +1,5 @@
 import { AppointmentWithIdDto } from './appointment.dto';
-import {
-  ServiceGroupWithIdDto,
-  ServiceGroupWithTypesDto,
-  ServiceWithIdDto,
-} from './servise.dto';
+import { ServiceGroupWithIdDto } from './servise.dto';
 import { IsBoolean, IsNumber } from 'class-validator';
 
 export class CourseDto {
@@ -55,7 +51,6 @@ export class ServiceInCourseDto {
   cost?: number;
   date: Date;
   number?: number;
-  // type: ServiceTypeWithoutGroupDto;
   status: boolean;
   result?: string;
   note?: string;
@@ -70,14 +65,6 @@ export class ServiceTypeWithoutGroupDto {
   isActive?: boolean = true;
   time?: Date;
 }
-
-// export class ServiceDto {
-
-// }
-
-// export class ServiceWithIdDto extends ServiceDto {
-//   _id: string;
-// }
 
 export class patientCourseDto {
   patientId: string;

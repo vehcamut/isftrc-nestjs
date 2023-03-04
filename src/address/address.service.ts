@@ -1,12 +1,6 @@
-import {
-  BadRequestException,
-  InternalServerErrorException,
-} from '@nestjs/common/exceptions';
-import { Patient, PatientDocument } from '../common/schemas';
-import { addressGetDto, GetRequestDto, PatientBaseDto } from '../common/dtos';
+import { InternalServerErrorException } from '@nestjs/common/exceptions';
+import { addressGetDto } from '../common/dtos';
 import { Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Model, SortOrder } from 'mongoose';
 import { HttpService } from '@nestjs/axios/dist';
 import { catchError, map } from 'rxjs/operators';
 @Injectable()

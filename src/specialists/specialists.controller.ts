@@ -1,6 +1,3 @@
-import { AddPatientToRepresentative } from '../common/dtos/patient.dto';
-import { UserBaseDto, AddBaseUserDto } from '../common/dtos/user.dto';
-import { SpecialistDto } from '../common/dtos/specialist.dto';
 import {
   Controller,
   Get,
@@ -18,8 +15,10 @@ import {
   UseGuards,
 } from '@nestjs/common/decorators';
 import { Response } from 'express';
-import { Public, Roles } from '../common/decorators';
+import { Roles } from '../common/decorators';
 import {
+  UserBaseDto,
+  SpecialistDto,
   GetSpecialistsByIdDto,
   AddSpecialistDto,
   GetSpecificSpecialists,
@@ -29,15 +28,11 @@ import {
   SpecialistChangeStatusDto,
 } from '../common/dtos';
 import { SpecialistsService } from './specialists.service';
-import { IPatient } from '../common/interfaces';
 import { AtGuard } from '../common/guards';
 
 @Controller('specialists')
 export class SpecialistsController {
   constructor(private readonly specialistsService: SpecialistsService) {}
-
-  // @UseGuards(AtGuard)
-  // @Roles('admin', 'representative', 'specialist')
 
   @Get('get')
   @UseGuards(AtGuard)
@@ -71,15 +66,7 @@ export class SpecialistsController {
     @Query() dto: GetSpecialistsByIdDto,
     @Res({ passthrough: true }) res: Response,
   ): Promise<SpecialistDto> {
-    // const date = Date.now();
-    // let currentDate = null;
-    // do {
-    //   currentDate = Date.now();
-    // } while (currentDate - date < 4000);
     return await this.specialistsService.getById(dto);
-    //const response = await this.patientsService.getById(dto);
-    //res.setHeader('X-Total-Count', response.count);
-    //return response.data;
   }
 
   @Post('add')

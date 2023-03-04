@@ -1,37 +1,27 @@
-// import { ServiceDto } from './course.dto';
 import { SpecialistToSelectDto } from './specialist.dto';
-import { Appointment } from './../schemas/appointment.schema';
-import { GetRequestDto } from './getRequest.dto';
 import { Transform, Type } from 'class-transformer';
 import {
   IsBoolean,
-  IsEnum,
   IsNumber,
   IsOptional,
   IsString,
   IsNotEmpty,
   IsDate,
 } from 'class-validator';
-import {
-  toBoolean,
-  toDate,
-  toNumber,
-  toSpecificSortOrderType,
-  trim,
-} from '../helpers';
-import { Gender } from '../interfaces';
+import { toBoolean, toDate } from '../helpers';
 
 export class GetAppointmetnsDto {
   @IsString()
+  @IsNotEmpty({
+    message: 'id специалиста не должен быть пустым',
+  })
   specialistId: string;
 
   @Transform((value) => toDate(value.value))
-  // @Type(() => Date)
   @IsDate()
   begDate?: Date;
 
   @Transform((value) => toDate(value.value))
-  // @Type(() => Date)
   @IsDate()
   endDate?: Date;
 
@@ -48,15 +38,16 @@ export class GetAppointmetnsDto {
 
 export class GetPatientAppointmetnsDto {
   @IsString()
+  @IsNotEmpty({
+    message: 'id пациента не должен быть пустым',
+  })
   patientId: string;
 
   @Transform((value) => toDate(value.value))
-  // @Type(() => Date)
   @IsDate()
   begDate?: Date;
 
   @Transform((value) => toDate(value.value))
-  // @Type(() => Date)
   @IsDate()
   endDate?: Date;
 
@@ -68,18 +59,19 @@ export class GetPatientAppointmetnsDto {
 
 export class GetFreeAppointmetnsDto {
   @IsString()
+  @IsNotEmpty({
+    message: 'id специалиста не должен быть пустым',
+  })
   specialistId: string;
 
   @IsString()
   patientId: string;
 
   @Transform((value) => toDate(value.value))
-  // @Type(() => Date)
   @IsDate()
   begDate?: Date;
 
   @Transform((value) => toDate(value.value))
-  // @Type(() => Date)
   @IsDate()
   endDate?: Date;
 
@@ -88,14 +80,14 @@ export class GetFreeAppointmetnsDto {
 }
 export class AppointmentDto {
   @IsNotEmpty({
-    message: 'begDate: поле дата начала не должно быть пустым',
+    message: 'Поле дата начала не должно быть пустым',
   })
   @IsDate()
   @Type(() => Date)
   begDate: Date;
 
   @IsNotEmpty({
-    message: 'endDate: поле дата окончания не должно быть пустым',
+    message: 'Поле дата окончания не должно быть пустым',
   })
   @IsDate()
   @Type(() => Date)
@@ -106,34 +98,34 @@ export class AppointmentDto {
   service?: string;
 
   @IsNotEmpty({
-    message: 'specialist: поле специалист не должно быть пустым',
+    message: 'Поле специалист не должно быть пустым',
   })
   @IsString()
   specialist: SpecialistToSelectDto;
 }
 export class AddAppointmentDto {
   @IsNotEmpty({
-    message: 'begDate: поле дата начала не должно быть пустым',
+    message: 'Поле дата начала не должно быть пустым',
   })
   @IsDate()
   @Type(() => Date)
   begDate: Date;
 
   @IsNotEmpty({
-    message: 'time: поле продолжительность не должно быть пустым',
+    message: 'Поле продолжительность не должно быть пустым',
   })
   @IsDate()
   @Type(() => Date)
   time: Date;
 
   @IsNotEmpty({
-    message: 'specialist: поле специалист не должно быть пустым',
+    message: 'Поле специалист не должно быть пустым',
   })
   @IsString()
   specialist: string;
 
   @IsNotEmpty({
-    message: 'amount: поле количество не должно быть пустым',
+    message: 'Поле количество не должно быть пустым',
   })
   @IsNumber()
   amount: number;
@@ -142,7 +134,6 @@ export class AddAppointmentDto {
 export class AddedAppoitmentInfoDto {
   begDate: Date;
   endDate: Date;
-  // message: string;
 }
 
 export class AddAppointmentResultDto {
@@ -152,14 +143,14 @@ export class AddAppointmentResultDto {
 
 export class RemoveAppointmentDto {
   @IsNotEmpty({
-    message: '_id: поле id не должно быть пустым',
+    message: 'Поле id не должно быть пустым',
   })
   @IsString()
   _id: string;
 }
 export class AppointmentWithIdDto extends AppointmentDto {
   @IsNotEmpty({
-    message: '_id: поле id не должно быть пустым',
+    message: 'Поле id не должно быть пустым',
   })
   @IsString()
   _id: string;
@@ -169,10 +160,3 @@ export class GetAppointmetnsByIdDto {
   @IsString()
   id: string;
 }
-
-// export class AppointmentInfoDto {
-//   begDate: Date;
-//   endDate: Date;
-//   service?: ServiceDto;
-//   specialist: SpecialistToSelectDto;
-// }

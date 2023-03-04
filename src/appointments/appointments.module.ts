@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AppointmentsService } from './appointments.service';
 import { AppointmentsController } from './appointments.controller';
-import { getConnectionToken, MongooseModule } from '@nestjs/mongoose';
+import { MongooseModule } from '@nestjs/mongoose';
 import {
   Service,
   Appointment,
@@ -10,11 +10,8 @@ import {
   UserSchema,
   Patient,
   PatientSchema,
-  AdvertisingSource,
-  AdvertisingSourcesSchema,
   ServiceSchema,
 } from '../common/schemas';
-import { Connection } from 'mongoose';
 
 @Module({
   controllers: [AppointmentsController],
@@ -24,7 +21,6 @@ import { Connection } from 'mongoose';
       { name: User.name, schema: UserSchema },
       { name: Service.name, schema: ServiceSchema },
       { name: Patient.name, schema: PatientSchema },
-      // { name: SpecialistType.name, schema: SpecialistTypeSchema },
     ]),
   ],
   providers: [AppointmentsService],

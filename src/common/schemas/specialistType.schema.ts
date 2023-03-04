@@ -13,13 +13,6 @@ export class SpecialistType {
   })
   name: string;
 
-  // @Prop({ default: '' })
-  // @ApiProperty({
-  //   example: 'Очень важное примечание',
-  //   description: 'Примечание / Note',
-  // })
-  // note?: string;
-
   @Prop({ required: true, default: true })
   @ApiProperty({
     example: true,

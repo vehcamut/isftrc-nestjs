@@ -1,5 +1,3 @@
-import { AddPatientToRepresentative } from './../common/dtos/patient.dto';
-import { SpecialistDto } from './../common/dtos/specialist.dto';
 import {
   Controller,
   Get,
@@ -18,14 +16,12 @@ import {
   UseGuards,
 } from '@nestjs/common/decorators';
 import { Response } from 'express';
-import { Public, Roles } from '../common/decorators';
+import { Roles } from '../common/decorators';
 import {
   AddServiceDto,
-  CourseWithServicesDto,
   GetPatientRepresentativesDto,
   GetPatientsByIdDto,
   GetPatientsDto,
-  GetRequestDto,
   PatientBaseDto,
   PatientChangeStatusDto,
   PatientCoursesInfo,

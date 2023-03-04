@@ -1,21 +1,7 @@
-import { GetPatientsByIdDto } from '../common/dtos/getPatients.dto';
 import { BadRequestException } from '@nestjs/common/exceptions';
+import { SpecialistType, SpecialistTypeDocument } from '../common/schemas';
 import {
-  AdvertisingSource,
-  AdvertisingSourceDocument,
-  SpecialistType,
-  SpecialistTypeDocument,
-} from '../common/schemas';
-import {
-  AdvertisingSourceDto,
-  AdvertisingSourceWithIdDto,
-  GetAdvertisingSourceDto,
-  GetPatientsDto,
-  GetRequestDto,
   GetSpecialistTypeDto,
-  PatientBaseDto,
-  PatientChangeStatusDto,
-  PatientWithIdDto,
   SpecialistTypeDto,
   SpecialistTypeWithIdDto,
 } from '../common/dtos';

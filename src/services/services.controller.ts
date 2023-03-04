@@ -1,9 +1,4 @@
 import {
-  AdvertisingSourceWithIdDto,
-  AdvertisingSourceDto,
-} from '../common/dtos/advertisingSource.dto';
-import { SpecialistDto } from '../common/dtos/specialist.dto';
-import {
   Controller,
   Get,
   HttpCode,
@@ -11,33 +6,17 @@ import {
   Query,
   Res,
 } from '@nestjs/common';
-import {
-  Body,
-  Patch,
-  Post,
-  Put,
-  Req,
-  UseGuards,
-} from '@nestjs/common/decorators';
+import { Body, Post, Put, Req, UseGuards } from '@nestjs/common/decorators';
 import { Response } from 'express';
-import { Public, Roles } from '../common/decorators';
+import { Roles } from '../common/decorators';
 import {
-  GetAdvertisingSourceDto,
-  GetPatientsByIdDto,
-  GetPatientsDto,
-  GetRequestDto,
   GetServiceDto,
-  PatientBaseDto,
-  PatientChangeStatusDto,
-  PatientWithIdDto,
   ServiceGroupDto,
   ServiceGroupWithTypesDto,
   ServiceGroupWithIdDto,
   ServiceTypeDto,
   ServiceTypeWithIdDto,
   GetServiseByIdDto,
-  ServiceDto,
-  ServiceInfoDto,
   AddAppointmentToServiceDto,
   GetTypesDto,
   CloseServiceDto,
@@ -141,23 +120,6 @@ export class ServicesController {
     );
   }
 
-  // @Get('getService')
-  // @UseGuards(AtGuard)
-  // @Roles('admin', 'specialist', 'representative')
-  // @HttpCode(HttpStatus.OK)
-  // async getService(
-  //   @Req() request: Request | any,
-  //   @Query() dto: GetServiseByIdDto,
-  //   @Res({ passthrough: true }) res: Response,
-  // ): Promise<ServiceInfoDto> {
-  //   const response = await this.servicesService.getService(
-  //     dto,
-  //     request.user?.sub,
-  //     request.user?.roles,
-  //   );
-  //   return response;
-  // }
-
   @Get('getAllInfoService')
   @UseGuards(AtGuard)
   @Roles('admin', 'specialist', 'representative')
@@ -167,9 +129,6 @@ export class ServicesController {
     @Query() dto: GetServiseByIdDto,
     @Res({ passthrough: true }) res: Response,
   ): Promise<any> {
-    const currentTime = new Date().getTime();
-    // eslint-disable-next-line no-empty
-    // while (currentTime + 2500 >= new Date().getTime()) {}
     const response = await this.servicesService.getAllInfoService(
       dto,
       request.user?.sub,

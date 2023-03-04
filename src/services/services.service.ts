@@ -1,8 +1,5 @@
-import { GetPatientsByIdDto } from '../common/dtos/getPatients.dto';
 import { BadRequestException } from '@nestjs/common/exceptions';
 import {
-  AdvertisingSource,
-  AdvertisingSourceDocument,
   Service,
   ServiceDocument,
   ServiceGroup,
@@ -18,22 +15,13 @@ import {
   UserDocument,
 } from '../common/schemas';
 import {
-  AdvertisingSourceDto,
-  AdvertisingSourceWithIdDto,
-  GetAdvertisingSourceDto,
-  GetPatientsDto,
-  GetRequestDto,
   GetServiceDto,
-  PatientBaseDto,
-  PatientChangeStatusDto,
-  PatientWithIdDto,
   ServiceTypeWithIdDto,
   ServiceGroupWithTypesDto,
   ServiceGroupDto,
   ServiceTypeDto,
   ServiceGroupWithIdDto,
   GetServiseByIdDto,
-  ServiceDto,
   AddAppointmentToServiceDto,
   GetTypesDto,
   CloseServiceDto,
@@ -42,7 +30,7 @@ import {
 } from '../common/dtos';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import mongoose, { Model, SortOrder, Types } from 'mongoose';
+import mongoose, { Model, Types } from 'mongoose';
 
 @Injectable()
 export class ServicesService {

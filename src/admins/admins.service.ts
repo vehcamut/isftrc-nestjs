@@ -1,34 +1,15 @@
-import { GetPatientsByIdDto } from '../common/dtos/getPatients.dto';
 import { BadRequestException } from '@nestjs/common/exceptions';
-import {
-  User,
-  Patient,
-  PatientDocument,
-  UserDocument,
-  AdvertisingSource,
-  AdvertisingSourceDocument,
-} from '../common/schemas';
-import * as bcrypt from 'bcrypt';
+import { User, UserDocument } from '../common/schemas';
 import {
   AddAdminDto,
-  AddBaseUserDto,
-  AddPatientToRepresentative,
-  AddRepresentativeDto,
   AdminChangeStatusDto,
   AdminWithIdDto,
   GetAdminsDto,
-  GetPatientsDto,
   GetRepresentativesByIdDto,
-  GetRepresentativesDto,
-  GetRequestDto,
-  PatientBaseDto,
-  PatientChangeStatusDto,
-  PatientWithIdDto,
-  RepresentativeWithIdDto,
 } from '../common/dtos';
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import mongoose, { Model, SortOrder, Types } from 'mongoose';
+import mongoose, { Model, SortOrder } from 'mongoose';
 import { hashDataSHA512 } from '../common/common';
 
 @Injectable()

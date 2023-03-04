@@ -1,6 +1,4 @@
-import { AddPatientToRepresentative } from '../common/dtos/patient.dto';
-import { UserBaseDto, AddBaseUserDto } from '../common/dtos/user.dto';
-import { SpecialistDto } from '../common/dtos/specialist.dto';
+import { UserBaseDto } from '../common/dtos/user.dto';
 import {
   Controller,
   Get,
@@ -18,26 +16,15 @@ import {
   UseGuards,
 } from '@nestjs/common/decorators';
 import { Response } from 'express';
-import { Public, Roles } from '../common/decorators';
+import { Roles } from '../common/decorators';
 import {
   AddAdminDto,
-  AddRepresentativeDto,
   AdminChangeStatusDto,
   AdminWithIdDto,
   GetAdminsDto,
-  GetPatientsByIdDto,
-  GetPatientsDto,
   GetRepresentativesByIdDto,
-  GetRepresentativesDto,
-  GetRequestDto,
-  PatientBaseDto,
-  PatientChangeStatusDto,
-  PatientWithIdDto,
-  RepresentativeWithIdDto,
-  representativeDto,
 } from '../common/dtos';
 import { AdminsService } from './admins.service';
-import { IPatient } from '../common/interfaces';
 import { AtGuard } from '../common/guards';
 
 @Controller('admins')

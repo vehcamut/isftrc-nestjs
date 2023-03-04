@@ -3,21 +3,15 @@ import {
   GetSpecialistsByIdDto,
   AddSpecialistDto,
 } from './../common/dtos/specialist.dto';
-import { GetPatientsByIdDto } from '../common/dtos/getPatients.dto';
 import { BadRequestException } from '@nestjs/common/exceptions';
 import {
   User,
-  Patient,
-  PatientDocument,
   UserDocument,
-  AdvertisingSource,
-  AdvertisingSourceDocument,
   SpecialistTypeDocument,
   SpecialistType,
   ServiceType,
   ServiceTypeDocument,
 } from '../common/schemas';
-import * as bcrypt from 'bcrypt';
 import {
   GetSpecificSpecialists,
   SpecialistToSelectDto,
@@ -28,7 +22,6 @@ import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import mongoose, { Model, SortOrder, Types } from 'mongoose';
 import { hashDataSHA512 } from '../common/common';
-import { type } from 'os';
 
 @Injectable()
 export class SpecialistsService {

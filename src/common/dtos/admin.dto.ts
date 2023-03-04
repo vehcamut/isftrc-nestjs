@@ -16,7 +16,7 @@ import { Transform, Type } from 'class-transformer';
 import { toBoolean, toPhoneNumber } from '../helpers';
 
 export class GetAdminsDto extends GetRequestDto {
-  @IsEnum(Gender)
+  @IsEnum(Gender, { message: 'Неопознанный пол' })
   @IsOptional()
   gender?: Gender;
 
@@ -25,26 +25,26 @@ export class GetAdminsDto extends GetRequestDto {
   id?: string;
 
   @Transform(({ value }) => toBoolean(value))
-  @IsBoolean()
+  @IsBoolean({ message: 'Неопознанное значение типа: boolean' })
   @IsOptional()
   isActive?: boolean;
 }
 
 export class AddAdminDto {
-  @IsNotEmpty({ message: 'surname: поле фамилия не должено быть пустым' })
+  @IsNotEmpty({ message: 'Поле фамилия не должно быть пустым' })
   @IsString()
   surname: string;
 
-  @IsNotEmpty({ message: 'name: поле имя не должено быть пустым' })
+  @IsNotEmpty({ message: 'Поле имя не должно быть пустым' })
   @IsString()
   name: string;
 
-  @IsNotEmpty({ message: 'patronymic: поле отчество не должено быть пустым' })
+  @IsNotEmpty({ message: 'Поле отчество не должно быть пустым' })
   @IsString()
   patronymic: string;
 
   @IsArray()
-  @ArrayNotEmpty({ message: 'phoneNumbers: должен быть хотя бы один телефон' })
+  @ArrayNotEmpty({ message: 'Должен быть хотя бы один телефон' })
   @IsString({ each: true })
   @IsPhoneNumber('RU', {
     each: true,
@@ -54,7 +54,7 @@ export class AddAdminDto {
   phoneNumbers: string[];
 
   @IsNotEmpty({
-    message: 'dateOfBirth: поле дата рождения не должено быть пустым',
+    message: 'Поле дата рождения не должно быть пустым',
   })
   @IsDate()
   @Type(() => Date)
@@ -62,21 +62,21 @@ export class AddAdminDto {
 
   @IsArray()
   @ArrayNotEmpty({
-    message: 'emails: должен быть хотя бы один адрес электронной почты',
+    message: 'Ддолжен быть хотя бы один адрес электронной почты',
   })
   @IsString({ each: true })
   @IsEmail({}, { each: true })
   emails: string[];
 
-  @IsNotEmpty({ message: 'login: поле логин не должено быть пустым' })
+  @IsNotEmpty({ message: 'Поле логин не должно быть пустым' })
   @IsString()
   login: string;
 
-  @IsNotEmpty({ message: 'gender: поле пол не должено быть пустым' })
+  @IsNotEmpty({ message: 'Поле пол не должно быть пустым' })
   @IsEnum(Gender)
   gender: Gender;
 
-  @IsNotEmpty({ message: 'address: поле адрес не должено быть пустым' })
+  @IsNotEmpty({ message: 'Поле адрес не должно быть пустым' })
   @IsString()
   address: string;
 
@@ -86,7 +86,7 @@ export class AddAdminDto {
 }
 
 export class AdminWithIdDto extends AddAdminDto {
-  @IsNotEmpty({ message: 'id: поле id не должно быть пустым' })
+  @IsNotEmpty({ message: 'Поле id не должно быть пустым' })
   @IsString()
   _id: string;
 }

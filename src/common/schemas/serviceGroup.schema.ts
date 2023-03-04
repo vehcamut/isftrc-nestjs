@@ -1,4 +1,3 @@
-import { SchemaTypes, Types } from 'mongoose';
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document } from 'mongoose';
 import { ApiProperty } from '@nestjs/swagger';
@@ -12,13 +11,6 @@ export class ServiceGroup {
     description: 'Название / Name',
   })
   name: string;
-
-  // @Prop({ unique: true, required: true })
-  // @ApiProperty({
-  //   example: 1,
-  //   description: 'Уникальный идентификатор / Unique identificator',
-  // })
-  // uid: number;
 
   @Prop({ required: true, default: true })
   @ApiProperty({

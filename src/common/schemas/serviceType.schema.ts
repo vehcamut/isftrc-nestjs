@@ -35,13 +35,6 @@ export class ServiceType {
   })
   group: Types.ObjectId;
 
-  // @Prop({ required: true })
-  // @ApiProperty({
-  //   example: 1,
-  //   description: 'Уникальный идентификатор / Unique identificator',
-  // })
-  // uid: number;
-
   @Prop({ required: true, default: true })
   @ApiProperty({
     example: true,
