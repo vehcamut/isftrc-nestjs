@@ -7,7 +7,7 @@ import { AppModule } from './app.module';
 const whitelist = [
   'http://localhost:3000',
   'http://localhost',
-  'https://isftrc.vercel.app',
+  'https://reacenter.vercel.app',
 ];
 
 async function bootstrap() {
