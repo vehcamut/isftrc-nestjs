@@ -12,16 +12,5 @@
           "dest": "src/main.ts",
           "methods": ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
       }
-  ],
-  "headers": [
-    {
-      "source": "/",
-      "headers": [
-        {
-          "key": "Cache-Control",
-          "value": "public, max-age=0, must-revalidate"
-        }
-      ]
-    }
   ]
 }
