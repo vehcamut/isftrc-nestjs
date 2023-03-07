@@ -14,7 +14,6 @@ export class AtStrategy extends PassportStrategy(Strategy, 'jwt') {
   }
 
   private static extractJWT(req: Request): string | null {
-    console.log(req.cookies);
     if (
       req.cookies &&
       'accessToken' in req.cookies &&

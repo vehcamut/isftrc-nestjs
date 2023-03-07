@@ -94,7 +94,9 @@ export class RepresentativesController {
     @Query() dto: GetRepresentativesByIdDto,
     @Res({ passthrough: true }) res: Response,
   ): Promise<IPatient[]> {
-    return await this.representativesService.getPatientsById(dto);
+    const response = await this.representativesService.getPatientsById(dto);
+    res.setHeader('X-Total-Count', response.length);
+    return response;
   }
 
   @Post('addPatient')

@@ -240,11 +240,6 @@ export class AppointmentsService {
               },
             },
           ],
-          // transform(doc, id) {
-          //   doc.canBeRemoved = doc.course.status;
-          //   console.log('!!!', doc);
-          //   return doc;
-          // },
         },
         {
           path: 'specialist',
@@ -365,10 +360,6 @@ export class AppointmentsService {
                 name: 1,
                 time: 1,
               },
-              // transform(doc, id) {
-              //   console.log(doc);
-              //   return doc;
-              // },
             },
             {
               path: 'patient',
@@ -379,10 +370,6 @@ export class AppointmentsService {
                 patronymic: 1,
                 number: 1,
               },
-              // transform(doc, id) {
-              //   console.log(doc);
-              //   return doc;
-              // },
             },
           ],
         },

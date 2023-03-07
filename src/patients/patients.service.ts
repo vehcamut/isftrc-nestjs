@@ -211,7 +211,6 @@ export class PatientsService {
     };
     const query = this.representativesModel.find(findCond);
     const count = await this.representativesModel.find(findCond).count().exec();
-    console.log(count);
     if (dto.sort)
       query.sort({
         [dto.sort]: dto.order as SortOrder,
@@ -322,9 +321,9 @@ export class PatientsService {
     roles: string[],
   ): Promise<object> {
     if (!mongoose.Types.ObjectId.isValid(dto._id))
-      throw new BadRequestException('_id: not found');
+      throw new BadRequestException('Некорректный id паициента');
     const candidate = await this.patientModel.findById(dto._id).exec();
-    if (!candidate) throw new BadRequestException('_id: not found');
+    if (!candidate) throw new BadRequestException('Пациент не найден');
     this.patientModel.findByIdAndUpdate(dto._id, dto).exec();
     return;
   }
@@ -338,7 +337,6 @@ export class PatientsService {
     const isSpec = roles.find((r) => r === 'specialist');
 
     let canBeClose = true;
-    console.log(dto);
     if (!mongoose.Types.ObjectId.isValid(dto.patient))
       throw new BadRequestException('Некорректный id пациента');
     const patient = await this.patientModel.findById(dto.patient).exec();
@@ -350,7 +348,6 @@ export class PatientsService {
         .exec();
       if (!representative || !representative.isActive)
         throw new BadRequestException('Представитель не найден');
-      console.log(representative);
       if (
         !representative.patients.find((p) => p._id.toString() === dto.patient)
       )
@@ -496,7 +493,6 @@ export class PatientsService {
       payments.forEach((payment: any) => {
         const nowCourse = res.find((c) => c._id == payment.course.toString());
         let nowGroup;
-        console.log(payment.group);
         if (!payment.group) {
           if (nowCourse.serviceGroups[0]._id != `${nowCourse._id}0`)
             nowCourse.serviceGroups.unshift({
@@ -568,7 +564,7 @@ export class PatientsService {
       courses: res,
       canBeClose,
       canBeOpen: !lastCourse.status && courses.length > 1,
-      canBeNew: !lastCourse.status,
+      canBeNew: !lastCourse.status || courses.length === 1,
     };
   }
 

@@ -21,10 +21,13 @@ export class AuthService {
   async signinLocal(dto: AuthDto): Promise<Tokens> {
     const login: string = dto.login;
     const candidate = await this.userModel.findOne({ login });
-    if (!candidate) throw new ForbiddenException('Access Denied');
-    if (!candidate.isActive) throw new ForbiddenException('Access Denied');
+    if (!candidate)
+      throw new ForbiddenException('Неправильный логин или пароль');
+    if (!candidate.isActive)
+      throw new ForbiddenException('Неправильный логин или пароль');
     const pass = hashDataSHA512(dto.password);
-    if (pass !== candidate.hash) throw new ForbiddenException('Access Denied');
+    if (pass !== candidate.hash)
+      throw new ForbiddenException('Неправильный логин или пароль');
 
     const tokens = await this.getTokens(
       candidate.id,

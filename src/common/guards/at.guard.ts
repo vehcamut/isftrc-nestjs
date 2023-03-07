@@ -20,7 +20,6 @@ export class AtGuard extends AuthGuard('jwt') {
     context: ExecutionContext,
     status?: any,
   ) {
-    console.log(info?.name, ' ', info?.message);
     if (info?.message === 'jwt expired')
       throw new UnauthorizedException('jwt expired');
     return super.handleRequest(err, user, info, context, status);

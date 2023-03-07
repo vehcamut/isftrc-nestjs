@@ -28,7 +28,6 @@ export class AuthController {
     @Req() request: Request,
     @Body() dto: AuthDto,
   ): Promise<Tokens> {
-    console.log(request.headers['user-agent']);
     const tokens = await this.authService.signinLocal(dto);
     this.authService.setCookie(response, tokens);
     return tokens;
@@ -54,7 +53,6 @@ export class AuthController {
     @GetCurrenUserId() userId: number,
     @Res({ passthrough: true }) response: Response,
   ): Promise<object> {
-    console.log(refreshTokens);
     const tokens = await this.authService.refreshTokens(userId, refreshTokens);
     this.authService.setCookie(response, tokens);
     return { message: 'success' };

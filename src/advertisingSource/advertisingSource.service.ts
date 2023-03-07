@@ -36,7 +36,6 @@ export class AdvertisingSourceService {
       .find(findCond)
       .count()
       .exec();
-    console.log(count);
     if (dto.sort)
       query.sort({
         [dto.sort]: dto.order as SortOrder,

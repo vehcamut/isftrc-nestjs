@@ -121,11 +121,9 @@ export class RepresentativesService {
     const advertisingSources: Types.ObjectId[] = [];
 
     for (let i = 0; i < dto.advertisingSources.length; i++) {
-      console.log(dto.advertisingSources[i]);
       try {
         advertisingSources.push(new Types.ObjectId(dto.advertisingSources[i]));
       } catch (e) {
-        console.log(e);
         throw new BadRequestException(
           `Некорректный id источника рекламы: ${dto.advertisingSources[i]}`,
         );
