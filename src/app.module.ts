@@ -20,6 +20,10 @@ import { join } from 'path';
 
 @Module({
   imports: [
+    // ThrottlerModule.forRoot({
+    //   ttl: 60,
+    //   limit: 10,
+    // }),
     ConfigModule.forRoot({
       envFilePath: '.env',
       isGlobal: true,

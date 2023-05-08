@@ -454,10 +454,12 @@ export class AppointmentsService {
     const minutes = dto.time.getMinutes();
     const result: AddAppointmentResultDto = { amount: 0, notAdded: [] };
     for (let i = 0; i < dto.amount; i++) {
+      console.log('1!', dto.begDate);
       const begDate = new Date(dto.begDate);
       dto.begDate.setHours(dto.begDate.getHours() + hours);
       dto.begDate.setMinutes(dto.begDate.getMinutes() + minutes);
       const endDate = new Date(dto.begDate);
+      console.log('2!', dto.begDate, begDate, endDate);
       const findCond = {
         $and: [
           {
