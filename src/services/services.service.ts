@@ -98,6 +98,8 @@ export class ServicesService {
         defaultAmountPatient: type.defaultAmountPatient,
       });
     });
+
+    console.log('!!', groupsWithType, types);
     return groupsWithType;
   }
 
@@ -312,7 +314,7 @@ export class ServicesService {
           `Неизвестная специальность: ${dto.specialistTypes[i]}`,
         );
     }
-
+    // console.log(dto.time);
     this.serviceTypeModel
       .findByIdAndUpdate(dto._id, { ...dto, specialistTypes })
       .exec();
@@ -396,7 +398,10 @@ export class ServicesService {
       if (appointment.service)
         throw new BadRequestException('Данное время уже занято');
       const time =
-        (service.type.time.getHours() * 60 + service.type.time.getMinutes()) *
+        ((service.type.time.getHours() +
+          service.type.time.getTimezoneOffset() / 60) *
+          60 +
+          service.type.time.getMinutes()) *
         60 *
         1000;
       const duration =

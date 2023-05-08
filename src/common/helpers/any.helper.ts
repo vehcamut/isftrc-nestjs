@@ -13,7 +13,13 @@ export function trim(value: string): string {
 }
 
 export function toDate(value: string): Date {
-  // console.log(new Date(value));
+  // const tempDate = new Date(value);
+  // const offset = tempDate.getTimezoneOffset() / 60;
+  // const hours = tempDate.getHours();
+  // tempDate.setHours(hours - offset);
+  // // // console.log(new Date(value));
+  // // currentService.type.time.getTimezoneOffset() / 60
+  // return tempDate;
   return new Date(value);
 }
 

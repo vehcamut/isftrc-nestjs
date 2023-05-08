@@ -144,7 +144,10 @@ export class AppointmentsService {
     if (dto.time) {
       const time = new Date(dto.time.setHours(dto.time.getHours()));
       const numTime =
-        (dto.time.getHours() * 60 + dto.time.getMinutes()) * 60 * 1000;
+        ((dto.time.getHours() + dto.time.getTimezoneOffset() / 60) * 60 +
+          dto.time.getMinutes()) *
+        60 *
+        1000;
 
       data.forEach((appointment) => {
         const duration =
@@ -280,6 +283,7 @@ export class AppointmentsService {
     id: string,
     roles: string[],
   ): Promise<any> {
+    console.log(dto);
     if (!mongoose.Types.ObjectId.isValid(dto.specialistId))
       throw new BadRequestException('Специалист не найден');
     const candidate = await this.specialistModel
@@ -412,10 +416,13 @@ export class AppointmentsService {
       .exec();
     const result: any = [];
     const time =
-      (currentService.type.time.getHours() * 60 +
+      ((currentService.type.time.getHours() +
+        currentService.type.time.getTimezoneOffset() / 60) *
+        60 +
         currentService.type.time.getMinutes()) *
       60 *
       1000;
+    console.log(time);
     appointments.forEach((appointment) => {
       const duration =
         appointment.endDate.getTime() - appointment.begDate.getTime();
@@ -450,7 +457,7 @@ export class AppointmentsService {
     if (!candidate.isActive)
       throw new BadRequestException('Специалист деактивирован');
 
-    const hours = dto.time.getHours();
+    const hours = dto.time.getHours() + dto.time.getTimezoneOffset() / 60;
     const minutes = dto.time.getMinutes();
     const result: AddAppointmentResultDto = { amount: 0, notAdded: [] };
     for (let i = 0; i < dto.amount; i++) {
