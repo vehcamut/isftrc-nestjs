@@ -454,7 +454,7 @@ export class AppointmentsService {
     const minutes = dto.time.getMinutes();
     const result: AddAppointmentResultDto = { amount: 0, notAdded: [] };
     for (let i = 0; i < dto.amount; i++) {
-      console.log('1!', dto.begDate);
+      console.log('1!', dto.begDate, 'TIME: ', dto.time, hours, minutes);
       const begDate = new Date(dto.begDate);
       dto.begDate.setHours(dto.begDate.getHours() + hours);
       dto.begDate.setMinutes(dto.begDate.getMinutes() + minutes);
