@@ -17,13 +17,14 @@ import { ServicesModule } from './services/services.module';
 import { AdminsModule } from './admins/admins.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
-    // ThrottlerModule.forRoot({
-    //   ttl: 60,
-    //   limit: 10,
-    // }),
+    ThrottlerModule.forRoot({
+      ttl: 60,
+      limit: 10,
+    }),
     ConfigModule.forRoot({
       envFilePath: '.env',
       isGlobal: true,
